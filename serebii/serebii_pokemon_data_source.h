@@ -1,0 +1,77 @@
+#ifndef SEREBII_POKEMON_DATA_SOURCE_H
+#define SEREBII_POKEMON_DATA_SOURCE_H
+
+#include <array>
+#include <cstdint>
+#include <string>
+#include <vector>
+#include <unordered_map>
+
+#include "../move.h"
+#include "../pokemon.h"
+
+inline std::array<
+    MoveInfo,
+    static_cast<int>(Move::Count)
+> MOVE_INFO_MAP{};
+
+struct SerebiiPokemon {
+    std::string name;
+    std::vector<PokemonType> types;
+    int id = -1;
+    std::string ability;
+    double pounds = 0;
+    std::unordered_map<Stat, uint16_t> base_stats;
+    std::unordered_map<int, std::vector<const MoveInfo*>> level_to_moves;
+    std::unordered_map<std::string, const MoveInfo*> tm_or_hm_to_move;
+    std::vector<const MoveInfo*> egg_moves;
+    std::unordered_map<
+        int,
+        std::unordered_map<int, std::vector<const MoveInfo*>>
+    > pre_evolution_moves;
+    std::vector<const MoveInfo*> move_tutor_attacks;
+    std::unordered_map<
+        std::string,
+        std::unordered_map<int, std::vector<const MoveInfo*>>
+    > game_to_level_to_moves;
+    std::vector<const MoveInfo*> special_moves;
+    std::unordered_map<
+        std::string,
+        std::unordered_map<Stat, uint16_t>
+    > form_to_base_stats;
+    std::unordered_map<
+        std::string,
+        std::unordered_map<int, std::vector<const MoveInfo*>>
+    > form_to_level_up_moves;
+    std::unordered_map<
+        std::string,
+        std::unordered_map<std::string, const MoveInfo*>
+    > form_to_tm_or_hm_to_move;
+    std::unordered_map<
+        std::string,
+        std::vector<const MoveInfo*>
+    > form_to_move_tutor_moves;
+};
+
+std::unordered_map<std::string, SerebiiPokemon> get_all_serebii_pokemon();
+
+void print_serebii_pokemon();
+
+std::unordered_map<std::string, std::unordered_map<Move, const MoveInfo*>>
+get_moves_for_serebii_pokemon(const SerebiiPokemon& serebii_pokemon);
+
+std::vector<const MoveInfo*> get_all_pokemon_moves(
+    const std::unordered_map<std::string, SerebiiPokemon>& pokedex
+);
+
+std::unordered_map<
+    std::string,
+    std::vector<CustomPokemon>
+> convert_serebii_to_custom(
+    const SerebiiPokemon& serebii_pokemon,
+    bool is_player,
+    bool all_moves = false
+);
+
+
+#endif //SEREBII_POKEMON_DATA_SOURCE_H

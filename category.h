@@ -1,0 +1,13 @@
+#pragma once
+
+enum class Category {
+    PHYSICAL,
+    SPECIAL,
+    STATUS
+};
+
+static const std::unordered_map<std::string, Category> STRING_TO_CATEGORY_MAP{
+        {"physical", Category::PHYSICAL},
+        {"special", Category::SPECIAL},
+        {"status", Category::STATUS}
+};
