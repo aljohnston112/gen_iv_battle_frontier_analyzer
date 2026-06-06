@@ -1,10 +1,12 @@
 #pragma once
+#include <array>
+#include <cstdint>
 #include <string>
 
 #include "category.h"
 #include "type.h"
 
-enum class Move {
+enum class Move: uint16_t {
     Pound,
     KarateChop,
     DoubleSlap,

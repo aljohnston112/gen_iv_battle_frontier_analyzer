@@ -15,9 +15,9 @@ struct BattleFactoryPokemon {
     Nature nature;
     std::array<PokemonType, 2> types;
     std::string item;
-    std::vector<const MoveInfo*> moves;
-    int set_number;
-    std::unordered_map<Stat, int16_t> effort_values;
+    std::vector<Move> moves;
+    uint8_t set_number;
+    std::array<uint16_t, static_cast<size_t>(Stat::NO_STAT)> effort_values;
 };
 
 inline std::unordered_map<std::string, BaseStats>

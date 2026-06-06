@@ -1,6 +1,9 @@
 #pragma once
 
+#include <array>
+
 #include "ability.h"
+#include "config.h"
 #include "item.h"
 #include "move.h"
 #include "stat.h"
@@ -1527,14 +1530,13 @@ POKEMON_TO_ABILITY_MAP = {
     {Pokemon::Zubat, {Ability::InnerFocus}},
 };
 
-
 struct CustomPokemon {
     Pokemon name;
     Ability ability;
     uint8_t level;
     Item item;
     std::array<PokemonType, 2> types;
-    std::vector<const MoveInfo*> moves;
+    std::vector<Move> moves;
     std::array<uint16_t, static_cast<int>(Stat::NO_STAT)> stats;
     double pounds;
 };

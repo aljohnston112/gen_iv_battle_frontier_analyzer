@@ -1,7 +1,6 @@
 #ifndef SEREBII_POKEMON_DATA_SOURCE_H
 #define SEREBII_POKEMON_DATA_SOURCE_H
 
-#include <array>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -9,11 +8,6 @@
 
 #include "../move.h"
 #include "../pokemon.h"
-
-inline std::array<
-    MoveInfo,
-    static_cast<int>(Move::Count)
-> MOVE_INFO_MAP{};
 
 struct SerebiiPokemon {
     std::string name;
@@ -53,16 +47,18 @@ struct SerebiiPokemon {
     > form_to_move_tutor_moves;
 };
 
-std::unordered_map<std::string, SerebiiPokemon> get_all_serebii_pokemon();
+const std::array<MoveInfo, static_cast<int>(Move::Count)>& get_all_moves();
+
+inline void loads_all_moves() {
+    get_all_moves();
+}
+
+const std::unordered_map<std::string, SerebiiPokemon>& get_all_serebii_pokemon();
 
 void print_serebii_pokemon();
 
 std::unordered_map<std::string, std::unordered_map<Move, const MoveInfo*>>
 get_moves_for_serebii_pokemon(const SerebiiPokemon& serebii_pokemon);
-
-std::vector<const MoveInfo*> get_all_pokemon_moves(
-    const std::unordered_map<std::string, SerebiiPokemon>& pokedex
-);
 
 std::unordered_map<
     std::string,

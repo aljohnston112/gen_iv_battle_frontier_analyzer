@@ -30,7 +30,7 @@ static const std::unordered_map<std::string, Stat> STRING_TO_STAT_MAP{
     {"speed", Stat::SPEED}
 };
 
-inline int get_iv_for_battle_factory(const int round_number) {
+inline uint8_t get_iv_for_battle_factory(const int round_number) {
     if (round_number == 0) return 0;
     const int iv = (round_number - 1) * 4;
     return (round_number < 8) ? iv : 31;
