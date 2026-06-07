@@ -90,10 +90,14 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fopenmp")
 
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+
 add_executable(
         gen_iv_battle_frontier_analyzer
         main.cpp
         config.h
+        thread_pool.cpp
+        thread_pool.h
         util.h
 
         ability.h

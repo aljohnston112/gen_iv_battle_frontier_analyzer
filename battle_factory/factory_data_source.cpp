@@ -103,7 +103,7 @@ parse_battle_factory_file(const char* path) {
                 .types = types,
                 .item = std::string(poke_obj["item"]),
                 .moves = moves,
-                .set_number = static_cast<int64_t>(poke_obj["set_number"]),
+                .set_number = static_cast<uint8_t>(poke_obj["set_number"]),
                 .effort_values = std::move(effort_values)
             };
         }();
@@ -112,7 +112,7 @@ parse_battle_factory_file(const char* path) {
     return out;
 }
 
-std::vector<CustomPokemon> get_all_custom_batle_factory_pokemon() {
+std::vector<CustomPokemon> construct_all_custom_batle_factory_pokemon() {
     const auto& all_serebii_pokemon =
         get_all_serebii_pokemon();
     const auto all_base_stats =
