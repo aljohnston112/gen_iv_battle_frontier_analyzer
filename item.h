@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <unordered_map>
 
 enum class Item {
@@ -226,3 +227,45 @@ inline const std::unordered_map<std::string, Item> STRING_TO_ITEM_MAP = {
 
     {"", Item::None}
 };
+
+inline std::unordered_map<Item, std::string> initialize_item_to_string_map() {
+    std::unordered_map<Item, std::string> map{};
+    for (const auto& [
+             item_name,
+             item
+         ] : STRING_TO_ITEM_MAP
+    ) {
+        map[item] = item_name;
+    }
+    return map;
+}
+
+static std::unordered_map<Item, std::string> ITEM_TO_STRING_MAP =
+    initialize_item_to_string_map();
+
+constexpr auto IMPLEMENTED_ITEMS = [] {
+    std::array<bool, static_cast<int>(Item::None)> implemented_items{};
+    implemented_items[static_cast<int>(Item::Leftovers)] = true;
+    return implemented_items;
+}();
+
+inline void verify_item_implemented(const Item item) {
+    if (!IMPLEMENTED_ITEMS[static_cast<int>(item)]) {
+        throw std::runtime_error(
+            std::format(
+                "Unimplemented item: {}",
+                ITEM_TO_STRING_MAP[item]
+            )
+        );
+    }
+}
+
+inline void verify_items_implemented(
+    const Item player_item,
+    const Item opponent_item
+) {
+    if constexpr (CHECK_UNIMPLEMENTED) {
+        verify_item_implemented(player_item);
+        verify_item_implemented(opponent_item);
+    }
+}

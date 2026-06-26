@@ -166,12 +166,12 @@ const std::unordered_map<std::string, NatureEnum> STRING_TO_NATURE = {
     {"Quirky", NatureEnum::QUIRKY}
 };
 
-inline u_int16_t calculate_non_hp_stat(
+inline uint16_t calculate_non_hp_stat(
     const uint8_t level,
     const Stat stat,
-    const uint8_t base,
+    const uint16_t base,
     const uint8_t iv,
-    const u_int16_t ev,
+    const uint16_t ev,
     const Nature nature
 ) {
     const int intermediate = (2 * base + iv + ev / 4) * level / 100 + 5;
@@ -181,13 +181,13 @@ inline u_int16_t calculate_non_hp_stat(
     } else if (nature.up == stat) {
         nature_multiplier = 1.1;
     }
-    return static_cast<int>(std::floor(intermediate * nature_multiplier));
+    return static_cast<uint16_t>(std::floor(intermediate * nature_multiplier));
 }
 
 inline uint16_t get_stat(
     const uint8_t level,
     const Stat stat,
-    const uint8_t base,
+    const uint16_t base,
     const uint8_t iv,
     const u_int16_t ev,
     const Nature nature

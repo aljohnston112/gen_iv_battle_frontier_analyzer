@@ -1,5 +1,6 @@
 #include "serebii_pokemon_data_source.h"
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <ranges>
@@ -13,7 +14,8 @@ static inline std::array<
     static_cast<int>(Move::Count)
 > MOVE_INFO_MAP{};
 
-static inline std::unordered_map<std::string, SerebiiPokemon> SEREBII_POKEMON_MAP{};
+static inline std::unordered_map<std::string, SerebiiPokemon>
+SEREBII_PLAYER_POKEMON_MAP{};
 
 static std::string extract_left_string(const std::string& line) {
     const auto first = line.find('"') + 1;
@@ -33,9 +35,9 @@ int extract_left_int(const std::string& line) {
     return std::stoi(line.substr(first, colon_i - first));
 }
 
-int extract_right_int(const std::string& line) {
+int16_t extract_right_int(const std::string& line) {
     const auto colon_i = line.find(':');
-    return std::stoi(line.substr(colon_i + 1));
+    return static_cast<int16_t>(std::stoi(line.substr(colon_i + 1)));
 }
 
 double extract_right_double(const std::string& line) {
@@ -132,7 +134,7 @@ SerebiiPokemon parse_pokemon(std::ifstream& input_stream) {
                 Stat key = STRING_TO_STAT_MAP.at(
                     line.substr(key_start, key_end - key_start)
                 );
-                const int value = extract_right_int(line);
+                const int16_t value = extract_right_int(line);
                 serebii_pokemon.base_stats[key] = value;
             }
         } else if (line.find("\"level_to_attacks\"") != std::string::npos &&
@@ -326,7 +328,7 @@ SerebiiPokemon parse_pokemon(std::ifstream& input_stream) {
                         }
                         const Stat stat =
                             STRING_TO_STAT_MAP.at(extract_left_string(line));
-                        const int val = extract_right_int(line);
+                        const uint16_t val = extract_right_int(line);
                         serebii_pokemon.form_to_base_stats[form][stat] = val;
                     }
                 }
@@ -445,10 +447,10 @@ std::unordered_map<std::string, SerebiiPokemon> ensure_dataset_is_loaded() {
     while (std::getline(input_stream, line)) {
         if (line.find('{') != std::string::npos) {
             const auto pokemon = parse_pokemon(input_stream);
-            SEREBII_POKEMON_MAP[pokemon.name] = pokemon;
+            SEREBII_PLAYER_POKEMON_MAP[pokemon.name] = pokemon;
         }
     }
-    return SEREBII_POKEMON_MAP;
+    return SEREBII_PLAYER_POKEMON_MAP;
 }
 
 const std::array<MoveInfo, static_cast<int>(Move::Count)>& get_all_moves() {
@@ -456,9 +458,10 @@ const std::array<MoveInfo, static_cast<int>(Move::Count)>& get_all_moves() {
     return MOVE_INFO_MAP;
 }
 
-const std::unordered_map<std::string, SerebiiPokemon>& get_all_serebii_pokemon() {
+const std::unordered_map<std::string, SerebiiPokemon>&
+get_all_serebii_pokemon() {
     ensure_dataset_is_loaded();
-    return SEREBII_POKEMON_MAP;
+    return SEREBII_PLAYER_POKEMON_MAP;
 }
 
 
@@ -575,8 +578,51 @@ std::array<uint16_t, static_cast<int>(Stat::NO_STAT)> get_stats_for_serebii(
     }
     std::array<uint16_t, static_cast<int>(Stat::NO_STAT)> stats{};
     for (const auto& [stat, value] : base_stats) {
+        std::string name = serebii_pokemon.name;
+        if (name == "Wormadam") {
+            if (form == "Plant Cloak") {
+                name = "WormadamP";
+            } else if (form == "Trash Cloak") {
+                name = "WormadamT";
+            } else if (form == "Sandy Cloak") {
+                name = "WormadamS";
+            } else {
+                throw std::runtime_error{""};
+            }
+        }
+        if (name == "Deoxys") {
+            if (form == "Normal Forme") {
+                name = "NormalDeoxys";
+            } else if (form == "Attack Forme") {
+                name = "AttackDeoxys";
+            } else if (form == "Defense Forme") {
+                name = "DefenseDeoxys";
+            } else if (form == "Speed Forme") {
+                name = "SpeedDeoxys";
+            } else {
+                throw std::runtime_error{""};
+            }
+        }
+        if (name == "Shaymin") {
+            if (form == "Land Forme") {
+                name = "LandShaymin";
+            } else if (form == "Sky Forme") {
+                name = "SkyShaymin";
+            } else {
+                throw std::runtime_error{""};
+            }
+        }
+        if (name == "Giratina") {
+            if (form == "Origin Forme") {
+                name = "OriginGiratina";
+            } else if (form == "Altered Forme") {
+                name = "AlteredGiratina";
+            } else {
+                throw std::runtime_error{""};
+            }
+        }
         if (stat == Stat::HEALTH &&
-            STRING_TO_POKEMON_MAP.at(serebii_pokemon.name) == Pokemon::Shedinja
+            STRING_TO_POKEMON_MAP.at(name) == Pokemon::Shedinja
         ) {
             stats[static_cast<int>(stat)] = 1;
         } else {
@@ -677,6 +723,8 @@ std::unordered_map<
     const bool is_player,
     const bool all_moves
 ) {
+    const auto& all_move_infos = get_all_moves();
+
     std::unordered_map<std::string, std::vector<CustomPokemon>> customs;
     const auto moves =
         get_moves_for_serebii_pokemon(serebii_pokemon);
@@ -696,6 +744,7 @@ std::unordered_map<
         for (const auto& move : form_moves) {
             move_vector.push_back(move->move);
         }
+
         auto name = serebii_pokemon.name;
         auto types = serebii_pokemon.types;
         if (name == "Wormadam") {
@@ -737,12 +786,22 @@ std::unordered_map<
         if (types.size() == 1) {
             types.emplace_back(PokemonType::COUNT);
         }
-        std::sort(types.begin(), types.end());
+        std::ranges::sort(types);
         const Pokemon name_enum = STRING_TO_POKEMON_MAP.at(name);
         const std::vector<Ability>& abilities =
             POKEMON_TO_ABILITY_MAP.at(name_enum);
         std::vector<CustomPokemon> pokemon{};
         pokemon.reserve(abilities.size());
+
+        std::ranges::sort(
+            move_vector,
+            [&all_move_infos](Move a, Move b) {
+                const auto& info_a = all_move_infos.at(static_cast<int>(a));
+                const auto& info_b = all_move_infos.at(static_cast<int>(b));
+                return info_a.power < info_b.power;
+            }
+        );
+
         for (const auto& ability : abilities) {
             pokemon.emplace_back(
                 CustomPokemon{
@@ -760,4 +819,43 @@ std::unordered_map<
         customs[form] = std::move(pokemon);
     }
     return customs;
+}
+
+std::vector<CustomPokemon> construct_all_pokemon_forms(const Who who) {
+    std::vector<CustomPokemon> pokemon_forms{};
+    const auto& all_serebii_pokemon =
+        get_all_serebii_pokemon();
+    const auto& all_move_infos = get_all_moves();
+    for (const auto& serebii_pokemon : all_serebii_pokemon |
+         std::views::values
+    ) {
+        auto all_forms =
+            convert_serebii_to_custom(
+                serebii_pokemon,
+                true,
+                false
+            );
+        for (auto& pokemon_variants : all_forms |
+             std::views::values
+        ) {
+            for (auto& pokemon : pokemon_variants) {
+                const bool isPlayer = who == Player;
+                if (isPlayer) {
+                    std::vector<Move> moves;
+                    for (const auto move : pokemon.moves) {
+                        if (const auto& moveInfo = all_move_infos[
+                                static_cast<int>(move)];
+                            moveInfo.accuracy == 100
+                        ) {
+                            moves.emplace_back(move);
+                        }
+                    }
+                    pokemon.moves.clear();
+                    pokemon.moves.append_range(moves);
+                } else {}
+                pokemon_forms.push_back(pokemon);
+            }
+        }
+    }
+    return pokemon_forms;
 }

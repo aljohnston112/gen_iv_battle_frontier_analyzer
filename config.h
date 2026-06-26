@@ -3,6 +3,7 @@
 #include <cstdint>
 
 constexpr bool MULTI_THREADED = true;
+constexpr bool CHECK_UNIMPLEMENTED = true;
 
 constexpr uint8_t SEREBII_POKEMON_LEVEL = 50;
 

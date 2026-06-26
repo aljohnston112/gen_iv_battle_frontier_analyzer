@@ -1,5 +1,10 @@
 #pragma once
 
+#include <format>
+#include <unordered_map>
+
+#include "config.h"
+
 enum class Ability {
     Adaptability, // STAB is 2 instead of 1.5
     Aftermath, // Attacker loses 1/4 of thier max HP when making this pokemon faint
@@ -136,3 +141,156 @@ enum class Ability {
     WonderGuard,
     Disabled
 };
+
+inline const std::unordered_map<Ability, std::string> ABILITY_TO_STRING_MAP = {
+    {Ability::Adaptability, "Adaptability"},
+    {Ability::Aftermath, "Aftermath"},
+    {Ability::AirLock, "Air Lock"},
+    {Ability::AngerPoint, "Anger Point"},
+    {Ability::Anticipation, "Anticipation"},
+    {Ability::ArenaTrap, "Arena Trap"},
+    {Ability::BadDreams, "Bad Dreams"},
+    {Ability::BattleArmor, "Battle Armor"},
+    {Ability::Blaze, "Blaze"},
+    {Ability::Chlorophyll, "Chlorophyll"},
+    {Ability::ClearBody, "Clear Body"},
+    {Ability::CloudNine, "Cloud Nine"},
+    {Ability::ColorChange, "Color Change"},
+    {Ability::Compoundeyes, "Compound Eyes"},
+    {Ability::CuteCharm, "Cute Charm"},
+    {Ability::Damp, "Damp"},
+    {Ability::Download, "Download"},
+    {Ability::Drizzle, "Drizzle"},
+    {Ability::Drought, "Drought"},
+    {Ability::DrySkin, "Dry Skin"},
+    {Ability::EarlyBird, "Early Bird"},
+    {Ability::EffectSpore, "Effect Spore"},
+    {Ability::Filter, "Filter"},
+    {Ability::FlameBody, "Flame Body"},
+    {Ability::FlashFire, "Flash Fire"},
+    {Ability::FlowerGift, "Flower Gift"},
+    {Ability::Forecast, "Forecast"},
+    {Ability::Forewarn, "Forewarn"},
+    {Ability::Frisk, "Frisk"},
+    {Ability::Gluttony, "Gluttony"},
+    {Ability::Guts, "Guts"},
+    {Ability::Heatproof, "Heatproof"},
+    {Ability::HoneyGather, "Honey Gather"},
+    {Ability::HugePower, "Huge Power"},
+    {Ability::Hustle, "Hustle"},
+    {Ability::Hydration, "Hydration"},
+    {Ability::HyperCutter, "Hyper Cutter"},
+    {Ability::IceBody, "Ice Body"},
+    {Ability::Illuminate, "Illuminate"},
+    {Ability::Immunity, "Immunity"},
+    {Ability::InnerFocus, "Inner Focus"},
+    {Ability::Insomnia, "Insomnia"},
+    {Ability::Intimidate, "Intimidate"},
+    {Ability::IronFist, "Iron Fist"},
+    {Ability::KeenEye, "Keen Eye"},
+    {Ability::Klutz, "Klutz"},
+    {Ability::LeafGuard, "Leaf Guard"},
+    {Ability::Levitate, "Levitate"},
+    {Ability::LightningRod, "Lightning Rod"},
+    {Ability::Limber, "Limber"},
+    {Ability::LiquidOoze, "Liquid Ooze"},
+    {Ability::MagicGuard, "Magic Guard"},
+    {Ability::MagmaArmor, "Magma Armor"},
+    {Ability::MagnetPull, "Magnet Pull"},
+    {Ability::MarvelScale, "Marvel Scale"},
+    {Ability::Minus, "Minus"},
+    {Ability::MoldBreaker, "Mold Breaker"},
+    {Ability::MotorDrive, "Motor Drive"},
+    {Ability::Multitype, "Multitype"},
+    {Ability::NaturalCure, "Natural Cure"},
+    {Ability::NoGuard, "No Guard"},
+    {Ability::Normalize, "Normalize"},
+    {Ability::Oblivious, "Oblivious"},
+    {Ability::Overgrow, "Overgrow"},
+    {Ability::OwnTempo, "Own Tempo"},
+    {Ability::Pickup, "Pickup"},
+    {Ability::Plus, "Plus"},
+    {Ability::PoisonHeal, "Poison Heal"},
+    {Ability::PoisonPoint, "Poison Point"},
+    {Ability::Pressure, "Pressure"},
+    {Ability::PurePower, "Pure Power"},
+    {Ability::QuickFeet, "Quick Feet"},
+    {Ability::RainDish, "Rain Dish"},
+    {Ability::Reckless, "Reckless"},
+    {Ability::Rivalry, "Rivalry"},
+    {Ability::RockHead, "Rock Head"},
+    {Ability::RoughSkin, "Rough Skin"},
+    {Ability::RunAway, "Run Away"},
+    {Ability::SandStream, "Sand Stream"},
+    {Ability::SandVeil, "Sand Veil"},
+    {Ability::Scrappy, "Scrappy"},
+    {Ability::SereneGrace, "Serene Grace"},
+    {Ability::ShadowTag, "Shadow Tag"},
+    {Ability::ShedSkin, "Shed Skin"},
+    {Ability::ShellArmor, "Shell Armor"},
+    {Ability::ShieldDust, "Shield Dust"},
+    {Ability::Simple, "Simple"},
+    {Ability::SkillLink, "Skill Link"},
+    {Ability::SlowStart, "Slow Start"},
+    {Ability::Sniper, "Sniper"},
+    {Ability::SnowCloak, "Snow Cloak"},
+    {Ability::SnowWarning, "Snow Warning"},
+    {Ability::SolarPower, "Solar Power"},
+    {Ability::SolidRock, "Solid Rock"},
+    {Ability::Soundproof, "Soundproof"},
+    {Ability::SpeedBoost, "Speed Boost"},
+    {Ability::Stall, "Stall"},
+    {Ability::Static, "Static"},
+    {Ability::Steadfast, "Steadfast"},
+    {Ability::Stench, "Stench"},
+    {Ability::StickyHold, "Sticky Hold"},
+    {Ability::StormDrain, "Storm Drain"},
+    {Ability::Sturdy, "Sturdy"},
+    {Ability::SuctionCups, "Suction Cups"},
+    {Ability::SuperLuck, "Super Luck"},
+    {Ability::Swarm, "Swarm"},
+    {Ability::SwiftSwim, "Swift Swim"},
+    {Ability::Synchronize, "Synchronize"},
+    {Ability::TangledFeet, "Tangled Feet"},
+    {Ability::Technician, "Technician"},
+    {Ability::ThickFat, "Thick Fat"},
+    {Ability::TintedLens, "Tinted Lens"},
+    {Ability::Torrent, "Torrent"},
+    {Ability::Trace, "Trace"},
+    {Ability::Truant, "Truant"},
+    {Ability::Unaware, "Unaware"},
+    {Ability::Unburden, "Unburden"},
+    {Ability::VitalSpirit, "Vital Spirit"},
+    {Ability::VoltAbsorb, "Volt Absorb"},
+    {Ability::WaterAbsorb, "Water Absorb"},
+    {Ability::WaterVeil, "Water Veil"},
+    {Ability::WhiteSmoke, "White Smoke"},
+    {Ability::WonderGuard, "Wonder Guard"}
+};
+
+constexpr auto IMPLEMENTED_ABILITIES = [] {
+    std::array<bool, static_cast<int>(Ability::Disabled)> implemented_abilities{};
+    implemented_abilities[static_cast<int>(Ability::Levitate)] = true;
+    return implemented_abilities;
+}();
+
+inline void verify_ability_implmented(const Ability& player_ability) {
+    if (!IMPLEMENTED_ABILITIES[static_cast<int>(player_ability)]) {
+        throw std::runtime_error(
+            std::format(
+                "Unimplemented ability: {}",
+                ABILITY_TO_STRING_MAP.at(player_ability)
+            )
+        );
+    }
+}
+
+inline void verify_abilities_implemented(
+    const Ability& player_ability,
+    const Ability& opponent_ability
+) {
+    if constexpr (CHECK_UNIMPLEMENTED) {
+        verify_ability_implmented(player_ability);
+        verify_ability_implmented(opponent_ability);
+    }
+}

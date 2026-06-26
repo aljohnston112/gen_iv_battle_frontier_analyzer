@@ -69,5 +69,7 @@ std::unordered_map<
     bool all_moves = false
 );
 
+std::vector<CustomPokemon> construct_all_pokemon_forms(Who who);
+
 
 #endif //SEREBII_POKEMON_DATA_SOURCE_H

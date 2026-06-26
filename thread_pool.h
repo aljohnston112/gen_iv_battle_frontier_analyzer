@@ -6,6 +6,7 @@
 #include <queue>
 #include <thread>
 
+#include "battle_state.h"
 #include "config.h"
 #include "move.h"
 #include "pokemon.h"
@@ -15,6 +16,14 @@ struct BattleEntry {
     size_t opponent_index;
 };
 
+struct TurnResult {
+    BattleState battle_state;
+    Move player_move_used;
+    uint32_t player_move_damage;
+    Move opponent_move_used;
+    uint32_t opponent_move_damage;
+    size_t parent_index;
+};
 
 struct PokemonBattleEntries {
     Pokemon pokemon;
@@ -22,17 +31,12 @@ struct PokemonBattleEntries {
     std::vector<BattleEntry> battle_entries;
 
     PokemonBattleEntries(
-        const Pokemon pokemon,
-        const Ability ability,
-        const std::vector<BattleEntry>&& battle_entries
-    ) : pokemon(pokemon),
-        ability(ability),
-        battle_entries(std::move(battle_entries)) {}
-};
-
-struct MoveResults {
-    Move move;
-    int damage;
+        const Pokemon pokemon_in,
+        const Ability ability_in,
+        const std::vector<BattleEntry>&& battle_entries_in
+    ) : pokemon(pokemon_in),
+        ability(ability_in),
+        battle_entries(std::move(battle_entries_in)) {}
 };
 
 class BattleResultEntry {
@@ -40,21 +44,18 @@ public:
     size_t player_index;
     size_t opponent_index;
     bool won;
-    std::vector<MoveResults> player_moves;
-    std::vector<MoveResults> opponent_moves;
+    std::vector<TurnResult> results{};
 
     BattleResultEntry(
-        const size_t player_index,
-        const size_t opponent_index,
-        const bool won,
-        const std::vector<MoveResults>&& player_moves,
-        const std::vector<MoveResults>&& opponent_moves
+        const size_t player_index_in,
+        const size_t opponent_index_in,
+        const bool won_in,
+        const std::vector<TurnResult>&& results_in
     )
-        : player_index(player_index),
-          opponent_index(opponent_index),
-          won(won),
-          player_moves(std::move(player_moves)),
-          opponent_moves(std::move(opponent_moves)) {}
+        : player_index(player_index_in),
+          opponent_index(opponent_index_in),
+          won(won_in),
+          results(std::move(results_in)) {}
 
     BattleResultEntry() = default;
 };
@@ -65,16 +66,15 @@ struct PokemonBattleResultEntries {
     std::vector<BattleResultEntry> battle_result_entries;
 
     PokemonBattleResultEntries(
-        const Pokemon pokemon,
-        const Ability ability,
-        const std::vector<BattleResultEntry>&& battle_result_entries
-    ) : pokemon(pokemon),
-        ability(ability),
-        battle_result_entries(std::move(battle_result_entries)) {}
+        const Pokemon pokemon_in,
+        const Ability ability_in,
+        const std::vector<BattleResultEntry>&& battle_result_entries_in
+    ) : pokemon(pokemon_in),
+        ability(ability_in),
+        battle_result_entries(std::move(battle_result_entries_in)) {}
 
     PokemonBattleResultEntries() = default;
 };
-
 
 inline unsigned int getNumberOfThreads() {
     static unsigned int numThreads = std::thread::hardware_concurrency();
@@ -109,12 +109,12 @@ public:
     ~ThreadPool();
 
     void submit(
-        const std::vector<CustomPokemon>& all_player_pokemon,
-        const std::vector<CustomPokemon>& all_opponent_pokemon,
+        const std::span<const CustomPokemon>& all_player_pokemon,
+        const std::span<const CustomPokemon>& all_opponent_pokemon,
         const std::function<
             std::vector<PokemonBattleResultEntries>(
-                const std::vector<CustomPokemon>&,
-                const std::vector<CustomPokemon>&,
+                const std::span<const CustomPokemon>&,
+                const std::span<const CustomPokemon>&,
                 const std::span<const PokemonBattleEntries>&
             )
         >& function,

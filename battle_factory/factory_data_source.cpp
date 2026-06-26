@@ -19,13 +19,14 @@ parse_base_stats_file(const char* path) {
 
         auto key = std::string(stat_obj["name"]);
         BaseStats stats{};
-        stats.health = static_cast<int64_t>(stat_obj["health"]);
-        stats.attack = static_cast<int64_t>(stat_obj["attack"]);
-        stats.defense = static_cast<int64_t>(stat_obj["defense"]);
-        stats.special_attack = static_cast<int64_t>(stat_obj["special_attack"]);
+        stats.health = static_cast<int16_t>(stat_obj["health"]);
+        stats.attack = static_cast<uint16_t>(stat_obj["attack"]);
+        stats.defense = static_cast<uint16_t>(stat_obj["defense"]);
+        stats.special_attack = static_cast<uint16_t>(stat_obj[
+            "special_attack"]);
         stats.special_defense =
-            static_cast<int64_t>(stat_obj["special_defense"]);
-        stats.speed = static_cast<int64_t>(stat_obj["speed"]);
+            static_cast<uint16_t>(stat_obj["special_defense"]);
+        stats.speed = static_cast<uint16_t>(stat_obj["speed"]);
 
         out.emplace(key, std::move(stats));
     }
@@ -59,26 +60,27 @@ parse_battle_factory_file(const char* path) {
             }
 
 
-                std::vector<Move> moves{};
-                for (auto mv :
-                     poke_obj["moves"].get_array()
-                ) {
-                    auto name = std::string(mv["name"]);
-                    if (name.compare("Sand-Attack") == 0) {
-                        name = "Sand-attack";
-                    } else if (name.compare("Vice Grip") == 0) {
-                        name = "Vicegrip";
-                    } else if (name.compare("Double Slap") == 0) {
-                        name = "Doubleslap";
-                    } else if (name.compare("Conversion2") == 0) {
-                        name = "Conversion 2";
-                    } else if (name.compare("Defense Order") == 0) {
-                        name = "Defend Order";
-                    }
-                    moves.push_back(STRING_TO_MOVE_MAP.at(name));
+            std::vector<Move> moves{};
+            for (auto mv :
+                 poke_obj["moves"].get_array()
+            ) {
+                auto name = std::string(mv["name"]);
+                if (name.compare("Sand-Attack") == 0) {
+                    name = "Sand-attack";
+                } else if (name.compare("Vice Grip") == 0) {
+                    name = "Vicegrip";
+                } else if (name.compare("Double Slap") == 0) {
+                    name = "Doubleslap";
+                } else if (name.compare("Conversion2") == 0) {
+                    name = "Conversion 2";
+                } else if (name.compare("Defense Order") == 0) {
+                    name = "Defend Order";
                 }
+                moves.push_back(STRING_TO_MOVE_MAP.at(name));
+            }
 
-            std::array<uint16_t, static_cast<int>(Stat::NO_STAT)> effort_values{};
+            std::array<uint16_t, static_cast<int>(Stat::NO_STAT)> effort_values
+                {};
             effort_values[static_cast<int>(Stat::HEALTH)] = 0;
             effort_values[static_cast<int>(Stat::ATTACK)] = 0;
             effort_values[static_cast<int>(Stat::DEFENSE)] = 0;
@@ -90,7 +92,8 @@ parse_battle_factory_file(const char* path) {
             ) {
                 const auto stat_type = std::string(ev["stat_type"]);
                 const int16_t value = static_cast<int16_t>(ev["value"]);
-                effort_values[static_cast<int>(STRING_TO_STAT_MAP.at(stat_type))] = value;
+                effort_values[static_cast<int>(STRING_TO_STAT_MAP.
+                    at(stat_type))] = value;
             }
 
             auto nature = std::string(poke_obj["nature"].value());
@@ -112,9 +115,12 @@ parse_battle_factory_file(const char* path) {
     return out;
 }
 
-std::vector<CustomPokemon> construct_all_custom_batle_factory_pokemon() {
+std::vector<CustomPokemon> construct_all_custom_batle_factory_pokemon(
+    const Who who
+) {
     const auto& all_serebii_pokemon =
         get_all_serebii_pokemon();
+    const auto& all_move_infos = get_all_moves();
     const auto all_base_stats =
         parse_base_stats_file("data/fresh/base_stats");
     const auto battle_factory_pokemon =
@@ -214,6 +220,28 @@ std::vector<CustomPokemon> construct_all_custom_batle_factory_pokemon() {
             p.effort_values.at(static_cast<int>(Stat::SPEED)),
             nature
         );
+
+        const bool isPlayer = who == Player;
+        std::vector<Move> moves;
+        if (isPlayer) {
+            moves = {};
+            for (const auto move : p.moves) {
+                if (const auto& moveInfo = all_move_infos[
+                        static_cast<int>(move)];
+                    moveInfo.accuracy == 100
+                ) {
+                    moves.emplace_back(move);
+                }
+            }
+        } else {
+            moves = p.moves;
+        }
+
+        std::ranges::sort(moves, [&all_move_infos](Move a, Move b) {
+            const auto& info_a = all_move_infos[static_cast<int>(a)];
+            const auto& info_b = all_move_infos[static_cast<int>(b)];
+            return info_a.power < info_b.power;
+        });
         for (const auto& ability : abilities) {
             custom_battle_factory_pokemon.emplace_back(
                 CustomPokemon{
@@ -222,7 +250,7 @@ std::vector<CustomPokemon> construct_all_custom_batle_factory_pokemon() {
                     .level = BATTLE_FACTORY_POKEMON_LEVEL,
                     .item = STRING_TO_ITEM_MAP.at(p.item),
                     .types = p.types,
-                    .moves = p.moves,
+                    .moves = moves,
                     .stats = {
                         hp,
                         attack,

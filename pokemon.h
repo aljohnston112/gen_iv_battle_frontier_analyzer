@@ -1,13 +1,18 @@
 #pragma once
 
 #include <array>
+#include <vector>
 
 #include "ability.h"
-#include "config.h"
 #include "item.h"
 #include "move.h"
 #include "stat.h"
 #include "type.h"
+
+enum Who: uint8_t {
+    Player,
+    Opponent
+};
 
 enum class Pokemon {
     Abomasnow,
@@ -1539,4 +1544,9 @@ struct CustomPokemon {
     std::vector<Move> moves;
     std::array<uint16_t, static_cast<int>(Stat::NO_STAT)> stats;
     double pounds;
+
+    uint16_t get_stat(Stat stat) const {
+        return stats[static_cast<int>(stat)];
+    }
+
 };

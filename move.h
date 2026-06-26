@@ -1,9 +1,11 @@
 #pragma once
 #include <array>
 #include <cstdint>
+#include <format>
 #include <string>
 
 #include "category.h"
+#include "config.h"
 #include "type.h"
 
 enum class Move: uint16_t {
@@ -979,6 +981,17 @@ inline const std::unordered_map<std::string, Move> STRING_TO_MOVE_MAP = {
     {"Shadow Force", Move::ShadowForce}
 };
 
+inline std::unordered_map<Move, std::string> create_reverse_move_map() {
+    std::unordered_map<Move, std::string> reverse_map;
+    for (const auto& [str, move] : STRING_TO_MOVE_MAP) {
+        reverse_map[move] = str;
+    }
+    return reverse_map;
+}
+
+static const auto MOVE_TO_STRING_MAP =
+    create_reverse_move_map();
+
 enum class MoveFlag {
     BOOSTS_ATTACKER_STAT,
     AFFECTED_BY_KINGS_ROCK,
@@ -996,7 +1009,8 @@ enum class MoveFlag {
     CAN_BE_REFLECTED_BY_MIRROR_MOVE,
     CAN_BE_SNATCHED,
     CHANGES_WEATHER,
-    CONFUSES_DEFENDER,
+    CONFUSES_DEFENDER_10,
+    CONFUSES_DEFENDER, // TODO remove
     CONTINUES,
     DEALS_DOUBLE_AFTER_MINIMIZE,
     FLINCHES_DEFENDER,
@@ -3066,7 +3080,7 @@ static constexpr std::array<
         static_cast<int>(MoveFlag::CONFUSES_DEFENDER)
     ] = true;
     flags[static_cast<int>(Move::SignalBeam)][
-        static_cast<int>(MoveFlag::CONFUSES_DEFENDER)
+        static_cast<int>(MoveFlag::CONFUSES_DEFENDER_10)
     ] = true;
     flags[static_cast<int>(Move::WaterPulse)][
         static_cast<int>(MoveFlag::CONFUSES_DEFENDER)
@@ -4726,3 +4740,39 @@ static constexpr std::array<
 inline bool move_has_flag(const Move move, const MoveFlag move_flag) {
     return MOVE_FLAGS[static_cast<int>(move)][static_cast<size_t>(move_flag)];
 }
+
+constexpr auto IMPLEMENTED_MOVES = [] {
+    std::array<bool, static_cast<int>(Move::Count)> implemented_moves{};
+    implemented_moves[static_cast<int>(Move::Moonlight)] = true;
+    return implemented_moves;
+}();
+
+inline void verify_move_implemented(Move move) {
+    if (!IMPLEMENTED_MOVES[static_cast<int>(move)]) {
+        throw std::runtime_error(
+            std::format(
+                "Unimplemented move: {}",
+                MOVE_TO_STRING_MAP.at(move)
+            )
+        );
+    }
+}
+
+inline void _verify_moves_implemented(
+    const std::vector<Move>& moves
+) {
+    for (const auto& move: moves) {
+        verify_move_implemented(move);
+    }
+}
+
+inline void verify_moves_implemented(
+    const std::vector<Move>& player_moves,
+    const std::vector<Move>& opponent_moves
+    ) {
+    if (CHECK_UNIMPLEMENTED) {
+        _verify_moves_implemented(player_moves);
+        _verify_moves_implemented(opponent_moves);
+    }
+}
+
