@@ -5,6 +5,4 @@
 constexpr bool MULTI_THREADED = true;
 constexpr bool CHECK_UNIMPLEMENTED = true;
 
-constexpr uint8_t SEREBII_POKEMON_LEVEL = 50;
-
-constexpr uint8_t BATTLE_FACTORY_POKEMON_LEVEL = 50;
+constexpr uint8_t LEVEL = 50;

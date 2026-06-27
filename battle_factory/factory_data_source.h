@@ -17,7 +17,7 @@ struct BattleFactoryPokemon {
     std::string item;
     std::vector<Move> moves;
     uint8_t set_number;
-    std::array<uint16_t, static_cast<size_t>(Stat::NO_STAT)> effort_values;
+    std::array<uint16_t, NoStat> effort_values;
 };
 
 inline std::unordered_map<std::string, BaseStats>

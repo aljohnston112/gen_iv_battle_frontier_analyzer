@@ -121,7 +121,10 @@ add_executable(
         serebii/serebii_pokemon_data_source.cpp
         serebii/serebii_pokemon_data_source.h
 
+        battle_engine.h
         battle_state.h
+        move_execution.h
+        end_of_turn_effects.h
 
         external/simdjson.cpp
         external/simdjson.h

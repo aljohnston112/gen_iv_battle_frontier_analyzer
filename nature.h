@@ -1,7 +1,7 @@
 #pragma once
 #include "stat.h"
 
-enum class NatureEnum {
+enum NatureEnum {
     HARDY,
     LONELY,
     BRAVE,
@@ -37,133 +37,133 @@ struct Nature {
 
 const std::unordered_map<NatureEnum, Nature> NATURE_MAP = {
     {
-        NatureEnum::HARDY,
-        {NatureEnum::HARDY, Stat::NO_STAT, Stat::NO_STAT}
+        HARDY,
+        {HARDY, NoStat, NoStat}
     },
     {
-        NatureEnum::LONELY,
-        {NatureEnum::LONELY, Stat::ATTACK, Stat::DEFENSE}
+        LONELY,
+        {LONELY, Attack, Defense}
     },
     {
-        NatureEnum::BRAVE,
-        {NatureEnum::BRAVE, Stat::ATTACK, Stat::SPEED}
+        BRAVE,
+        {BRAVE, Attack, Speed}
     },
     {
-        NatureEnum::ADAMANT,
-        {NatureEnum::ADAMANT, Stat::ATTACK, Stat::SPECIAL_ATTACK}
+        ADAMANT,
+        {ADAMANT, Attack, SpecialAttack}
     },
     {
-        NatureEnum::NAUGHTY,
-        {NatureEnum::NAUGHTY, Stat::ATTACK, Stat::SPECIAL_DEFENSE}
+        NAUGHTY,
+        {NAUGHTY, Attack, SpecialDefense}
     },
     {
-        NatureEnum::BOLD,
-        {NatureEnum::BOLD, Stat::DEFENSE, Stat::ATTACK}
+        BOLD,
+        {BOLD, Defense, Attack}
     },
     {
-        NatureEnum::DOCILE,
-        {NatureEnum::DOCILE, Stat::NO_STAT, Stat::NO_STAT}
+        DOCILE,
+        {DOCILE, NoStat, NoStat}
     },
     {
-        NatureEnum::RELAXED,
-        {NatureEnum::RELAXED, Stat::DEFENSE, Stat::SPEED}
+        RELAXED,
+        {RELAXED, Defense, Speed}
     },
     {
-        NatureEnum::IMPISH,
-        {NatureEnum::IMPISH, Stat::DEFENSE, Stat::SPECIAL_ATTACK}
+        IMPISH,
+        {IMPISH, Defense, SpecialAttack}
     },
     {
-        NatureEnum::LAX,
-        {NatureEnum::LAX, Stat::DEFENSE, Stat::SPECIAL_DEFENSE}
+        LAX,
+        {LAX, Defense, SpecialDefense}
     },
     {
-        NatureEnum::TIMID,
-        {NatureEnum::TIMID, Stat::SPEED, Stat::ATTACK}
+        TIMID,
+        {TIMID, Speed, Attack}
     },
     {
-        NatureEnum::HASTY,
-        {NatureEnum::HASTY, Stat::SPEED, Stat::DEFENSE}
+        HASTY,
+        {HASTY, Speed, Defense}
     },
     {
-        NatureEnum::SERIOUS,
-        {NatureEnum::SERIOUS, Stat::NO_STAT, Stat::NO_STAT}
+        SERIOUS,
+        {SERIOUS, NoStat, NoStat}
     },
     {
-        NatureEnum::JOLLY,
-        {NatureEnum::JOLLY, Stat::SPEED, Stat::SPECIAL_ATTACK}
+        JOLLY,
+        {JOLLY, Speed, SpecialAttack}
     },
     {
-        NatureEnum::NAIVE,
-        {NatureEnum::NAIVE, Stat::SPEED, Stat::SPECIAL_DEFENSE}
+        NAIVE,
+        {NAIVE, Speed, SpecialDefense}
     },
     {
-        NatureEnum::MODEST,
-        {NatureEnum::MODEST, Stat::SPECIAL_ATTACK, Stat::ATTACK}
+        MODEST,
+        {MODEST, SpecialAttack, Attack}
     },
     {
-        NatureEnum::MILD,
-        {NatureEnum::MILD, Stat::SPECIAL_ATTACK, Stat::DEFENSE}
+        MILD,
+        {MILD, SpecialAttack, Defense}
     },
     {
-        NatureEnum::QUIET,
-        {NatureEnum::QUIET, Stat::SPECIAL_ATTACK, Stat::SPEED}
+        QUIET,
+        {QUIET, SpecialAttack, Speed}
     },
     {
-        NatureEnum::BASHFUL,
-        {NatureEnum::BASHFUL, Stat::NO_STAT, Stat::NO_STAT}
+        BASHFUL,
+        {BASHFUL, NoStat, NoStat}
     },
     {
-        NatureEnum::RASH,
-        {NatureEnum::RASH, Stat::SPECIAL_ATTACK, Stat::SPECIAL_DEFENSE}
+        RASH,
+        {RASH, SpecialAttack, SpecialDefense}
     },
     {
-        NatureEnum::CALM,
-        {NatureEnum::CALM, Stat::SPECIAL_DEFENSE, Stat::ATTACK}
+        CALM,
+        {CALM, SpecialDefense, Attack}
     },
     {
-        NatureEnum::GENTLE,
-        {NatureEnum::GENTLE, Stat::SPECIAL_DEFENSE, Stat::DEFENSE}
+        GENTLE,
+        {GENTLE, SpecialDefense, Defense}
     },
     {
-        NatureEnum::SASSY,
-        {NatureEnum::SASSY, Stat::SPECIAL_DEFENSE, Stat::SPEED}
+        SASSY,
+        {SASSY, SpecialDefense, Speed}
     },
     {
-        NatureEnum::CAREFUL,
-        {NatureEnum::CAREFUL, Stat::SPECIAL_DEFENSE, Stat::SPECIAL_ATTACK}
+        CAREFUL,
+        {CAREFUL, SpecialDefense, SpecialAttack}
     },
     {
-        NatureEnum::QUIRKY,
-        {NatureEnum::QUIRKY, Stat::NO_STAT, Stat::NO_STAT}
+        QUIRKY,
+        {QUIRKY, NoStat, NoStat}
     }
 };
 
 const std::unordered_map<std::string, NatureEnum> STRING_TO_NATURE = {
-    {"Hardy", NatureEnum::HARDY},
-    {"Lonely", NatureEnum::LONELY},
-    {"Brave", NatureEnum::BRAVE},
-    {"Adamant", NatureEnum::ADAMANT},
-    {"Naughty", NatureEnum::NAUGHTY},
-    {"Bold", NatureEnum::BOLD},
-    {"Docile", NatureEnum::DOCILE},
-    {"Relaxed", NatureEnum::RELAXED},
-    {"Impish", NatureEnum::IMPISH},
-    {"Lax", NatureEnum::LAX},
-    {"Timid", NatureEnum::TIMID},
-    {"Hasty", NatureEnum::HASTY},
-    {"Serious", NatureEnum::SERIOUS},
-    {"Jolly", NatureEnum::JOLLY},
-    {"Naive", NatureEnum::NAIVE},
-    {"Modest", NatureEnum::MODEST},
-    {"Mild", NatureEnum::MILD},
-    {"Quiet", NatureEnum::QUIET},
-    {"Bashful", NatureEnum::BASHFUL},
-    {"Rash", NatureEnum::RASH},
-    {"Calm", NatureEnum::CALM},
-    {"Gentle", NatureEnum::GENTLE},
-    {"Sassy", NatureEnum::SASSY},
-    {"Careful", NatureEnum::CAREFUL},
-    {"Quirky", NatureEnum::QUIRKY}
+    {"Hardy", HARDY},
+    {"Lonely", LONELY},
+    {"Brave", BRAVE},
+    {"Adamant", ADAMANT},
+    {"Naughty", NAUGHTY},
+    {"Bold", BOLD},
+    {"Docile", DOCILE},
+    {"Relaxed", RELAXED},
+    {"Impish", IMPISH},
+    {"Lax", LAX},
+    {"Timid", TIMID},
+    {"Hasty", HASTY},
+    {"Serious", SERIOUS},
+    {"Jolly", JOLLY},
+    {"Naive", NAIVE},
+    {"Modest", MODEST},
+    {"Mild", MILD},
+    {"Quiet", QUIET},
+    {"Bashful", BASHFUL},
+    {"Rash", RASH},
+    {"Calm", CALM},
+    {"Gentle", GENTLE},
+    {"Sassy", SASSY},
+    {"Careful", CAREFUL},
+    {"Quirky", QUIRKY}
 };
 
 inline uint16_t calculate_non_hp_stat(
@@ -192,7 +192,7 @@ inline uint16_t get_stat(
     const u_int16_t ev,
     const Nature nature
 ) {
-    if (stat == Stat::HEALTH) {
+    if (stat == Health) {
         return calculate_hp_stat(level, base, iv, ev);
     }
     return calculate_non_hp_stat(

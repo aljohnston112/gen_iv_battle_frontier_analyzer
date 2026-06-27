@@ -30,6 +30,14 @@ public:
     bool roll(const uint8_t percent) const {
         return static_cast<const T*>(this)->roll(percent);
     }
+
+    bool roll(const double percent) const {
+        return static_cast<const T*>(this)->roll(percent);
+    }
+
+    uint8_t roll_random(const bool is_player) const {
+        return static_cast<const T*>(this)->roll_random(is_player);
+    }
 };
 
 template <typename T>
@@ -39,6 +47,14 @@ class NoRNGPolicy : public RNGPolicy<NoRNGPolicy> {
 public:
     static bool roll(const uint8_t) {
         return false;
+    }
+
+    static bool roll(const double) {
+        return false;
+    }
+
+    static uint8_t roll_random(const bool is_player) {
+        return is_player ? 85 : 100;
     }
 };
 
