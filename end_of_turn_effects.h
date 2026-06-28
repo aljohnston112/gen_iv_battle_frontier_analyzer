@@ -30,18 +30,19 @@ inline void apply_end_of_turn_5(PokemonState& pokemon_state) {
 }
 
 inline void apply_end_of_turn_6(PokemonState& pokemon_state) {
-    const Item item = pokemon_state.current_item;
+    const Item item = pokemon_state.get_current_item_for_effect();
+    const bool ko = pokemon_state.get_current_stat(Stat::Health) == 0;
 
     // 6.0 Ingrain
     // 6.1 Aqua Ring
     // 6.2 Speed Boost, Shed Skin
     // 6.3 Black Sludge, Leftovers: "pokémon restored a little HP using its leftovers"
-    if (item == Leftovers) {
+    if (!ko && item == Item::Leftovers) {
         const uint16_t hp_gained =
             std::max(
                 static_cast<uint16_t>(1),
                 static_cast<uint16_t>(
-                    pokemon_state.pokemon->get_stat(Health) / 16
+                    pokemon_state.get_original_stat(Stat::Health) / 16
                 )
             );
         pokemon_state.add_hp(hp_gained);

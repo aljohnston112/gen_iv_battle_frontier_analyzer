@@ -1,6 +1,7 @@
 #pragma once
+#include "util.h"
 
-enum PokemonType {
+enum class PokemonType {
     Normal,
     Fighting,
     Flying,
@@ -22,24 +23,26 @@ enum PokemonType {
     PokemonTypeCount
 };
 
+constexpr int pokemonTypeCount = to_int(PokemonType::PokemonTypeCount);
+
 inline const std::unordered_map<std::string, PokemonType> STRING_TO_TYPE_MAP{
-    {"normal", Normal},
-    {"fighting", Fighting},
-    {"flying", Flying},
-    {"poison", Poison},
-    {"ground", Ground},
-    {"rock", Rock},
-    {"bug", Bug},
-    {"ghost", Ghost},
-    {"steel", Steel},
-    {"fire", Fire},
-    {"water", Water},
-    {"grass", Grass},
-    {"electric", Electric},
-    {"psychic", Psychic},
-    {"ice", Ice},
-    {"dragon", Dragon},
-    {"dark", Dark}
+    {"normal", PokemonType::Normal},
+    {"fighting", PokemonType::Fighting},
+    {"flying", PokemonType::Flying},
+    {"poison", PokemonType::Poison},
+    {"ground", PokemonType::Ground},
+    {"rock", PokemonType::Rock},
+    {"bug", PokemonType::Bug},
+    {"ghost", PokemonType::Ghost},
+    {"steel", PokemonType::Steel},
+    {"fire", PokemonType::Fire},
+    {"water", PokemonType::Water},
+    {"grass", PokemonType::Grass},
+    {"electric", PokemonType::Electric},
+    {"psychic", PokemonType::Psychic},
+    {"ice", PokemonType::Ice},
+    {"dragon", PokemonType::Dragon},
+    {"dark", PokemonType::Dark}
 };
 
 constexpr double not_effective = 0.0;
@@ -47,140 +50,253 @@ constexpr double not_very_effective = 0.5;
 constexpr double super_effective = 2.0;
 
 constexpr std::array<
-    std::array<double, PokemonTypeCount>,
-    PokemonTypeCount
+    std::array<double, pokemonTypeCount>,
+    pokemonTypeCount
 > EFFECTIVENESS_TABLE = [] {
-    std::array<std::array<double, PokemonTypeCount>, PokemonTypeCount> table{};
+    std::array<
+        std::array<double, pokemonTypeCount>,
+        pokemonTypeCount
+    > table{};
     for (auto& row : table) {
         row.fill(1.0);
     }
 
-    table[Normal][Fighting] = super_effective;
-    table[Normal][Ghost] = not_effective;
+    table[to_int(PokemonType::Normal)][to_int(PokemonType::Fighting)] =
+        super_effective;
+    table[to_int(PokemonType::Normal)][to_int(PokemonType::Ghost)] =
+        not_effective;
 
-    table[Fire][Fire] = not_very_effective;
-    table[Fire][Water] = super_effective;
-    table[Fire][Grass] = not_very_effective;
-    table[Fire][Ice] = not_very_effective;
-    table[Fire][Ground] = super_effective;
-    table[Fire][Bug] = not_very_effective;
-    table[Fire][Rock] = super_effective;
-    table[Fire][Steel] = not_very_effective;
+    table[to_int(PokemonType::Fire)][to_int(PokemonType::Fire)] =
+        not_very_effective;
+    table[to_int(PokemonType::Fire)][to_int(PokemonType::Water)] =
+        super_effective;
+    table[to_int(PokemonType::Fire)][to_int(PokemonType::Grass)] =
+        not_very_effective;
+    table[to_int(PokemonType::Fire)][to_int(PokemonType::Ice)] =
+        not_very_effective;
+    table[to_int(PokemonType::Fire)][to_int(PokemonType::Ground)] =
+        super_effective;
+    table[to_int(PokemonType::Fire)][to_int(PokemonType::Bug)] =
+        not_very_effective;
+    table[to_int(PokemonType::Fire)][to_int(PokemonType::Rock)] =
+        super_effective;
+    table[to_int(PokemonType::Fire)][to_int(PokemonType::Steel)] =
+        not_very_effective;
 
-    table[Water][Fire] = not_very_effective;
-    table[Water][Water] = not_very_effective;
-    table[Water][Electric] = super_effective;
-    table[Water][Grass] = super_effective;
-    table[Water][Ice] = not_very_effective;
-    table[Water][Steel] = not_very_effective;
+    table[to_int(PokemonType::Water)][to_int(PokemonType::Fire)] =
+        not_very_effective;
+    table[to_int(PokemonType::Water)][to_int(PokemonType::Water)] =
+        not_very_effective;
+    table[to_int(PokemonType::Water)][to_int(PokemonType::Electric)] =
+        super_effective;
+    table[to_int(PokemonType::Water)][to_int(PokemonType::Grass)] =
+        super_effective;
+    table[to_int(PokemonType::Water)][to_int(PokemonType::Ice)] =
+        not_very_effective;
+    table[to_int(PokemonType::Water)][to_int(PokemonType::Steel)] =
+        not_very_effective;
 
-    table[Electric][Electric] = not_very_effective;
-    table[Electric][Ground] = super_effective;
-    table[Electric][Flying] = not_very_effective;
-    table[Electric][Steel] = not_very_effective;
+    table[to_int(PokemonType::Electric)][to_int(PokemonType::Electric)] =
+        not_very_effective;
+    table[to_int(PokemonType::Electric)][to_int(PokemonType::Ground)] =
+        super_effective;
+    table[to_int(PokemonType::Electric)][to_int(PokemonType::Flying)] =
+        not_very_effective;
+    table[to_int(PokemonType::Electric)][to_int(PokemonType::Steel)] =
+        not_very_effective;
 
-    table[Grass][Fire] = super_effective;
-    table[Grass][Water] = not_very_effective;
-    table[Grass][Electric] = not_very_effective;
-    table[Grass][Grass] = not_very_effective;
-    table[Grass][Ice] = super_effective;
-    table[Grass][Poison] = super_effective;
-    table[Grass][Ground] = not_very_effective;
-    table[Grass][Flying] = super_effective;
-    table[Grass][Bug] = super_effective;
+    table[to_int(PokemonType::Grass)][to_int(PokemonType::Fire)] =
+        super_effective;
+    table[to_int(PokemonType::Grass)][to_int(PokemonType::Water)] =
+        not_very_effective;
+    table[to_int(PokemonType::Grass)][to_int(PokemonType::Electric)] =
+        not_very_effective;
+    table[to_int(PokemonType::Grass)][to_int(PokemonType::Grass)] =
+        not_very_effective;
+    table[to_int(PokemonType::Grass)][to_int(PokemonType::Ice)] =
+        super_effective;
+    table[to_int(PokemonType::Grass)][to_int(PokemonType::Poison)] =
+        super_effective;
+    table[to_int(PokemonType::Grass)][to_int(PokemonType::Ground)] =
+        not_very_effective;
+    table[to_int(PokemonType::Grass)][to_int(PokemonType::Flying)] =
+        super_effective;
+    table[to_int(PokemonType::Grass)][to_int(PokemonType::Bug)] =
+        super_effective;
 
-    table[Ice][Fire] = super_effective;
-    table[Ice][Ice] = not_very_effective;
-    table[Ice][Fighting] = super_effective;
-    table[Ice][Rock] = super_effective;
-    table[Ice][Steel] = super_effective;
+    table[to_int(PokemonType::Ice)][to_int(PokemonType::Fire)] =
+        super_effective;
+    table[to_int(PokemonType::Ice)][to_int(PokemonType::Ice)] =
+        not_very_effective;
+    table[to_int(PokemonType::Ice)][to_int(PokemonType::Fighting)] =
+        super_effective;
+    table[to_int(PokemonType::Ice)][to_int(PokemonType::Rock)] =
+        super_effective;
+    table[to_int(PokemonType::Ice)][to_int(PokemonType::Steel)] =
+        super_effective;
 
-    table[Fighting][Flying] = super_effective;
-    table[Fighting][Psychic] = super_effective;
-    table[Fighting][Bug] = not_very_effective;
-    table[Fighting][Rock] = not_very_effective;
-    table[Fighting][Dark] = not_very_effective;
+    table[to_int(PokemonType::Fighting)][to_int(PokemonType::Flying)] =
+        super_effective;
+    table[to_int(PokemonType::Fighting)][to_int(PokemonType::Psychic)] =
+        super_effective;
+    table[to_int(PokemonType::Fighting)][to_int(PokemonType::Bug)] =
+        not_very_effective;
+    table[to_int(PokemonType::Fighting)][to_int(PokemonType::Rock)] =
+        not_very_effective;
+    table[to_int(PokemonType::Fighting)][to_int(PokemonType::Dark)] =
+        not_very_effective;
 
-    table[Poison][Grass] = not_very_effective;
-    table[Poison][Fighting] = not_very_effective;
-    table[Poison][Poison] = not_very_effective;
-    table[Poison][Ground] = super_effective;
-    table[Poison][Psychic] = super_effective;
-    table[Poison][Bug] = not_very_effective;
+    table[to_int(PokemonType::Poison)][to_int(PokemonType::Grass)] =
+        not_very_effective;
+    table[to_int(PokemonType::Poison)][to_int(PokemonType::Fighting)] =
+        not_very_effective;
+    table[to_int(PokemonType::Poison)][to_int(PokemonType::Poison)] =
+        not_very_effective;
+    table[to_int(PokemonType::Poison)][to_int(PokemonType::Ground)] =
+        super_effective;
+    table[to_int(PokemonType::Poison)][to_int(PokemonType::Psychic)] =
+        super_effective;
+    table[to_int(PokemonType::Poison)][to_int(PokemonType::Bug)] =
+        not_very_effective;
 
-    table[Ground][Water] = super_effective;
-    table[Ground][Electric] = not_effective;
-    table[Ground][Grass] = super_effective;
-    table[Ground][Ice] = super_effective;
-    table[Ground][Poison] = not_very_effective;
-    table[Ground][Rock] = not_very_effective;
+    table[to_int(PokemonType::Ground)][to_int(PokemonType::Water)] =
+        super_effective;
+    table[to_int(PokemonType::Ground)][to_int(PokemonType::Electric)] =
+        not_effective;
+    table[to_int(PokemonType::Ground)][to_int(PokemonType::Grass)] =
+        super_effective;
+    table[to_int(PokemonType::Ground)][to_int(PokemonType::Ice)] =
+        super_effective;
+    table[to_int(PokemonType::Ground)][to_int(PokemonType::Poison)] =
+        not_very_effective;
+    table[to_int(PokemonType::Ground)][to_int(PokemonType::Rock)] =
+        not_very_effective;
 
-    table[Flying][Electric] = super_effective;
-    table[Flying][Grass] = not_very_effective;
-    table[Flying][Ice] = super_effective;
-    table[Flying][Fighting] = not_very_effective;
-    table[Flying][Ground] = not_effective;
-    table[Flying][Bug] = not_very_effective;
-    table[Flying][Rock] = super_effective;
+    table[to_int(PokemonType::Flying)][to_int(PokemonType::Electric)] =
+        super_effective;
+    table[to_int(PokemonType::Flying)][to_int(PokemonType::Grass)] =
+        not_very_effective;
+    table[to_int(PokemonType::Flying)][to_int(PokemonType::Ice)] =
+        super_effective;
+    table[to_int(PokemonType::Flying)][to_int(PokemonType::Fighting)] =
+        not_very_effective;
+    table[to_int(PokemonType::Flying)][to_int(PokemonType::Ground)] =
+        not_effective;
+    table[to_int(PokemonType::Flying)][to_int(PokemonType::Bug)] =
+        not_very_effective;
+    table[to_int(PokemonType::Flying)][to_int(PokemonType::Rock)] =
+        super_effective;
 
-    table[Psychic][Fighting] = not_very_effective;
-    table[Psychic][Psychic] = not_very_effective;
-    table[Psychic][Bug] = super_effective;
-    table[Psychic][Ghost] = super_effective;
-    table[Psychic][Dark] = super_effective;
+    table[to_int(PokemonType::Psychic)][to_int(PokemonType::Fighting)] =
+        not_very_effective;
+    table[to_int(PokemonType::Psychic)][to_int(PokemonType::Psychic)] =
+        not_very_effective;
+    table[to_int(PokemonType::Psychic)][to_int(PokemonType::Bug)] =
+        super_effective;
+    table[to_int(PokemonType::Psychic)][to_int(PokemonType::Ghost)] =
+        super_effective;
+    table[to_int(PokemonType::Psychic)][to_int(PokemonType::Dark)] =
+        super_effective;
 
-    table[Bug][Fire] = super_effective;
-    table[Bug][Grass] = not_very_effective;
-    table[Bug][Fighting] = not_very_effective;
-    table[Bug][Ground] = not_very_effective;
-    table[Bug][Flying] = super_effective;
-    table[Bug][Rock] = super_effective;
+    table[to_int(PokemonType::Bug)][to_int(PokemonType::Fire)] =
+        super_effective;
+    table[to_int(PokemonType::Bug)][to_int(PokemonType::Grass)] =
+        not_very_effective;
+    table[to_int(PokemonType::Bug)][to_int(PokemonType::Fighting)] =
+        not_very_effective;
+    table[to_int(PokemonType::Bug)][to_int(PokemonType::Ground)] =
+        not_very_effective;
+    table[to_int(PokemonType::Bug)][to_int(PokemonType::Flying)] =
+        super_effective;
+    table[to_int(PokemonType::Bug)][to_int(PokemonType::Rock)] =
+        super_effective;
 
-    table[Rock][Normal] = not_very_effective;
-    table[Rock][Fire] = not_very_effective;
-    table[Rock][Water] = super_effective;
-    table[Rock][Grass] = super_effective;
-    table[Rock][Fighting] = super_effective;
-    table[Rock][Poison] = not_very_effective;
-    table[Rock][Ground] = super_effective;
-    table[Rock][Flying] = not_very_effective;
-    table[Rock][Steel] = super_effective;
+    table[to_int(PokemonType::Rock)][to_int(PokemonType::Normal)] =
+        not_very_effective;
+    table[to_int(PokemonType::Rock)][to_int(PokemonType::Fire)] =
+        not_very_effective;
+    table[to_int(PokemonType::Rock)][to_int(PokemonType::Water)] =
+        super_effective;
+    table[to_int(PokemonType::Rock)][to_int(PokemonType::Grass)] =
+        super_effective;
+    table[to_int(PokemonType::Rock)][to_int(PokemonType::Fighting)] =
+        super_effective;
+    table[to_int(PokemonType::Rock)][to_int(PokemonType::Poison)] =
+        not_very_effective;
+    table[to_int(PokemonType::Rock)][to_int(PokemonType::Ground)] =
+        super_effective;
+    table[to_int(PokemonType::Rock)][to_int(PokemonType::Flying)] =
+        not_very_effective;
+    table[to_int(PokemonType::Rock)][to_int(PokemonType::Steel)] =
+        super_effective;
 
-    table[Ghost][Normal] = not_effective;
-    table[Ghost][Fighting] = not_effective;
-    table[Ghost][Poison] = not_very_effective;
-    table[Ghost][Bug] = not_very_effective;
-    table[Ghost][Ghost] = super_effective;
-    table[Ghost][Dark] = super_effective;
+    table[to_int(PokemonType::Ghost)][to_int(PokemonType::Normal)] =
+        not_effective;
+    table[to_int(PokemonType::Ghost)][to_int(PokemonType::Fighting)] =
+        not_effective;
+    table[to_int(PokemonType::Ghost)][to_int(PokemonType::Poison)] =
+        not_very_effective;
+    table[to_int(PokemonType::Ghost)][to_int(PokemonType::Bug)] =
+        not_very_effective;
+    table[to_int(PokemonType::Ghost)][to_int(PokemonType::Ghost)] =
+        super_effective;
+    table[to_int(PokemonType::Ghost)][to_int(PokemonType::Dark)] =
+        super_effective;
 
-    table[Dragon][Fire] = not_very_effective;
-    table[Dragon][Water] = not_very_effective;
-    table[Dragon][Electric] = not_very_effective;
-    table[Dragon][Grass] = not_very_effective;
-    table[Dragon][Ice] = super_effective;
-    table[Dragon][Dragon] = super_effective;
+    table[to_int(PokemonType::Dragon)][to_int(PokemonType::Fire)] =
+        not_very_effective;
+    table[to_int(PokemonType::Dragon)][to_int(PokemonType::Water)] =
+        not_very_effective;
+    table[to_int(PokemonType::Dragon)][to_int(PokemonType::Electric)] =
+        not_very_effective;
+    table[to_int(PokemonType::Dragon)][to_int(PokemonType::Grass)] =
+        not_very_effective;
+    table[to_int(PokemonType::Dragon)][to_int(PokemonType::Ice)] =
+        super_effective;
+    table[to_int(PokemonType::Dragon)][to_int(PokemonType::Dragon)] =
+        super_effective;
 
-    table[Dark][Fighting] = super_effective;
-    table[Dark][Psychic] = not_effective;
-    table[Dark][Bug] = super_effective;
-    table[Dark][Ghost] = not_very_effective;
-    table[Dark][Dark] = not_very_effective;
+    table[to_int(PokemonType::Dark)][to_int(PokemonType::Fighting)] =
+        super_effective;
+    table[to_int(PokemonType::Dark)][to_int(PokemonType::Psychic)] =
+        not_effective;
+    table[to_int(PokemonType::Dark)][to_int(PokemonType::Bug)] =
+        super_effective;
+    table[to_int(PokemonType::Dark)][to_int(PokemonType::Ghost)] =
+        not_very_effective;
+    table[to_int(PokemonType::Dark)][to_int(PokemonType::Dark)] =
+        not_very_effective;
 
-    table[Steel][Normal] = not_very_effective;
-    table[Steel][Fire] = super_effective;
-    table[Steel][Grass] = not_very_effective;
-    table[Steel][Ice] = not_very_effective;
-    table[Steel][Fighting] = super_effective;
-    table[Steel][Poison] = not_effective;
-    table[Steel][Ground] = super_effective;
-    table[Steel][Flying] = not_very_effective;
-    table[Steel][Psychic] = not_very_effective;
-    table[Steel][Bug] = not_very_effective;
-    table[Steel][Rock] = not_very_effective;
-    table[Steel][Ghost] = not_very_effective;
-    table[Steel][Dragon] = not_very_effective;
-    table[Steel][Dark] = not_very_effective;
-    table[Steel][Steel] = not_very_effective;
+    table[to_int(PokemonType::Steel)][to_int(PokemonType::Normal)] =
+        not_very_effective;
+    table[to_int(PokemonType::Steel)][to_int(PokemonType::Fire)] =
+        super_effective;
+    table[to_int(PokemonType::Steel)][to_int(PokemonType::Grass)] =
+        not_very_effective;
+    table[to_int(PokemonType::Steel)][to_int(PokemonType::Ice)] =
+        not_very_effective;
+    table[to_int(PokemonType::Steel)][to_int(PokemonType::Fighting)] =
+        super_effective;
+    table[to_int(PokemonType::Steel)][to_int(PokemonType::Poison)] =
+        not_effective;
+    table[to_int(PokemonType::Steel)][to_int(PokemonType::Ground)] =
+        super_effective;
+    table[to_int(PokemonType::Steel)][to_int(PokemonType::Flying)] =
+        not_very_effective;
+    table[to_int(PokemonType::Steel)][to_int(PokemonType::Psychic)] =
+        not_very_effective;
+    table[to_int(PokemonType::Steel)][to_int(PokemonType::Bug)] =
+        not_very_effective;
+    table[to_int(PokemonType::Steel)][to_int(PokemonType::Rock)] =
+        not_very_effective;
+    table[to_int(PokemonType::Steel)][to_int(PokemonType::Ghost)] =
+        not_very_effective;
+    table[to_int(PokemonType::Steel)][to_int(PokemonType::Dragon)] =
+        not_very_effective;
+    table[to_int(PokemonType::Steel)][to_int(PokemonType::Dark)] =
+        not_very_effective;
+    table[to_int(PokemonType::Steel)][to_int(PokemonType::Steel)] =
+        not_very_effective;
 
     return table;
 }();
@@ -188,23 +304,32 @@ constexpr std::array<
 constexpr size_t get_key(
     const std::array<PokemonType, 2>& defender_types,
     const PokemonType& move_type) {
-    return move_type *
-        PokemonTypeCount *
-        PokemonTypeCount +
-        defender_types[0] * PokemonTypeCount +
-        defender_types[1];
+    return to_int(move_type) *
+        pokemonTypeCount *
+        pokemonTypeCount +
+        to_int(defender_types[0]) * pokemonTypeCount +
+        to_int(defender_types[1]);
 }
 
 constexpr auto EFFECTIVENESS_CACHE = [] {
     std::array<
         double,
-        PokemonTypeCount *
-        PokemonTypeCount *
-        PokemonTypeCount
+        pokemonTypeCount *
+        pokemonTypeCount *
+        pokemonTypeCount
     > cache{};
-    for (int move_type = 0; move_type < NoType; move_type++) {
-        for (int type1 = 0; type1 < PokemonTypeCount; type1++) {
-            for (int type2 = 0; type2 < PokemonTypeCount; type2++) {
+    for (int move_type = 0; 
+        move_type < to_int(PokemonType::NoType); 
+        move_type++
+        ) {
+        for (int type1 = 0; 
+            type1 < pokemonTypeCount; 
+            type1++
+            ) {
+            for (int type2 = 0; 
+                type2 < pokemonTypeCount; 
+                type2++
+                ) {
                 const size_t key =
                     get_key(
                         {

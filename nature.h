@@ -1,7 +1,7 @@
 #pragma once
 #include "stat.h"
 
-enum NatureEnum {
+enum class NatureEnum {
     HARDY,
     LONELY,
     BRAVE,
@@ -37,133 +37,133 @@ struct Nature {
 
 const std::unordered_map<NatureEnum, Nature> NATURE_MAP = {
     {
-        HARDY,
-        {HARDY, NoStat, NoStat}
+        NatureEnum::HARDY,
+        {NatureEnum::HARDY, Stat::NoStat, Stat::NoStat}
     },
     {
-        LONELY,
-        {LONELY, Attack, Defense}
+        NatureEnum::LONELY,
+        {NatureEnum::LONELY, Stat::Attack, Stat::Defense}
     },
     {
-        BRAVE,
-        {BRAVE, Attack, Speed}
+        NatureEnum::BRAVE,
+        {NatureEnum::BRAVE, Stat::Attack, Stat::Speed}
     },
     {
-        ADAMANT,
-        {ADAMANT, Attack, SpecialAttack}
+        NatureEnum::ADAMANT,
+        {NatureEnum::ADAMANT, Stat::Attack, Stat::SpecialAttack}
     },
     {
-        NAUGHTY,
-        {NAUGHTY, Attack, SpecialDefense}
+        NatureEnum::NAUGHTY,
+        {NatureEnum::NAUGHTY, Stat::Attack, Stat::SpecialDefense}
     },
     {
-        BOLD,
-        {BOLD, Defense, Attack}
+        NatureEnum::BOLD,
+        {NatureEnum::BOLD, Stat::Defense, Stat::Attack}
     },
     {
-        DOCILE,
-        {DOCILE, NoStat, NoStat}
+        NatureEnum::DOCILE,
+        {NatureEnum::DOCILE, Stat::NoStat, Stat::NoStat}
     },
     {
-        RELAXED,
-        {RELAXED, Defense, Speed}
+        NatureEnum::RELAXED,
+        {NatureEnum::RELAXED, Stat::Defense, Stat::Speed}
     },
     {
-        IMPISH,
-        {IMPISH, Defense, SpecialAttack}
+        NatureEnum::IMPISH,
+        {NatureEnum::IMPISH, Stat::Defense, Stat::SpecialAttack}
     },
     {
-        LAX,
-        {LAX, Defense, SpecialDefense}
+        NatureEnum::LAX,
+        {NatureEnum::LAX, Stat::Defense, Stat::SpecialDefense}
     },
     {
-        TIMID,
-        {TIMID, Speed, Attack}
+        NatureEnum::TIMID,
+        {NatureEnum::TIMID, Stat::Speed, Stat::Attack}
     },
     {
-        HASTY,
-        {HASTY, Speed, Defense}
+        NatureEnum::HASTY,
+        {NatureEnum::HASTY, Stat::Speed, Stat::Defense}
     },
     {
-        SERIOUS,
-        {SERIOUS, NoStat, NoStat}
+        NatureEnum::SERIOUS,
+        {NatureEnum::SERIOUS, Stat::NoStat, Stat::NoStat}
     },
     {
-        JOLLY,
-        {JOLLY, Speed, SpecialAttack}
+        NatureEnum::JOLLY,
+        {NatureEnum::JOLLY, Stat::Speed, Stat::SpecialAttack}
     },
     {
-        NAIVE,
-        {NAIVE, Speed, SpecialDefense}
+        NatureEnum::NAIVE,
+        {NatureEnum::NAIVE, Stat::Speed, Stat::SpecialDefense}
     },
     {
-        MODEST,
-        {MODEST, SpecialAttack, Attack}
+        NatureEnum::MODEST,
+        {NatureEnum::MODEST, Stat::SpecialAttack, Stat::Attack}
     },
     {
-        MILD,
-        {MILD, SpecialAttack, Defense}
+        NatureEnum::MILD,
+        {NatureEnum::MILD, Stat::SpecialAttack, Stat::Defense}
     },
     {
-        QUIET,
-        {QUIET, SpecialAttack, Speed}
+        NatureEnum::QUIET,
+        {NatureEnum::QUIET, Stat::SpecialAttack, Stat::Speed}
     },
     {
-        BASHFUL,
-        {BASHFUL, NoStat, NoStat}
+        NatureEnum::BASHFUL,
+        {NatureEnum::BASHFUL, Stat::NoStat, Stat::NoStat}
     },
     {
-        RASH,
-        {RASH, SpecialAttack, SpecialDefense}
+        NatureEnum::RASH,
+        {NatureEnum::RASH, Stat::SpecialAttack, Stat::SpecialDefense}
     },
     {
-        CALM,
-        {CALM, SpecialDefense, Attack}
+        NatureEnum::CALM,
+        {NatureEnum::CALM, Stat::SpecialDefense, Stat::Attack}
     },
     {
-        GENTLE,
-        {GENTLE, SpecialDefense, Defense}
+        NatureEnum::GENTLE,
+        {NatureEnum::GENTLE, Stat::SpecialDefense, Stat::Defense}
     },
     {
-        SASSY,
-        {SASSY, SpecialDefense, Speed}
+        NatureEnum::SASSY,
+        {NatureEnum::SASSY, Stat::SpecialDefense, Stat::Speed}
     },
     {
-        CAREFUL,
-        {CAREFUL, SpecialDefense, SpecialAttack}
+        NatureEnum::CAREFUL,
+        {NatureEnum::CAREFUL, Stat::SpecialDefense, Stat::SpecialAttack}
     },
     {
-        QUIRKY,
-        {QUIRKY, NoStat, NoStat}
+        NatureEnum::QUIRKY,
+        {NatureEnum::QUIRKY, Stat::NoStat, Stat::NoStat}
     }
 };
 
 const std::unordered_map<std::string, NatureEnum> STRING_TO_NATURE = {
-    {"Hardy", HARDY},
-    {"Lonely", LONELY},
-    {"Brave", BRAVE},
-    {"Adamant", ADAMANT},
-    {"Naughty", NAUGHTY},
-    {"Bold", BOLD},
-    {"Docile", DOCILE},
-    {"Relaxed", RELAXED},
-    {"Impish", IMPISH},
-    {"Lax", LAX},
-    {"Timid", TIMID},
-    {"Hasty", HASTY},
-    {"Serious", SERIOUS},
-    {"Jolly", JOLLY},
-    {"Naive", NAIVE},
-    {"Modest", MODEST},
-    {"Mild", MILD},
-    {"Quiet", QUIET},
-    {"Bashful", BASHFUL},
-    {"Rash", RASH},
-    {"Calm", CALM},
-    {"Gentle", GENTLE},
-    {"Sassy", SASSY},
-    {"Careful", CAREFUL},
-    {"Quirky", QUIRKY}
+    {"Hardy", NatureEnum::HARDY},
+    {"Lonely", NatureEnum::LONELY},
+    {"Brave", NatureEnum::BRAVE},
+    {"Adamant", NatureEnum::ADAMANT},
+    {"Naughty", NatureEnum::NAUGHTY},
+    {"Bold", NatureEnum::BOLD},
+    {"Docile", NatureEnum::DOCILE},
+    {"Relaxed", NatureEnum::RELAXED},
+    {"Impish", NatureEnum::IMPISH},
+    {"Lax", NatureEnum::LAX},
+    {"Timid", NatureEnum::TIMID},
+    {"Hasty", NatureEnum::HASTY},
+    {"Serious", NatureEnum::SERIOUS},
+    {"Jolly", NatureEnum::JOLLY},
+    {"Naive", NatureEnum::NAIVE},
+    {"Modest", NatureEnum::MODEST},
+    {"Mild", NatureEnum::MILD},
+    {"Quiet", NatureEnum::QUIET},
+    {"Bashful", NatureEnum::BASHFUL},
+    {"Rash", NatureEnum::RASH},
+    {"Calm", NatureEnum::CALM},
+    {"Gentle", NatureEnum::GENTLE},
+    {"Sassy", NatureEnum::SASSY},
+    {"Careful", NatureEnum::CAREFUL},
+    {"Quirky", NatureEnum::QUIRKY}
 };
 
 inline uint16_t calculate_non_hp_stat(
@@ -192,7 +192,7 @@ inline uint16_t get_stat(
     const u_int16_t ev,
     const Nature nature
 ) {
-    if (stat == Health) {
+    if (stat == Stat::Health) {
         return calculate_hp_stat(level, base, iv, ev);
     }
     return calculate_non_hp_stat(

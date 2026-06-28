@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-enum Stat {
+enum class Stat {
     Health,
     Attack,
     Defense,
@@ -21,13 +21,13 @@ struct BaseStats {
     uint16_t speed;
 };
 
-static const std::unordered_map<std::string, Stat> STRING_TO_STAT_MAP{
-    {"health", Health},
-    {"attack", Attack},
-    {"defense", Defense},
-    {"special_attack", SpecialAttack},
-    {"special_defense", SpecialDefense},
-    {"speed", Speed}
+inline const std::unordered_map<std::string, Stat> STRING_TO_STAT_MAP{
+    {"health", Stat::Health},
+    {"attack", Stat::Attack},
+    {"defense", Stat::Defense},
+    {"special_attack", Stat::SpecialAttack},
+    {"special_defense", Stat::SpecialDefense},
+    {"speed", Stat::Speed}
 };
 
 inline uint8_t get_iv_for_battle_factory(const uint8_t round_number) {

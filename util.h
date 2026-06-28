@@ -7,3 +7,8 @@ void ensure_not_null(T* t) {
         throw std::runtime_error{"t was null"};
     }
 }
+
+template<typename T>
+constexpr int to_int(T t) {
+    return static_cast<int>(t);
+}

@@ -26,9 +26,9 @@ int main() {
     // );
 
     const auto battle_factory_player_pokemon =
-        construct_all_custom_batle_factory_pokemon(Player);
+        construct_all_custom_batle_factory_pokemon(Who::Player);
     const auto battle_factory_opponent_pokemon =
-        construct_all_custom_batle_factory_pokemon(Opponent);
+        construct_all_custom_batle_factory_pokemon(Who::Opponent);
 
     const auto pokemon_to_battle_result_entries =
         do_round_robin(

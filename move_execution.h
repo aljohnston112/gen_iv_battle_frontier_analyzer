@@ -4,21 +4,32 @@
 #include "battle_state.h"
 #include "policies.h"
 
-static inline std::array<int16_t, LEVEL + 1> DAMAGE_CACHE = [] {
+// TODO tests
+// Smeargle, sketch a low PP move, get a life orb, and test damage with and without the life orb
+// Same with metronome
+
+// Get Pickachu confused, test hit danage with and without Light Ball
+// Get Cubone/Marowak coinfused, test hit damage with and without Thick Club
+
+inline std::array<int16_t, LEVEL + 1> DAMAGE_CACHE = [] {
     std::array<int16_t, LEVEL + 1> array{};
     array.fill(-1.0);
     return array;
 }();
 
 
-template <IsRNGPolicy R>
-void execute_power_move(
+template <IsEffectPolicy E, IsRNGPolicy R>
+uint16_t execute_power_move(
+    const E& effect_policy,
     const R& rng_policy,
     BattleState& battle_state,
     const MoveInfo* move,
-    const Who who_is_attacker
+    const Who who_attacker_is
 ) {
-    const bool is_player_attacker = who_is_attacker == Player;
+    // NOTE: If you add a new damage modifier here,
+    // check if it should apply to hit_from_confusion or struggle.
+
+    const bool is_player_attacker = who_attacker_is == Who::Player;
 
     PokemonState* attacker;
     if (is_player_attacker) {
@@ -34,7 +45,7 @@ void execute_power_move(
         defender = &battle_state.player;
     }
 
-    const uint8_t attacker_level = attacker->pokemon->level;
+    const uint8_t attacker_level = attacker->level;
     int16_t damage = DAMAGE_CACHE[attacker_level];
     if (damage < 0) {
         damage = static_cast<int16_t>(2 * attacker_level / 5 + 2);
@@ -42,65 +53,70 @@ void execute_power_move(
     }
 
     const uint16_t power = move->power;
-    const bool is_special = move->category == SPECIAL;
-    const Stat attack_category = is_special ? SpecialAttack : Attack;
-    const Stat defense_category = is_special ? SpecialDefense : Defense;
+    const bool is_special = move->category == Category::SPECIAL;
+    const Stat attack_category =
+        is_special ? Stat::SpecialAttack : Stat::Attack;
+    const Stat defense_category = is_special
+                                      ? Stat::SpecialDefense
+                                      : Stat::Defense;
 
-    const Ability attacker_ability = attacker->pokemon->ability;
-    const Ability defender_ability = defender->pokemon->ability;
+    const Ability attacker_ability = attacker->get_current_ability();
+    const Ability defender_ability = defender->get_current_ability();
     const bool is_crit =
-        move->move != FutureSight && move->move != DoomDesire &&
-        defender_ability != BattleArmor && defender_ability != ShellArmor &&
-        !defender->has_status(LuckyChanted) &&
+        move->move != Move::FutureSight && move->move != Move::DoomDesire &&
+        defender_ability != Ability::BattleArmor && defender_ability !=
+        Ability::ShellArmor &&
+        !defender->has_status(StatusWithStage::LuckyChanted) &&
         rng_policy.roll(
             calculate_crit_chance_based_on_stage(
-                attacker->get_status_value(CritChanceModified)
+                attacker->get_status_value(StatusWithStage::CritChanceModified)
             )
         );
 
     const uint16_t attacker_attack =
         is_crit && attacker->get_stat_stage(attack_category) < 0
-            ? attacker->pokemon->get_stat(attack_category)
-            : is_special
-            ? attacker->current_special_attack
-            : attacker->current_attack;
+            ? attacker->get_original_stat(attack_category)
+            : attacker->get_current_stat(attack_category);
     const uint16_t defender_defense =
         is_crit && defender->get_stat_stage(defense_category) > 0
-            ? defender->pokemon->get_stat(defense_category)
-            : is_special
-            ? defender->current_special_defense
-            : defender->current_defense;
+            ? defender->get_original_stat(defense_category)
+            : defender->get_current_stat(defense_category);
     damage = static_cast<int16_t>(
         damage * power * attacker_attack / defender_defense
     );
     const uint8_t screen =
-        (!is_crit &&
-        ((is_special && defender->has_status(LightScreening))
-         || (!is_special && defender->has_status(Reflecting))))
-             ? 2
-             : 1;
-    const uint8_t burn = attacker->current_status == Burn && !is_special
+    (!is_crit &&
+        ((is_special && defender->has_status(StatusWithStage::LightScreening))
+            || (!is_special && defender->
+                has_status(StatusWithStage::Reflecting))))
+        ? 2
+        : 1;
+    const uint8_t burn = attacker->get_current_status_condition() ==
+                         StatusCondition::Burn && !
+                         is_special
                              ? 2
                              : 1;
     damage = static_cast<int16_t>(damage / 50 / burn / screen);
 
     const PokemonType move_type = move->type;
     const Weather weather = battle_state.weather;
-    if (weather == Rain) {
-        if (move_type == Water) {
+    if (weather == Weather::Rain) {
+        if (move_type == PokemonType::Water) {
             damage = static_cast<int16_t>(damage * 3 / 2);
-        } else if (move_type == Fire) {
+        } else if (move_type == PokemonType::Fire) {
             damage = static_cast<int16_t>(damage / 2);
         }
-    } else if (weather == Sun) {
-        if (move_type == Fire) {
+    } else if (weather == Weather::Sun) {
+        if (move_type == PokemonType::Fire) {
             damage = static_cast<int16_t>(damage * 3 / 2);
-        } else if (move_type == Water) {
+        } else if (move_type == PokemonType::Water) {
             damage = static_cast<int16_t>(damage / 2);
         }
     }
 
-    if (attacker->has_status(FlashFired) && move_type == Fire) {
+    if (attacker->has_status(Status::FlashFired) &&
+        move_type == PokemonType::Fire
+    ) {
         damage = static_cast<int16_t>(damage * 3 / 2);
     }
     damage = static_cast<int16_t>(damage + 2);
@@ -108,25 +124,26 @@ void execute_power_move(
     const uint8_t crit = is_crit ? 2 : 1;
     damage = static_cast<int16_t>(damage * crit);
 
-    const Item attacker_item = attacker->current_item;
-    if (attacker_item == LifeOrb) {
+    const Item attacker_item = attacker->get_current_item_for_effect();
+    if (attacker_item == Item::LifeOrb) {
         damage = static_cast<int16_t>(damage * 4 / 3);
-    } else if (const int8_t n = defender->get_status_value(MetronomeActive);
+    } else if (const int8_t n =
+            attacker->get_status_value(MoveStatusWithStage::MetronomeActive);
         n > 0
     ) {
         damage = static_cast<int16_t>((damage * 10 + damage * n) / 10);
     }
-    if (attacker->has_status(StoleMove)) [[unlikely]] {
+    if (attacker->has_status(Status::StoleMoveByMeFirst)) [[unlikely]] {
         damage = static_cast<int16_t>(damage * 3 / 2);
     }
     const uint8_t random =
-        move->move == SpitUp
+        move->move == Move::SpitUp
             ? 100
-            : rng_policy.roll_random(is_player_attacker);
+            : effect_policy.roll_random(who_attacker_is);
     damage = static_cast<int16_t>(damage * random / 100);
     const bool is_stab = attacker->has_type(move_type);
     if (is_stab) {
-        if (attacker_ability == Adaptability) [[unlikely]]{
+        if (attacker_ability == Ability::Adaptability) [[unlikely]]{
             damage = static_cast<int16_t>(damage * 2);
         } else {
             damage = static_cast<int16_t>(damage * 3 / 2);
@@ -134,13 +151,13 @@ void execute_power_move(
     }
 
     const double effectiveness = get_effectiveness(
-        defender->pokemon->types,
+        defender->get_types(),
         move_type
     );
-    if (move->move != Struggle &&
-        move->move != FutureSight &&
-        move->move != BeatUp &&
-        move->move != DoomDesire
+    if (move->move != Move::Struggle &&
+        move->move != Move::FutureSight &&
+        move->move != Move::BeatUp &&
+        move->move != Move::DoomDesire
     ) [[likely]] {
         damage = static_cast<int16_t>(
             std::floor(
@@ -149,37 +166,85 @@ void execute_power_move(
         );
     }
     if (effectiveness > 1) {
-        if (attacker_ability != MoldBreaker &&
-            (defender_ability == SolidRock || defender_ability == Filter)
+        if (attacker_ability != Ability::MoldBreaker &&
+            (defender_ability == Ability::SolidRock || defender_ability ==
+                Ability::Filter)
         ) [[unlikely]] {
             damage = static_cast<int16_t>(damage * 3 / 4);
         }
 
-        if (attacker_item == ExpertBelt) [[unlikely]] {
+        if (attacker_item == Item::ExpertBelt) [[unlikely]] {
             damage = static_cast<int16_t>(damage * 6 / 5);
         }
     }
-    if (effectiveness < 1 && attacker_ability == TintedLens) [[unlikely]] {
+    if (effectiveness < 1 && attacker_ability == Ability::TintedLens) [[unlikely
+    ]] {
         damage = static_cast<int16_t>(damage * 2);
     }
-    const auto defender_item = defender->current_item;
+    const auto defender_item = defender->get_current_item_for_effect();
     if (DAMAGE_REDUCING_BERRIES.contains(defender_item) &&
         DAMAGE_REDUCING_BERRIES.at(defender_item) == move_type
     ) {
         damage = static_cast<int16_t>(damage / 2);
-        defender->current_item = NoItem;
+        defender->clear_current_item();
     }
+    damage = std::max(static_cast<int16_t>(1), damage);
 
+    const uint16_t hp_before = defender->get_current_stat(Stat::Health);
     defender->add_damage(damage);
+    return hp_before - defender->get_current_stat(Stat::Health);
 }
 
+template <IsEffectPolicy E>
+void hit_from_confusion(
+    const E& effect_policy,
+    PokemonState& attacker,
+    const Who who_attacker_is
+) {
+    const uint8_t attacker_level = attacker.level;
+    int16_t damage = DAMAGE_CACHE[attacker_level];
+    if (damage < 0) {
+        damage = static_cast<int16_t>(2 * attacker_level / 5 + 2);
+        DAMAGE_CACHE[attacker_level] = damage;
+    }
+    uint16_t power = 40;
+    if (attacker.get_current_ability() == Ability::Technician) {
+        power = static_cast<uint16_t>(power * 3 / 2);
+    }
+    const Item attacker_item = attacker.get_current_item_for_effect();
+    if (attacker_item == Item::SilkScarf) {
+        power = static_cast<uint16_t>(power * 6 / 5);
+    }
+    // Power boosted by 50% if Helping Hand is in effect
+
+    uint16_t attacker_attack = attacker.get_current_stat(Stat::Attack);
+    if (attacker_item == Item::ChoiceBand) {
+        attacker_attack = static_cast<uint16_t>(attacker_attack * 3 / 2);
+    }
+    // TODO Attack possibly boosted Thick Club or Light Ball; but do they?
+
+    const uint16_t defender_defense = attacker.get_current_stat(Stat::Defense);
+    damage = static_cast<int16_t>(
+        damage * power * attacker_attack / defender_defense
+    );
+    const uint8_t burn = attacker.get_current_status_condition() ==
+                         StatusCondition::Burn
+                             ? 2
+                             : 1;
+    damage = static_cast<int16_t>(damage / 50 / burn);
+    damage = static_cast<int16_t>(damage + 2);
+    const uint8_t random = effect_policy.roll_random(who_attacker_is);
+    damage = static_cast<int16_t>(damage * random / 100);
+    damage = std::max(static_cast<int16_t>(1), damage);
+    attacker.add_damage(damage);
+}
 
 inline void execute_moonlight(PokemonState& player, const Weather weather) {
-    const uint16_t max_hp = player.pokemon->get_stat(Health);
+    const uint16_t max_hp = player.get_original_stat(Stat::Health);
     uint16_t hp_gained;
-    if (weather == Clear) [[likely]] {
+    if (weather == Weather::Clear) [[likely]] {
         hp_gained = static_cast<uint16_t>(max_hp / 2);
-    } else if (weather == Sun) {
+    } else if (weather == Weather::Sun) {
         hp_gained = static_cast<uint16_t>(max_hp * 2 / 3);
     } else {
         hp_gained = static_cast<uint16_t>(max_hp / 4);
@@ -194,16 +259,33 @@ void roll_confusion(
     const int chance
 ) {
     if (rng_policy.roll(static_cast<uint8_t>(chance))) {
-        defender.set_confused(rng_policy.roll(static_cast<uint8_t>(3)) + 2);
+        // 1 to 4 since the game decrements before acting,
+        // but this engine decrements after the confusion check
+        defender.set_confused(rng_policy.roll(static_cast<uint8_t>(4)) + 1);
     }
 }
+
+template <IsRNGPolicy R>
+void roll_freeze(
+    const R& rng_policy,
+    const Weather weather,
+    PokemonState& defender,
+    const int chance
+) {
+    if (weather != Weather::Sun &&
+        rng_policy.roll(static_cast<uint8_t>(chance))
+    ) {
+        defender.try_set_status(StatusCondition::Freeze);
+    }
+}
+
 
 inline bool move_will_work(
     const BattleState& battle_state,
     const MoveInfo* move,
-    const Who who_is_attacker
+    const Who who_attacker_is
 ) {
-    const bool is_player_attacker = who_is_attacker == Player;
+    const bool is_player_attacker = who_attacker_is == Who::Player;
     const auto move_type = move->type;
 
     const PokemonState* defender_state;
@@ -212,10 +294,9 @@ inline bool move_will_work(
     } else {
         defender_state = &battle_state.player;
     }
-    const CustomPokemon* defender = defender_state->pokemon;
-
-    if (defender->ability == Levitate &&
-        move_type == Ground
+    const Ability ability = defender_state->get_current_ability();
+    if (ability == Ability::Levitate &&
+        move_type == PokemonType::Ground
     ) [[unlikely]] {
         return false;
     }
@@ -223,37 +304,258 @@ inline bool move_will_work(
     return true;
 }
 
-template <IsRNGPolicy R>
-void execute_move(
-    R rng_policy,
+template <IsEffectPolicy E, IsRNGPolicy R>
+uint16_t execute_struggle(
+    const E& effect_policy,
+    const R& rng_policy,
     BattleState& battle_state,
-    const Who who,
+    const Who who_attacker_is
+) {
+    // TODO all of the comments before the code
+
+    // Used when all moves are blocked by the moves
+    // Disable, Gravity, Heal Block, Imprison, Taunt, or Torment,
+    // or by the user's held choice item.
+
+    // If a Pokémon is forced to use a single move by Encore
+    // but that move runs out of PP, Encore's effect ends;
+    // otherwise, if the move affected by Encore is unavailable for other reasons,
+    // it will use Struggle.
+
+    // Struggle can hit through Wonder Guard.
+
+    // Struggle does not gain a boost from Reckless even though the user takes recoil damage.
+    // The user still takes recoil damage even if its Ability is Magic Guard or Rock Head.
+
+    // Struggle cannot be called by
+    // Assist, Me First, Metronome, or Sleep Talk, copied by Mimic, Sketch, Transform,
+    // repeated by a Pokémon as a result of Encore, Copycat, or a held choice item.
+
+    // Struggle cannot be blocked by means such as Disable, Imprison,
+    // or prevented from use multiple times in a row by Torment.
+
+    // Struggle deals typeless damage
+
+    // Self-inflicted recoil damage from Struggle from the previous turn
+    // can be countered if the opponent did not make a move on the following turn.
+
+    // The user will take recoil damage even if Struggle breaks a substitute.
+
+    // Struggle now bypasses accuracy checks to always hit,
+    // unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.
+
+    // Struggle will activate a target's held Chilan Berry.
+
+    // Despite having a base power of 50 in every generation,
+    // Struggle's power is not boosted by Technician in Generation IV.
+
+    const bool is_player_attacker = who_attacker_is == Who::Player;
+    PokemonState* attacker;
+    if (is_player_attacker) {
+        attacker = &battle_state.player;
+    } else {
+        attacker = &battle_state.opponent;
+    }
+
+    PokemonState* defender;
+    if (is_player_attacker) {
+        defender = &battle_state.opponent;
+    } else {
+        defender = &battle_state.player;
+    }
+
+    const uint8_t attacker_level = attacker->level;
+    int16_t damage = DAMAGE_CACHE[attacker_level];
+    if (damage < 0) {
+        damage = static_cast<int16_t>(2 * attacker_level / 5 + 2);
+        DAMAGE_CACHE[attacker_level] = damage;
+    }
+
+    constexpr uint16_t power = 50;
+    constexpr auto attack_category = Stat::Attack;
+    constexpr auto defense_category = Stat::Defense;
+
+    const Ability defender_ability = defender->get_current_ability();
+    const bool is_crit =
+        defender_ability != Ability::BattleArmor &&
+        defender_ability != Ability::ShellArmor &&
+        !defender->has_status(StatusWithStage::LuckyChanted) &&
+        rng_policy.roll(
+            calculate_crit_chance_based_on_stage(
+                attacker->get_status_value(StatusWithStage::CritChanceModified)
+            )
+        );
+
+    const uint16_t attacker_attack =
+        is_crit && attacker->get_stat_stage(attack_category) < 0
+            ? attacker->get_original_stat(attack_category)
+            : attacker->get_current_stat(attack_category);
+    const uint16_t defender_defense =
+        is_crit && defender->get_stat_stage(defense_category) > 0
+            ? defender->get_original_stat(defense_category)
+            : defender->get_current_stat(defense_category);
+    damage = static_cast<int16_t>(
+        damage * power * attacker_attack / defender_defense
+    );
+    const uint8_t screen =
+        (!is_crit && defender->has_status(StatusWithStage::Reflecting))
+            ? 2
+            : 1;
+    const uint8_t burn =
+        attacker->get_current_status_condition() == StatusCondition::Burn
+            ? 2
+            : 1;
+    damage = static_cast<int16_t>(damage / 50 / burn / screen);
+    damage = static_cast<int16_t>(damage + 2);
+
+    const uint8_t crit = is_crit ? 2 : 1;
+    damage = static_cast<int16_t>(damage * crit);
+
+    const Item attacker_item = attacker->get_current_item_for_effect();
+    if (attacker_item == Item::LifeOrb) {
+        damage = static_cast<int16_t>(damage * 4 / 3);
+    } else if (const int8_t n =
+            attacker->get_status_value(MoveStatusWithStage::MetronomeActive);
+        n > 0
+    ) {
+        damage = static_cast<int16_t>((damage * 10 + damage * n) / 10);
+    }
+    const uint8_t random = effect_policy.roll_random(who_attacker_is);
+    damage = static_cast<int16_t>(damage * random / 100);
+
+    const auto defender_item = defender->get_current_item_for_effect();
+    if (defender_item == Item::ChilanBerry) {
+        damage = static_cast<int16_t>(damage / 2);
+        defender->clear_current_item();
+    }
+    damage = std::max(static_cast<int16_t>(1), damage);
+
+    const uint16_t hp_before = defender->get_current_stat(Stat::Health);
+    defender->add_damage(damage);
+
+    attacker->add_damage(attacker->get_original_stat(Stat::Health) / 4);
+
+    return hp_before - defender->get_current_stat(Stat::Health);
+}
+
+template <IsEffectPolicy E>
+void roll_stat_drop(
+    const E& effect_policy,
+    PokemonState& state,
+    const Who whose_stat_dropped,
+    const Stat stat,
+    const int8_t stage_diff,
+    const uint8_t probability
+) {
+    if (effect_policy.roll_stat_drop(probability, whose_stat_dropped)) {
+        state.lower_stat_stage(stat, stage_diff);
+    }
+}
+
+template <IsEffectPolicy E, IsRNGPolicy R>
+uint16_t execute_move(
+    const E& effect_policy,
+    const R& rng_policy,
+    BattleState& battle_state,
+    const Who who_attacker_is,
     const MoveInfo* move
 ) {
-    if (!move_will_work(battle_state, move, who)) {
-        return;
+    if (!move_will_work(battle_state, move, who_attacker_is)) {
+        return 0;
     }
-    const bool is_player = who == Player;
-    PokemonState& attacker = is_player
+
+    const bool is_player_attacker = who_attacker_is == Who::Player;
+    PokemonState& attacker = is_player_attacker
                                  ? battle_state.player
                                  : battle_state.opponent;
-    PokemonState& defender = is_player
+    PokemonState& defender = is_player_attacker
                                  ? battle_state.opponent
                                  : battle_state.player;
-    if (move->move == Moonlight) {
-        execute_moonlight(attacker, battle_state.weather);
-    } else if (move_has_flag(move->move, HAS_POWER)) {
-        execute_power_move(
+
+    if (attacker.get_current_status_condition() ==
+        StatusCondition::Freeze
+    ) [[unlikely]] {
+        if (rng_policy.roll(static_cast<uint8_t>(20)) ||
+            move->move == Move::FlameWheel ||
+            move->move == Move::FlareBlitz ||
+            move->move == Move::SacredFire
+        ) {
+            attacker.clear_status_condition();
+        } else {
+            return 0;
+        }
+    }
+
+    // Sleep, paralysis and flinching must be checked for before confusion!
+    // "Being unable to attack for other reasons"
+    // also must return before the confusion check!
+
+    if (attacker.get_status_value(StatusWithStage::Confused) > 0) {
+        if (rng_policy.roll(static_cast<uint8_t>(50))) {
+            hit_from_confusion(effect_policy, attacker, who_attacker_is);
+            attacker.decrement_status_value(StatusWithStage::Confused);
+            return 0;
+        }
+        attacker.decrement_status_value(StatusWithStage::Confused);
+    }
+
+    // Moves should only be considered "executed" past this point!
+    // =========================================================================
+
+    if (move->move == Move::Struggle) {
+        return execute_struggle(
+            effect_policy,
             rng_policy,
             battle_state,
-            move,
-            who
+            who_attacker_is
         );
     }
 
-    if (move_has_flag(move->move, CONFUSES_DEFENDER_10)) {
+    const Weather weather = battle_state.weather;
+    uint16_t damage = 0;
+    if (move->move == Move::Moonlight) [[unlikely]] {
+        execute_moonlight(attacker, weather);
+    } else if (move_has_flag(move->move, MoveFlag::HAS_POWER)) {
+        damage = execute_power_move(
+            effect_policy,
+            rng_policy,
+            battle_state,
+            move,
+            who_attacker_is
+        );
+    }
+
+    if (move_has_flag(move->move, MoveFlag::CONFUSES_DEFENDER_10)) [[unlikely]
+    ] {
         roll_confusion(rng_policy, defender, 10);
     }
+    if (move_has_flag(move->move, MoveFlag::FREEZES_DEFENDER_10)) [[unlikely]] {
+        roll_freeze(rng_policy, weather, defender, 10);
+    }
+    if (move_has_flag(
+            move->move,
+            MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)
+    ) [[unlikely]] {
+        roll_stat_drop(
+            effect_policy,
+            defender,
+            is_player_attacker ? Who::Opponent : Who::Player,
+            Stat::SpecialDefense,
+            1,
+            10
+        );
+    }
+
+    if (damage > 0 &&
+        move->type == PokemonType::Fire &&
+        defender.get_current_status_condition() == StatusCondition::Freeze
+    ) [[unlikely]] {
+        defender.clear_status_condition();
+    }
+
+    attacker.decrement_power_point(move->move);
+
+    return damage;
 }
 
 #endif //GEN_IV_BATTLE_FRONTIER_ANALYZER_MOVE_EXECUTION_H

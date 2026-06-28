@@ -56,7 +56,7 @@ parse_battle_factory_file(const char* path) {
                 types[n_types++] = STRING_TO_TYPE_MAP.at(std::string(t));
             }
             if (n_types == 1) {
-                types[n_types] = NoType;
+                types[n_types] = PokemonType::NoType;
             }
 
 
@@ -79,20 +79,20 @@ parse_battle_factory_file(const char* path) {
                 moves.push_back(STRING_TO_MOVE_MAP.at(name));
             }
 
-            std::array<uint16_t, NoStat> effort_values
+            std::array<uint16_t, to_int(Stat::NoStat)> effort_values
                 {};
-            effort_values[Health] = 0;
-            effort_values[Attack] = 0;
-            effort_values[Defense] = 0;
-            effort_values[SpecialAttack] = 0;
-            effort_values[SpecialDefense] = 0;
-            effort_values[Speed] = 0;
+            effort_values[to_int(Stat::Health)] = 0;
+            effort_values[to_int(Stat::Attack)] = 0;
+            effort_values[to_int(Stat::Defense)] = 0;
+            effort_values[to_int(Stat::SpecialAttack)] = 0;
+            effort_values[to_int(Stat::SpecialDefense)] = 0;
+            effort_values[to_int(Stat::Speed)] = 0;
             for (auto ev :
                  poke_obj["effort_values"].get_array()
             ) {
                 const auto stat_type = std::string(ev["stat_type"]);
                 const int16_t value = static_cast<int16_t>(ev["value"]);
-                effort_values[STRING_TO_STAT_MAP.at(stat_type)] = value;
+                effort_values[to_int(STRING_TO_STAT_MAP.at(stat_type))] = value;
             }
 
             auto nature = std::string(poke_obj["nature"].value());
@@ -173,59 +173,59 @@ std::vector<CustomPokemon> construct_all_custom_batle_factory_pokemon(
         const auto nature = p.nature;
         const auto hp = get_stat(
             LEVEL,
-            Health,
+            Stat::Health,
             base_health,
             iv,
-            p.effort_values.at(Health),
+            p.effort_values.at(to_int(Stat::Health)),
             nature
         );
         const auto attack = get_stat(
             LEVEL,
-            Attack,
+            Stat::Attack,
             base_attack,
             iv,
-            p.effort_values.at(Attack),
+            p.effort_values.at(to_int(Stat::Attack)),
             nature
         );
         const auto defense = get_stat(
             LEVEL,
-            Defense,
+            Stat::Defense,
             base_defense,
             iv,
-            p.effort_values.at(Defense),
+            p.effort_values.at(to_int(Stat::Defense)),
             nature
         );
         const auto special_attack = get_stat(
             LEVEL,
-            SpecialAttack,
+            Stat::SpecialAttack,
             base_special_attack,
             iv,
-            p.effort_values.at(SpecialAttack),
+            p.effort_values.at(to_int(Stat::SpecialAttack)),
             nature
         );
         const auto special_defense = get_stat(
             LEVEL,
-            SpecialDefense,
+            Stat::SpecialDefense,
             base_special_defense,
             iv,
-            p.effort_values.at(SpecialDefense),
+            p.effort_values.at(to_int(Stat::SpecialDefense)),
             nature
         );
         const auto speed = get_stat(
             LEVEL,
-            Speed,
+            Stat::Speed,
             base_speed,
             iv,
-            p.effort_values.at(Speed),
+            p.effort_values.at(to_int(Stat::Speed)),
             nature
         );
 
-        const bool isPlayer = who == Player;
+        const bool isPlayer = who == Who::Player;
         std::vector<Move> moves;
         if (isPlayer) {
             moves = {};
             for (const auto move : p.moves) {
-                if (const auto& moveInfo = all_move_infos[move];
+                if (const auto& moveInfo = all_move_infos[to_int(move)];
                     moveInfo.accuracy == 100
                 ) {
                     moves.emplace_back(move);
@@ -238,8 +238,8 @@ std::vector<CustomPokemon> construct_all_custom_batle_factory_pokemon(
         std::ranges::sort(
             moves,
             [&all_move_infos](const Move a, const Move b) {
-                const auto& info_a = all_move_infos[a];
-                const auto& info_b = all_move_infos[b];
+                const auto& info_a = all_move_infos[to_int(a)];
+                const auto& info_b = all_move_infos[to_int(b)];
                 return info_a.power < info_b.power;
             }
         );

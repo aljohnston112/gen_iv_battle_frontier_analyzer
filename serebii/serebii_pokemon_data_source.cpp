@@ -3,21 +3,22 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <ranges>
 #include <unordered_set>
 
 #include "../config.h"
 #include "../nature.h"
 
-static inline std::array<
+inline std::array<
     MoveInfo,
-    MoveCount
+    to_int(Move::MoveCount)
 > MOVE_INFO_MAP{};
 
-static inline std::unordered_map<std::string, SerebiiPokemon>
+inline std::unordered_map<std::string, SerebiiPokemon>
 SEREBII_PLAYER_POKEMON_MAP{};
 
-static std::string extract_left_string(const std::string& line) {
+std::string extract_left_string(const std::string& line) {
     const auto first = line.find('"') + 1;
     const auto colon_i = line.find(':') - 1;
     return line.substr(first, colon_i - first);
@@ -57,16 +58,13 @@ const MoveInfo* parse_move(
         if (line.find("name") != std::string::npos) {
             move_info.name = extract_right_string(line);
             move_info.move = STRING_TO_MOVE_MAP.at(move_info.name);
-            if (MOVE_INFO_MAP[
-                    move_info.move
-                ].name.size() != 0
-            ) {
+            if (MOVE_INFO_MAP[to_int(move_info.move)].name.size() != 0) {
                 while (std::getline(in, line)) {
                     if (line.find('}') != std::string::npos) {
                         break;
                     }
                 }
-                return &MOVE_INFO_MAP[move_info.move];
+                return &MOVE_INFO_MAP[to_int(move_info.move)];
             }
         } else if (line.find("move_type") != std::string::npos) {
             move_info.type =
@@ -87,10 +85,10 @@ const MoveInfo* parse_move(
                 extract_right_int(line);
         }
     }
-    if (MOVE_INFO_MAP[move_info.move].name.empty()) {
-        MOVE_INFO_MAP[move_info.move] = std::move(move_info);
+    if (MOVE_INFO_MAP[to_int(move_info.move)].name.empty()) {
+        MOVE_INFO_MAP[to_int(move_info.move)] = std::move(move_info);
     }
-    return &MOVE_INFO_MAP[move_info.move];
+    return &MOVE_INFO_MAP[to_int(move_info.move)];
 }
 
 SerebiiPokemon parse_pokemon(std::ifstream& input_stream) {
@@ -437,7 +435,7 @@ SerebiiPokemon parse_pokemon(std::ifstream& input_stream) {
     return serebii_pokemon;
 }
 
-std::unordered_map<std::string, SerebiiPokemon> ensure_dataset_is_loaded() {
+const std::unordered_map<std::string, SerebiiPokemon>& ensure_dataset_is_loaded() {
     std::ifstream input_stream("./data/fresh/all_pokemon.json");
 
     std::string line;
@@ -453,7 +451,7 @@ std::unordered_map<std::string, SerebiiPokemon> ensure_dataset_is_loaded() {
     return SEREBII_PLAYER_POKEMON_MAP;
 }
 
-const std::array<MoveInfo, MoveCount>& get_all_moves() {
+const std::array<MoveInfo, to_int(Move::MoveCount)>& get_all_moves() {
     ensure_dataset_is_loaded();
     return MOVE_INFO_MAP;
 }
@@ -561,7 +559,7 @@ get_moves_for_serebii_pokemon(
     return moves_by_form;
 }
 
-std::array<uint16_t, NoStat> get_stats_for_serebii(
+std::array<uint16_t, to_int(Stat::NoStat)> get_stats_for_serebii(
     const std::string& form,
     const SerebiiPokemon& serebii_pokemon
 ) {
@@ -576,7 +574,7 @@ std::array<uint16_t, NoStat> get_stats_for_serebii(
     } else {
         base_stats = serebii_pokemon.form_to_base_stats.at(form);
     }
-    std::array<uint16_t, NoStat> stats{};
+    std::array<uint16_t, to_int(Stat::NoStat)> stats{};
     for (const auto& [stat, value] : base_stats) {
         std::string name = serebii_pokemon.name;
         if (name == "Wormadam") {
@@ -621,18 +619,18 @@ std::array<uint16_t, NoStat> get_stats_for_serebii(
                 throw std::runtime_error{""};
             }
         }
-        if (stat != Health &&
-            STRING_TO_POKEMON_MAP.at(name) == Shedinja
+        if (stat != Stat::Health &&
+            STRING_TO_POKEMON_MAP.at(name) == Pokemon::Shedinja
         ) {
-            stats[stat] = 1;
+            stats[to_int(stat)] = 1;
         } else {
-            stats[stat] = get_stat(
+            stats[to_int(stat)] = get_stat(
                 LEVEL,
                 stat,
                 value,
                 0,
                 0,
-                NATURE_MAP.at(HARDY)
+                NATURE_MAP.at(NatureEnum::HARDY)
             );
         }
     }
@@ -672,7 +670,7 @@ std::unordered_map<
     for (const auto& [form, move_map] : form_moves) {
         std::unordered_map<
             Category,
-            std::array<const MoveInfo*, NoType>
+            std::array<const MoveInfo*, to_int(PokemonType::NoType)>
         > moves;
         const uint8_t min_accuracy = is_player ? 100 : 0;
         auto others = std::vector<const MoveInfo*>{};
@@ -684,21 +682,22 @@ std::unordered_map<
             }
 
             auto& type_map = moves[move->category];
-            const auto current_move = type_map[move->type];
+            const auto current_move = type_map[to_int(move->type)];
             if (move_has_flag(
                     move->move,
-                    REQUIRES_CHARGING_TURN
+                    MoveFlag::REQUIRES_CHARGING_TURN
                 ) ||
-                move_has_flag(move->move,
-                              REQUIRES_RECHARGE_TURN
+                move_has_flag(
+                    move->move,
+                    MoveFlag::REQUIRES_RECHARGE_TURN
                 ) ||
-                !move_has_flag(move->move, HAS_POWER)
+                !move_has_flag(move->move, MoveFlag::HAS_POWER)
             ) {
                 others.push_back(move);
             } else if (current_move == nullptr ||
                 move->power > current_move->power
             ) {
-                type_map[move->type] = move;
+                type_map[to_int(move->type)] = move;
             }
         }
         for (const auto& array : moves | std::views::values) {
@@ -750,13 +749,13 @@ std::unordered_map<
         if (name == "Wormadam") {
             if (form == "Plant Cloak") {
                 name = "WormadamP";
-                types = {Bug, Grass};
+                types = {PokemonType::Bug, PokemonType::Grass};
             } else if (form == "Sandy Cloak") {
                 name = "WormadamS";
-                types = {Ground, Bug};
+                types = {PokemonType::Ground, PokemonType::Bug};
             } else if (form == "Trash Cloak") {
                 name = "WormadamT";
-                types = {Steel, Bug};
+                types = {PokemonType::Steel, PokemonType::Bug};
             }
         } else if (name == "Deoxys") {
             if (form == "Normal Forme") {
@@ -771,10 +770,10 @@ std::unordered_map<
         } else if (name == "Shaymin") {
             if (form == "Land Forme") {
                 name = "LandShaymin";
-                types = {Grass};
+                types = {PokemonType::Grass};
             } else if (form == "Sky Forme") {
                 name = "SkyShaymin";
-                types = {Grass, Flying};
+                types = {PokemonType::Grass, PokemonType::Flying};
             }
         } else if (name == "Giratina") {
             if (form == "Altered Forme") {
@@ -784,7 +783,7 @@ std::unordered_map<
             }
         }
         if (types.size() == 1) {
-            types.emplace_back(NoType);
+            types.emplace_back(PokemonType::NoType);
         }
         std::ranges::sort(types);
         const Pokemon name_enum = STRING_TO_POKEMON_MAP.at(name);
@@ -796,8 +795,8 @@ std::unordered_map<
         std::ranges::sort(
             move_vector,
             [&all_move_infos](const Move a, const Move b) {
-                const auto& info_a = all_move_infos.at(a);
-                const auto& info_b = all_move_infos.at(b);
+                const auto& info_a = all_move_infos[to_int(a)];
+                const auto& info_b = all_move_infos[to_int(b)];
                 return info_a.power < info_b.power;
             }
         );
@@ -839,11 +838,11 @@ std::vector<CustomPokemon> construct_all_pokemon_forms(const Who who) {
              std::views::values
         ) {
             for (auto& pokemon : pokemon_variants) {
-                const bool isPlayer = who == Player;
+                const bool isPlayer = who == Who::Player;
                 if (isPlayer) {
                     std::vector<Move> moves;
                     for (const auto move : pokemon.moves) {
-                        if (const auto& moveInfo = all_move_infos[move];
+                        if (const auto& moveInfo = all_move_infos[to_int(move)];
                             moveInfo.accuracy == 100
                         ) {
                             moves.emplace_back(move);
