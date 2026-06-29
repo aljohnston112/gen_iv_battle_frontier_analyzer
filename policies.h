@@ -32,6 +32,10 @@ public:
     bool roll_stat_drop(const uint8_t percent, const Who who) {
         return static_cast<const T*>(this)->roll_stat_drop(percent, who);
     }
+
+    bool opponent_knows_player_move() {
+        return static_cast<const T*>(this)->opponent_knows_player_move();
+    }
 };
 
 template <typename T>
@@ -51,6 +55,10 @@ public:
 
     static bool roll_stat_drop(const uint8_t, const Who who) {
         return who == Who::Player;
+    }
+
+    static bool opponent_knows_player_move() {
+        return true;
     }
 };
 

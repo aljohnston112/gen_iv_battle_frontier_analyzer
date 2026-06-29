@@ -42,12 +42,11 @@ Who who_goes_first(
 template <IsEffectPolicy T, IsRNGPolicy R>
 TurnResult execute_turn(
     const PolicyContainer<T, R>& policy_container,
-    const BattleState& battle_state,
+    BattleState& battle_state,
     const MoveInfo* player_move,
     const MoveInfo* opponent_move,
     const size_t parent_index
 ) {
-    BattleState mutable_state = battle_state;
     const T& effect_policy = policy_container.effect_policy;
     const R& rng_policy = policy_container.rng_policy;
     const bool player_goes_first =
@@ -65,7 +64,7 @@ TurnResult execute_turn(
         execute_move(
             effect_policy,
             rng_policy,
-            mutable_state,
+            battle_state,
             first,
             first_move
         );
@@ -73,21 +72,20 @@ TurnResult execute_turn(
         execute_move(
             effect_policy,
             rng_policy,
-            mutable_state,
+            battle_state,
             second,
             second_move
         );
-    apply_end_of_turn(effect_policy, mutable_state);
+    apply_end_of_turn(effect_policy, battle_state);
 
     return TurnResult{
-        .battle_state = mutable_state,
+        .battle_state = battle_state,
         .player_move_used = player_move->move,
         .player_move_damage =
         player_goes_first ? first_move_damage : second_move_damage,
         .opponent_move_used = opponent_move->move,
         .opponent_move_damage =
         player_goes_first ? second_move_damage : first_move_damage,
-        .parent_index = parent_index
     };
 }
 
@@ -96,36 +94,116 @@ inline bool is_battle_over(const BattleState& battle_state) {
         battle_state.opponent.get_current_stat(Stat::Health) == 0;
 }
 
-inline void update_best(
-    const std::deque<TurnResult>& path,
-    std::deque<TurnResult>& best
+struct BestMoveResult {
+    Move move;
+    uint16_t damage;
+    uint16_t number_of_hits_to_ko;
+    uint16_t total_damage;
+};
+
+template <IsEffectPolicy E, IsRNGPolicy R>
+BestMoveResult get_best_special_move(
+    const E& effect_policy,
+    const R& rng_policy,
+    const BattleState& battle_state,
+    const std::vector<Move>& moves,
+    const Who who_is_picking
 ) {
-    if (!path.empty() &&
-        (path.size() > best.size() ||
-            path.back().battle_state.opponent.get_current_stat(Stat::Health) > 0
-        )
-    ) {
-        return;
-    }
+    const auto& all_move_infos =
+        get_all_moves();
 
-    if (path.size() < best.size() ||
-        (!path.empty() &&
-            path.back().player_move_damage < best.back().player_move_damage)
-    ) {
-        best.clear();
-        best.append_range(path);
-    }
+    auto best = BestMoveResult{
+        Move::MoveCount,
+        0,
+        UINT16_MAX,
+        0
+    };
 
-    // TODO tie breaker?
+    const auto defender = who_is_picking == Who::Player
+                              ? battle_state.opponent
+                              : battle_state.player;
+    const uint16_t defender_hp = defender.get_current_stat(Stat::Health);
+
+    for (const auto move : moves) {
+        const auto& move_info = &all_move_infos[to_int(move)];
+        if (move_info->category == Category::SPECIAL) {
+            const uint16_t damage = get_damage_of_power_move(
+                effect_policy,
+                rng_policy,
+                battle_state,
+                move_info,
+                who_is_picking
+            );
+            uint16_t hits_to_ko;
+            uint16_t total_damage;
+
+            if (who_is_picking == Who::Opponent) {
+                if (move_has_flag(
+                        move,
+                        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)
+                ) [[unlikely]] {
+                    BattleState temp_battle_state = battle_state;
+                    PokemonState& temp_defender = temp_battle_state.player;
+                    hits_to_ko = 1;
+                    total_damage = execute_move(
+                        effect_policy,
+                        rng_policy,
+                        temp_battle_state,
+                        who_is_picking,
+                        move_info
+                    );
+                    while (temp_defender.get_current_stat(Stat::Health) > 0) {
+                        hits_to_ko++;
+                        total_damage += execute_move(
+                            effect_policy,
+                            rng_policy,
+                            temp_battle_state,
+                            who_is_picking,
+                            move_info
+                        );
+                    }
+                }
+            } else {
+                hits_to_ko =
+                    std::ceil(static_cast<double>(defender_hp) / damage);
+                total_damage = damage * hits_to_ko;
+            }
+
+            if (hits_to_ko < best.number_of_hits_to_ko ||
+                (hits_to_ko == best.number_of_hits_to_ko && damage &&
+                    damage > best.damage)
+            ) {
+                best.move = move;
+                best.damage = damage;
+                best.number_of_hits_to_ko = hits_to_ko;
+                best.total_damage = total_damage;
+            }
+        }
+    }
+    return best;
 }
 
-inline std::vector<Move> choose_moves_against_defender(
+template <IsEffectPolicy E, IsRNGPolicy R>
+Move choose_move_against_defender(
+    const E& effect_policy,
+    const R& rng_policy,
     const BattleState& battle_state,
-    const Who who
+    const Who who_is_picking
 ) {
-    return who == Who::Player
-               ? battle_state.player.get_moves()
-               : battle_state.opponent.get_moves();
+    const std::vector<Move>& moves =
+        who_is_picking == Who::Player
+            ? battle_state.player.get_moves()
+            : battle_state.opponent.get_moves();
+    BestMoveResult best_special = get_best_special_move(
+        effect_policy,
+        rng_policy,
+        battle_state,
+        moves,
+        who_is_picking
+    );
+
+
+    return best_special.move;
 }
 
 inline BattleResultEntry single_battle(
@@ -154,96 +232,59 @@ inline BattleResultEntry single_battle(
     };
 
     bool won = false;
-    std::deque<TurnResult> best_battle{};
     std::deque<TurnResult> path{};
-    std::deque<TurnResult> children{};
-
-    children.emplace_back(std::move(TurnResult{
-        .battle_state = BattleState{
-            PokemonState{&player_pokemon},
-            PokemonState{&opponent_pokemon}
-        },
-        .player_move_used = Move::MoveCount,
-        .player_move_damage = 0,
-        .opponent_move_used = Move::MoveCount,
-        .opponent_move_damage = 0,
-        .parent_index = 0
-    }));
+    path.emplace_back(
+        TurnResult{
+            .battle_state = BattleState{
+                PokemonState{&player_pokemon},
+                PokemonState{&opponent_pokemon}
+            },
+            .player_move_used = Move::MoveCount,
+            .player_move_damage = 0,
+            .opponent_move_used = Move::MoveCount,
+            .opponent_move_damage = 0
+        }
+    );
 
     const auto& all_move_infos =
         get_all_moves();
 
-    while (!children.empty()) {
-        const size_t parent_index = children.back().parent_index;
-        path.emplace_back(std::move(children.back()));
-        children.pop_back();
-
-        while (path.size() - 1 > parent_index) {
-            path.pop_back();
-        }
-        const TurnResult& current = path.back();
-
-        const auto& battle_state = current.battle_state;
-        const std::vector<Move> player_moves =
-            choose_moves_against_defender(battle_state, Who::Player);
-        const std::vector<Move> opponent_moves =
-            choose_moves_against_defender(battle_state, Who::Opponent);
-        verify_moves_implemented(player_moves, opponent_moves);
-
-        for (const auto& player_move : player_moves) {
-            const auto player_move_info =
-                &all_move_infos[to_int(player_move)];
-            if (move_will_work(
-                    battle_state,
-                    player_move_info,
-                    Who::Player
-                )
-            ) {
-
-                // TODO oppponent is not optimal,
-                // so best battle for player will not be found
-                for (const auto& opponent_move : opponent_moves) {
-                    const auto opponent_move_info =
-                        &all_move_infos[to_int(opponent_move)];
-                    if (best_battle.size() > 0 &&
-                        path.size() >= best_battle.size()
-                    ) {
-                        continue;
-                    }
-
-                    if (move_will_work(
-                            battle_state,
-                            opponent_move_info,
-                            Who::Opponent
-                        )
-                    ) {
-                        auto turn_result = execute_turn(
-                            battle_engine.policy_container,
-                            battle_state,
-                            player_move_info,
-                            opponent_move_info,
-                            path.size()
-                        );
-
-                        if (is_battle_over(turn_result.battle_state)) {
-                            path.emplace_back(std::move(turn_result));
-                            update_best(path, best_battle);
-                            continue;
-                        }
-                        children.emplace_back(std::move(turn_result));
-                    }
-                }
-            }
-        }
+    auto* battle_state = &path.back().battle_state;
+    while (!is_battle_over(*battle_state)) {
+        const Move player_move =
+            choose_move_against_defender(
+                battle_engine.effect_policy,
+                battle_engine.rng_policy,
+                *battle_state,
+                Who::Player
+            );
+        const Move opponent_move =
+            choose_move_against_defender(
+                battle_engine.effect_policy,
+                battle_engine.rng_policy,
+                *battle_state,
+                Who::Opponent
+            );
+        auto turn_result =
+            execute_turn(
+                battle_engine.policy_container,
+                *battle_state,
+                &all_move_infos[to_int(player_move)],
+                &all_move_infos[to_int(opponent_move)],
+                path.size()
+            );
+        path.emplace_back(std::move(turn_result));
+        battle_state = &path.back().battle_state;
     }
+
     return BattleResultEntry{
         player_index,
         opponent_index,
         won,
         std::move(
             std::vector<TurnResult>{
-                best_battle.begin(),
-                best_battle.end()
+                path.begin(),
+                path.end()
             }
         )
     };

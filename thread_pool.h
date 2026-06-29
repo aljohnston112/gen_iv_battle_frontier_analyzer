@@ -22,7 +22,6 @@ struct TurnResult {
     uint32_t player_move_damage;
     Move opponent_move_used;
     uint32_t opponent_move_damage;
-    size_t parent_index;
 };
 
 struct PokemonBattleEntries {

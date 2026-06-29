@@ -19,10 +19,10 @@ inline std::array<int16_t, LEVEL + 1> DAMAGE_CACHE = [] {
 
 
 template <IsEffectPolicy E, IsRNGPolicy R>
-uint16_t execute_power_move(
+uint16_t get_damage_of_power_move(
     const E& effect_policy,
     const R& rng_policy,
-    BattleState& battle_state,
+    const BattleState& battle_state,
     const MoveInfo* move,
     const Who who_attacker_is
 ) {
@@ -31,14 +31,14 @@ uint16_t execute_power_move(
 
     const bool is_player_attacker = who_attacker_is == Who::Player;
 
-    PokemonState* attacker;
+    const PokemonState* attacker;
     if (is_player_attacker) {
         attacker = &battle_state.player;
     } else {
         attacker = &battle_state.opponent;
     }
 
-    PokemonState* defender;
+    const PokemonState* defender;
     if (is_player_attacker) {
         defender = &battle_state.opponent;
     } else {
@@ -177,21 +177,55 @@ uint16_t execute_power_move(
             damage = static_cast<int16_t>(damage * 6 / 5);
         }
     }
-    if (effectiveness < 1 && attacker_ability == Ability::TintedLens) [[unlikely
-    ]] {
+    if (effectiveness < 1 &&
+        attacker_ability == Ability::TintedLens
+    ) [[unlikely]] {
         damage = static_cast<int16_t>(damage * 2);
     }
     const auto defender_item = defender->get_current_item_for_effect();
     if (DAMAGE_REDUCING_BERRIES.contains(defender_item) &&
-        DAMAGE_REDUCING_BERRIES.at(defender_item) == move_type
-    ) {
+        DAMAGE_REDUCING_BERRIES.at(defender_item) == move->type
+    ) [[unlikely]] {
         damage = static_cast<int16_t>(damage / 2);
+    }
+
+    damage = std::max(static_cast<int16_t>(1), damage);
+    return damage;
+}
+
+template <IsEffectPolicy E, IsRNGPolicy R>
+uint16_t execute_power_move(
+    const E& effect_policy,
+    const R& rng_policy,
+    BattleState& battle_state,
+    const MoveInfo* move,
+    const Who who_attacker_is
+) {
+    const bool is_player_attacker = who_attacker_is == Who::Player;
+    PokemonState* defender;
+    if (is_player_attacker) {
+        defender = &battle_state.opponent;
+    } else {
+        defender = &battle_state.player;
+    }
+
+    const auto defender_item = defender->get_current_item_for_effect();
+    if (DAMAGE_REDUCING_BERRIES.contains(defender_item) &&
+        DAMAGE_REDUCING_BERRIES.at(defender_item) == move->type
+    ) [[unlikely]] {
         defender->clear_current_item();
     }
-    damage = std::max(static_cast<int16_t>(1), damage);
 
     const uint16_t hp_before = defender->get_current_stat(Stat::Health);
-    defender->add_damage(damage);
+    defender->add_damage(
+        get_damage_of_power_move(
+            effect_policy,
+            rng_policy,
+            battle_state,
+            move,
+            who_attacker_is
+        )
+    );
     return hp_before - defender->get_current_stat(Stat::Health);
 }
 
