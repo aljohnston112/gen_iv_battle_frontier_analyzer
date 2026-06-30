@@ -8,7 +8,7 @@
 #include "pokemon.h"
 #include "policies.h"
 #include "thread_pool.h"
-#include "serebii/serebii_pokemon_data_source.h"
+#include "serebii_pokemon_data_source.h"
 
 template <IsEffectPolicy E, IsRNGPolicy R>
 class BattleEngine {

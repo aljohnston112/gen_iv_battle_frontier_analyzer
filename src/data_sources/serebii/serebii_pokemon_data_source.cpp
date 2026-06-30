@@ -7,8 +7,8 @@
 #include <ranges>
 #include <unordered_set>
 
-#include "../config.h"
-#include "../nature.h"
+#include "config.h"
+#include "nature.h"
 
 inline std::array<
     MoveInfo,

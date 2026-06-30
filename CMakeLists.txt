@@ -96,44 +96,42 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 
-add_executable(
-        gen_iv_battle_frontier_analyzer
-        main.cpp
-        config.h
-        policies.h
-        round_robin.h
-        thread_pool.cpp
-        thread_pool.h
-        util.h
+add_subdirectory(external)
+add_subdirectory(src)
 
-        ability.h
-        category.h
-        item.h
-        move.h
-        nature.h
-        pokemon.h
-        stat.h
-        type.h
-
-        battle_factory/factory_data_source.cpp
-        battle_factory/factory_data_source.h
-
-        serebii/serebii_pokemon_data_source.cpp
-        serebii/serebii_pokemon_data_source.h
-
-        battle_engine.h
-        battle_state.h
-        move_execution.h
-        end_of_turn_effects.h
-
-        external/simdjson.cpp
-        external/simdjson.h
-
+add_library(core INTERFACE)
+target_link_libraries(core INTERFACE
+        battle_factory
+        common
+        engine
+        models
+        serebii
+        simdjson
 )
 
-add_custom_command(
-        TARGET gen_iv_battle_frontier_analyzer POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/data
-        $<TARGET_FILE_DIR:gen_iv_battle_frontier_analyzer>/data
+add_executable(gen_iv_battle_frontier_analyzer main.cpp)
+target_link_libraries(gen_iv_battle_frontier_analyzer PRIVATE core)
+
+add_subdirectory(test)
+
+add_custom_target(run_tests
+        COMMAND ${CMAKE_COMMAND} --build "${CMAKE_BINARY_DIR}" --target test_runner
+        COMMAND "$<TARGET_FILE:test_runner>"
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+        COMMENT "Building and running tests from project root..."
+        VERBATIM
 )
+
+function(add_data_copy_post_build target_name)
+    add_custom_command(
+            TARGET ${target_name} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_SOURCE_DIR}/data"
+            "${CMAKE_BINARY_DIR}/data"
+            COMMENT "Copying data assets"
+            VERBATIM
+    )
+endfunction()
+
+add_data_copy_post_build(gen_iv_battle_frontier_analyzer)
+add_data_copy_post_build(run_tests)

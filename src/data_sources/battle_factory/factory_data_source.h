@@ -2,12 +2,11 @@
 
 #include <unordered_map>
 
-#include "../external/simdjson.h"
-
-#include "../pokemon.h"
-#include "../move.h"
-#include "../nature.h"
-#include "../type.h"
+#include "move.h"
+#include "nature.h"
+#include "pokemon.h"
+#include "simdjson.h"
+#include "type.h"
 
 struct BattleFactoryPokemon {
     std::string name;

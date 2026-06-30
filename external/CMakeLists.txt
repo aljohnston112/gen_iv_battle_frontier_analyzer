@@ -1,0 +1,2 @@
+add_subdirectory(libhungarian)
+add_subdirectory(simdjson)

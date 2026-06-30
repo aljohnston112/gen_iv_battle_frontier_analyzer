@@ -3,8 +3,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../config.h"
-#include "../serebii/serebii_pokemon_data_source.h"
+#include "serebii_pokemon_data_source.h"
 
 inline std::unordered_map<std::string, BaseStats>
 parse_base_stats_file(const char* path) {

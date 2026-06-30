@@ -6,8 +6,10 @@
 #include <vector>
 #include <unordered_map>
 
-#include "../move.h"
-#include "../pokemon.h"
+#include "move.h"
+#include "pokemon.h"
+#include "stat.h"
+#include "type.h"
 
 struct SerebiiPokemon {
     std::string name;

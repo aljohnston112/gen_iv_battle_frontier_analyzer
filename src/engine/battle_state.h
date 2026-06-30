@@ -3,7 +3,7 @@
 #include <cassert>
 
 #include "pokemon.h"
-#include "serebii/serebii_pokemon_data_source.h"
+#include "serebii_pokemon_data_source.h"
 
 enum class FieldStatus {
     GravityActive,

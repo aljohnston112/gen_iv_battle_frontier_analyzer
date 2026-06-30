@@ -3,6 +3,7 @@
 #include <array>
 #include <format>
 #include <string>
+#include <vector>
 
 #include "category.h"
 #include "config.h"

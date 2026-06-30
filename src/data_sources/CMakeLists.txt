@@ -1,0 +1,2 @@
+add_subdirectory(battle_factory)
+add_subdirectory(serebii)

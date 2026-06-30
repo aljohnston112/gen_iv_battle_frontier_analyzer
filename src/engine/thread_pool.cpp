@@ -1,5 +1,6 @@
-#include <future>
 #include "thread_pool.h"
+
+#include <future>
 
 ThreadPool::ThreadPool(const size_t numThreads) {
     for (size_t i = 0; i < numThreads; ++i) {
