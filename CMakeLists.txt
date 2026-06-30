@@ -89,8 +89,6 @@ add_compile_options(${COMMON_COMPILE_FLAGS})
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
 
 find_package(OpenMP REQUIRED)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fopenmp")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fopenmp")
 
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 
@@ -111,7 +109,7 @@ target_link_libraries(core INTERFACE
 
 add_executable(gen_iv_battle_frontier_analyzer main.cpp)
 target_link_libraries(gen_iv_battle_frontier_analyzer PRIVATE core)
-
+target_link_libraries(gen_iv_battle_frontier_analyzer PRIVATE OpenMP::OpenMP_CXX)
 add_subdirectory(test)
 
 add_custom_target(run_tests
