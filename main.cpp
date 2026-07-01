@@ -4,31 +4,8 @@
 #include "factory_data_source.h"
 #include "serebii_pokemon_data_source.h"
 
-/**
-    TODO
-    Start writing these tests:
-    1. Damage calc for special attack is correct
-      a. 85 random
-      b. 100 random
-    2. Ice Beam freezes
-    3. Freeze prevents sttacking
-    4. Signal Beam confuses
-    5. Confusion prevents attacking
-    6. Confusion damage is correct
-    7. Confusion ends on the right turn
-    8. Psychic drops special defense
-    9. Special defense drop increases damage to the right amount
-    10. Moonlight heals the right amount (including weather effects)
-    11. Leftovers heals the right amount
-    12. PP loss triggers Struggle
-    13. Struggle does the right amount of damage
-    14. Struggle does the right amount of recoil
-    15. STAB damage
-    16. Not effective damage
-    17. Not very effective damage
-    18. Super effective damage
-    19. Crit damage
- */
+// TODO Run the battle enough times to perf it and see if it can be made faster.
+
 int main() {
     printf("OpenMP version: %d\n", _OPENMP);
 

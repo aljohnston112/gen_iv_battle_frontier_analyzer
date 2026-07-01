@@ -62,7 +62,18 @@ public:
     }
 };
 
-class NoRNGPolicy : public RNGPolicy<NoRNGPolicy> {
+class TrueRNGPolicy : public RNGPolicy<TrueRNGPolicy> {
+public:
+    static bool roll(const uint8_t) {
+        return true;
+    }
+
+    static bool roll(const double) {
+        return true;
+    }
+};
+
+class FalseRNGPolicy : public RNGPolicy<FalseRNGPolicy> {
 public:
     static bool roll(const uint8_t) {
         return false;

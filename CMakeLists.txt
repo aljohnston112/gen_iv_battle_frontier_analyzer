@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.31)
 project(gen_iv_battle_frontier_analyzer)
 
 set(CMAKE_CXX_STANDARD 26)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_program(CCACHE_PROGRAM ccache)
 if (CCACHE_PROGRAM)
@@ -110,13 +111,23 @@ target_link_libraries(core INTERFACE
 add_executable(gen_iv_battle_frontier_analyzer main.cpp)
 target_link_libraries(gen_iv_battle_frontier_analyzer PRIVATE core)
 target_link_libraries(gen_iv_battle_frontier_analyzer PRIVATE OpenMP::OpenMP_CXX)
+
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/973323ed64a05b128418e7eab67016db5ba049df.zip
+)
+FetchContent_MakeAvailable(googletest)
+
 add_subdirectory(test)
 
-add_custom_target(run_tests
-        COMMAND ${CMAKE_COMMAND} --build "${CMAKE_BINARY_DIR}" --target test_runner
-        COMMAND "$<TARGET_FILE:test_runner>"
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-        COMMENT "Building and running tests from project root..."
+add_custom_target(build_all_tests DEPENDS test_runner engine_test)
+
+add_custom_target(run_tests DEPENDS build_all_tests
+        COMMAND ${CMAKE_CTEST_COMMAND}
+        --test-dir "${CMAKE_BINARY_DIR}/test"
+        --output-on-failure
+        COMMENT "Running tests via ctest..."
         VERBATIM
 )
 
@@ -132,4 +143,3 @@ function(add_data_copy_post_build target_name)
 endfunction()
 
 add_data_copy_post_build(gen_iv_battle_frontier_analyzer)
-add_data_copy_post_build(run_tests)

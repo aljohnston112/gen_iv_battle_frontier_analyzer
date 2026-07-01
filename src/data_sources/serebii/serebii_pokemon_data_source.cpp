@@ -437,7 +437,9 @@ SerebiiPokemon parse_pokemon(std::ifstream& input_stream) {
 
 const std::unordered_map<std::string, SerebiiPokemon>& ensure_dataset_is_loaded() {
     std::ifstream input_stream("./data/fresh/all_pokemon.json");
-
+    if (!input_stream) {
+        throw std::runtime_error("Failed to open data/fresh/all_pokemon.json");
+    }
     std::string line;
     // Leading {
     std::getline(input_stream, line);

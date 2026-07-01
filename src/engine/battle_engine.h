@@ -227,7 +227,7 @@ inline BattleResultEntry single_battle(
     const BattleEngine battle_engine{
         std::move(PolicyContainer{
             .effect_policy = OpponentOptimizedEffectPolicy{},
-            .rng_policy = NoRNGPolicy{}
+            .rng_policy = FalseRNGPolicy{}
         }),
     };
 
