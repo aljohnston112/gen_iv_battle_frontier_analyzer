@@ -34,6 +34,9 @@ int main() {
     const auto battle_factory_opponent_pokemon =
         construct_all_custom_batle_factory_pokemon(Who::Opponent);
 
+    const auto rr_start =
+    std::chrono::high_resolution_clock::now();
+
     const auto pokemon_to_battle_result_entries =
         do_round_robin(
             std::span(
@@ -60,6 +63,10 @@ int main() {
 
     const auto end =
         std::chrono::high_resolution_clock::now();
+
+    const std::chrono::duration<double> rr_elapsed = end - rr_start;
+    std::cout << "RR took " << rr_elapsed.count() << " seconds.\n";
+
     const std::chrono::duration<double> elapsed = end - start;
     std::cout << "Took " << elapsed.count() << " seconds.\n";
     return 0;

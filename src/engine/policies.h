@@ -29,6 +29,14 @@ public:
         return static_cast<const T*>(this)->roll_random(who);
     }
 
+    uint8_t roll_turns_confused(const Who who) const {
+        return static_cast<const T*>(this)->roll_turns_confused(who);
+    }
+
+    uint8_t roll_random_confusion(const Who who) const {
+        return static_cast<const T*>(this)->roll_random_confusion(who);
+    }
+
     bool roll_stat_drop(const uint8_t percent, const Who who) {
         return static_cast<const T*>(this)->roll_stat_drop(percent, who);
     }
@@ -51,6 +59,14 @@ public:
 
     static uint8_t roll_random(const Who who) {
         return who == Who::Player ? 85 : 100;
+    }
+
+    static uint8_t roll_turns_confused(const Who who) {
+        return who == Who::Player ? 4 : 1;
+    }
+
+    static uint8_t roll_random_confusion(const Who who) {
+        return who == Who::Player ? 100 : 85;
     }
 
     static bool roll_stat_drop(const uint8_t, const Who who) {

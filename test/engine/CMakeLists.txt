@@ -1,4 +1,4 @@
-add_executable(engine_test move_execution.cpp)
+add_executable(engine_test move_execution_test.cpp)
 target_link_libraries(
         engine_test
         PRIVATE

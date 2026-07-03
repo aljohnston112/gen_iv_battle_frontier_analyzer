@@ -435,24 +435,30 @@ SerebiiPokemon parse_pokemon(std::ifstream& input_stream) {
     return serebii_pokemon;
 }
 
+static bool is_loaded = false;
+
 const std::unordered_map<std::string, SerebiiPokemon>& ensure_dataset_is_loaded() {
-    std::ifstream input_stream("./data/fresh/all_pokemon.json");
-    if (!input_stream) {
-        throw std::runtime_error("Failed to open data/fresh/all_pokemon.json");
-    }
-    std::string line;
-    // Leading {
-    std::getline(input_stream, line);
-    // Index_number : {
-    while (std::getline(input_stream, line)) {
-        if (line.find('{') != std::string::npos) {
-            const auto pokemon = parse_pokemon(input_stream);
-            SEREBII_PLAYER_POKEMON_MAP[pokemon.name] = pokemon;
+    if (!is_loaded) {
+        std::ifstream input_stream("./data/fresh/all_pokemon.json");
+        if (!input_stream) {
+            throw std::runtime_error("Failed to open data/fresh/all_pokemon.json");
+        }
+        std::string line;
+        // Leading {
+        std::getline(input_stream, line);
+        // Index_number : {
+        while (std::getline(input_stream, line)) {
+            if (line.find('{') != std::string::npos) {
+                const auto pokemon = parse_pokemon(input_stream);
+                SEREBII_PLAYER_POKEMON_MAP[pokemon.name] = pokemon;
+            }
         }
     }
+    is_loaded = true;
     return SEREBII_PLAYER_POKEMON_MAP;
 }
 
+// TODO make a helper that gets a MoveInfo* from a Move
 const std::array<MoveInfo, to_int(Move::MoveCount)>& get_all_moves() {
     ensure_dataset_is_loaded();
     return MOVE_INFO_MAP;

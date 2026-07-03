@@ -1,12 +1,6 @@
 /**
     TODO
     Start writing these tests:
-    4. Signal Beam confuses
-    5. Confusion prevents attacking
-    6. Confusion damage is correct
-    7. Confusion ends on the right turn
-    8. Psychic drops special defense
-    9. Special defense drop increases damage to the right amount
     10. Moonlight heals the right amount (including weather effects)
     11. Leftovers heals the right amount
     12. PP loss triggers Struggle

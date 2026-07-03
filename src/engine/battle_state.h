@@ -124,6 +124,10 @@ class PokemonState {
     //     current_stats[to_int(stat)] = value;
     // }
 
+    void set_stat(const Stat stat, const uint16_t new_stat) {
+        current_stats[to_int(stat)] = new_stat;
+    }
+
 public:
     const uint8_t level;
 
@@ -210,8 +214,11 @@ public:
     void decrement_status_value(const StatusWithStage status) {
         status_stages[to_int(status)] =
             static_cast<int8_t>(
-                std::max(0, status_stages[to_int(status)] + 1)
+                std::max(0, status_stages[to_int(status)] - 1)
             );
+        if (status_stages[to_int(status)] == 0) {
+            statuses_with_stage[to_int(status)] = false;
+        }
     }
 
     void clear_status_value(const StatusWithStage status) {
@@ -240,8 +247,16 @@ public:
         return current_stats[to_int(stat)];
     }
 
-    void set_stat(const Stat stat, const uint16_t new_stat) {
-        current_stats[to_int(stat)] = new_stat;
+    void increase_stat_stage(const Stat stat, const int n) {
+        stat_stages[to_int(stat)] =
+            static_cast<int8_t>(std::min(6, get_stat_stage(stat) + n));
+        set_stat(
+            stat,
+            calculate_stat_based_on_stage(
+                pokemon->get_stat(stat),
+                get_stat_stage(stat)
+            )
+        );
     }
 
     void lower_stat_stage(const Stat stat, const int n) {
@@ -296,11 +311,19 @@ public:
         return power_points[to_int(move)] > 0;
     }
 
+    void increment_power_point(const Move move, const int8_t n) {
+        power_points[to_int(move)] += n;
+    }
+
     void decrement_power_point(const Move move) {
-        assert(
-            power_points[to_int(move)] > 0 ||
-            (move == Move::Struggle && !has_power_points())
-        );
+        if (
+            power_points[to_int(move)] < 1 &&
+            !(move == Move::Struggle && !has_power_points())
+        ) {
+            throw std::runtime_error{
+                "Out of PP or struggled depsite having PP"
+            };
+        }
         if (move != Move::Struggle) [[likely]] {
             power_points[to_int(move)]--;
             if (power_points[to_int(move)] == 0) {

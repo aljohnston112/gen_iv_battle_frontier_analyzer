@@ -224,9 +224,9 @@ uint16_t execute_power_move(
 }
 
 template <IsEffectPolicy E>
-void hit_from_confusion(
+int32_t calculate_confused_hit_damage(
     const E& effect_policy,
-    PokemonState& attacker,
+    const PokemonState& attacker,
     const Who who_attacker_is
 ) {
     const uint8_t attacker_level = attacker.level;
@@ -259,10 +259,25 @@ void hit_from_confusion(
                              : 1;
     damage = damage / 50 / burn;
     damage = damage + 2;
-    const uint8_t random = effect_policy.roll_random(who_attacker_is);
+    const uint8_t random = effect_policy.roll_random_confusion(who_attacker_is);
     damage = damage * random / 100;
     damage = std::max(1, damage);
-    attacker.add_damage(damage);
+    return damage;
+}
+
+template <IsEffectPolicy E>
+void hit_from_confusion(
+    const E& effect_policy,
+    PokemonState& attacker,
+    const Who who_attacker_is
+) {
+    attacker.add_damage(
+        calculate_confused_hit_damage(
+            effect_policy,
+            attacker,
+            who_attacker_is
+        )
+    );
 }
 
 inline void execute_moonlight(PokemonState& player, const Weather weather) {
@@ -278,16 +293,18 @@ inline void execute_moonlight(PokemonState& player, const Weather weather) {
     player.add_hp(hp_gained);
 }
 
-template <IsRNGPolicy R>
+template <IsEffectPolicy E, IsRNGPolicy R>
 void roll_confusion(
+    const E& effect_policy,
     const R& rng_policy,
     PokemonState& defender,
+    const Who who,
     const int chance
 ) {
     if (rng_policy.roll(static_cast<uint8_t>(chance))) {
         // 1 to 4 since the game decrements before acting,
         // but this engine decrements after the confusion check
-        defender.set_confused(rng_policy.roll(static_cast<uint8_t>(4)) + 1);
+        defender.set_confused(effect_policy.roll_turns_confused(who));
     }
 }
 
@@ -549,9 +566,19 @@ uint16_t execute_move(
         );
     }
 
+    const Who who_defender_is =
+        who_attacker_is == Who::Player
+            ? Who::Opponent
+            : Who::Player;
     if (move_has_flag(move->move, MoveFlag::CONFUSES_DEFENDER_10)) [[unlikely]
     ] {
-        roll_confusion(rng_policy, defender, 10);
+        roll_confusion(
+            effect_policy,
+            rng_policy,
+            defender,
+            who_defender_is,
+            10
+        );
     }
     if (move_has_flag(move->move, MoveFlag::FREEZES_DEFENDER_10)) [[unlikely]] {
         roll_freeze(rng_policy, weather, defender, 10);
