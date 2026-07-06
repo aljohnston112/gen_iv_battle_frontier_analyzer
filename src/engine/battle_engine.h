@@ -10,7 +10,7 @@
 #include "thread_pool.h"
 #include "serebii_pokemon_data_source.h"
 
-template <IsEffectPolicy E, IsRNGPolicy R>
+template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
 class BattleEngine {
 public:
     const PolicyContainer<E, R> policy_container;
@@ -24,7 +24,7 @@ public:
         rng_policy(policy_container.rng_policy) {}
 };
 
-template <IsEffectPolicy T>
+template <IsOpponentKnowledgePolicy T>
 Who who_goes_first(
     const T& effect_policy,
     const BattleState& battle_state,
@@ -39,7 +39,7 @@ Who who_goes_first(
     }
 }
 
-template <IsEffectPolicy T, IsRNGPolicy R>
+template <IsOpponentKnowledgePolicy T, IsRNGPolicy R>
 TurnResult execute_turn(
     const PolicyContainer<T, R>& policy_container,
     BattleState& battle_state,
@@ -101,11 +101,13 @@ struct BestMoveResult {
     uint16_t total_damage;
 };
 
-template <IsEffectPolicy E, IsRNGPolicy R>
+template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
 BestMoveResult get_best_special_move(
     const E& effect_policy,
     const R& rng_policy,
     const BattleState& battle_state,
+    const PokemonState& attacker,
+    const PokemonState& defender,
     const std::vector<Move>& moves,
     const Who who_is_picking
 ) {
@@ -119,9 +121,6 @@ BestMoveResult get_best_special_move(
         0
     };
 
-    const auto defender = who_is_picking == Who::Player
-                              ? battle_state.opponent
-                              : battle_state.player;
     const uint16_t defender_hp = defender.get_current_stat(Stat::Health);
 
     for (const auto move : moves) {
@@ -131,6 +130,8 @@ BestMoveResult get_best_special_move(
                 effect_policy,
                 rng_policy,
                 battle_state,
+                attacker,
+                defender,
                 move_info,
                 who_is_picking
             );
@@ -183,25 +184,28 @@ BestMoveResult get_best_special_move(
     return best;
 }
 
-template <IsEffectPolicy E, IsRNGPolicy R>
+template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
 Move choose_move_against_defender(
     const E& effect_policy,
     const R& rng_policy,
     const BattleState& battle_state,
+    const PokemonState& attacker,
+    const PokemonState& defender,
     const Who who_is_picking
 ) {
-    const std::vector<Move>& moves =
-        who_is_picking == Who::Player
-            ? battle_state.player.get_moves()
-            : battle_state.opponent.get_moves();
+    const std::vector<Move>& moves = attacker.get_moves();
+    if (moves.size() == 1 && moves.front() == Move::Struggle) {
+        return Move::Struggle;
+    }
     BestMoveResult best_special = get_best_special_move(
         effect_policy,
         rng_policy,
         battle_state,
+        attacker,
+        defender,
         moves,
         who_is_picking
     );
-
 
     return best_special.move;
 }
@@ -226,7 +230,7 @@ inline BattleResultEntry single_battle(
 
     const BattleEngine battle_engine{
         std::move(PolicyContainer{
-            .effect_policy = OpponentOptimizedEffectPolicy{},
+            .effect_policy = OpponentOptimizedKnowledgePolicy{},
             .rng_policy = FalseRNGPolicy{}
         }),
     };
@@ -256,6 +260,8 @@ inline BattleResultEntry single_battle(
                 battle_engine.effect_policy,
                 battle_engine.rng_policy,
                 *battle_state,
+                battle_state->player,
+                battle_state->opponent,
                 Who::Player
             );
         const Move opponent_move =
@@ -263,6 +269,8 @@ inline BattleResultEntry single_battle(
                 battle_engine.effect_policy,
                 battle_engine.rng_policy,
                 *battle_state,
+                battle_state->opponent,
+                battle_state->player,
                 Who::Opponent
             );
         auto turn_result =

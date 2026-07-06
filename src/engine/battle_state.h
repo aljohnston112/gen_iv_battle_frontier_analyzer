@@ -319,19 +319,27 @@ public:
         if (
             power_points[to_int(move)] < 1 &&
             !(move == Move::Struggle && !has_power_points())
-        ) {
+        ) [[unlikely]] {
             throw std::runtime_error{
                 "Out of PP or struggled depsite having PP"
             };
         }
         if (move != Move::Struggle) [[likely]] {
             power_points[to_int(move)]--;
-            if (power_points[to_int(move)] == 0) {
+            if (power_points[to_int(move)] == 0) [[unlikely]] {
                 std::erase(current_moves, move);
+                if (current_moves.empty()) [[unlikely]] {
+                    current_moves.emplace_back(Move::Struggle);
+                }
             }
-            if (!has_power_points() && current_moves.empty()) {
-                current_moves.emplace_back(Move::Struggle);
-            }
+        }
+    }
+
+    void clear_power_points(const Move move) {
+        power_points[to_int(move)] = 0;
+        std::erase(current_moves, move);
+        if (current_moves.empty()) [[unlikely]] {
+            current_moves.emplace_back(Move::Struggle);
         }
     }
 };

@@ -18,34 +18,20 @@ inline std::array<int16_t, LEVEL + 1> DAMAGE_CACHE = [] {
 }();
 
 
-template <IsEffectPolicy E, IsRNGPolicy R>
+template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
 uint16_t get_damage_of_power_move(
     const E& effect_policy,
     const R& rng_policy,
     const BattleState& battle_state,
+    const PokemonState& attacker,
+    const PokemonState& defender,
     const MoveInfo* move,
     const Who who_attacker_is
 ) {
     // NOTE: If you add a new damage modifier here,
     // check if it should apply to hit_from_confusion or struggle.
 
-    const bool is_player_attacker = who_attacker_is == Who::Player;
-
-    const PokemonState* attacker;
-    if (is_player_attacker) {
-        attacker = &battle_state.player;
-    } else {
-        attacker = &battle_state.opponent;
-    }
-
-    const PokemonState* defender;
-    if (is_player_attacker) {
-        defender = &battle_state.opponent;
-    } else {
-        defender = &battle_state.player;
-    }
-
-    const uint8_t attacker_level = attacker->level;
+    const uint8_t attacker_level = attacker.level;
     int32_t damage = DAMAGE_CACHE[attacker_level];
     if (damage < 0) {
         damage = 2 * attacker_level / 5 + 2;
@@ -60,36 +46,36 @@ uint16_t get_damage_of_power_move(
                                       ? Stat::SpecialDefense
                                       : Stat::Defense;
 
-    const Ability attacker_ability = attacker->get_current_ability();
-    const Ability defender_ability = defender->get_current_ability();
+    const Ability attacker_ability = attacker.get_current_ability();
+    const Ability defender_ability = defender.get_current_ability();
     const bool is_crit =
         move->move != Move::FutureSight && move->move != Move::DoomDesire &&
         defender_ability != Ability::BattleArmor && defender_ability !=
         Ability::ShellArmor &&
-        !defender->has_status(StatusWithStage::LuckyChanted) &&
+        !defender.has_status(StatusWithStage::LuckyChanted) &&
         rng_policy.roll(
             calculate_crit_chance_based_on_stage(
-                attacker->get_status_value(StatusWithStage::CritChanceModified)
+                attacker.get_status_value(StatusWithStage::CritChanceModified)
             )
         );
 
     const uint16_t attacker_attack =
-        is_crit && attacker->get_stat_stage(attack_category) < 0
-            ? attacker->get_original_stat(attack_category)
-            : attacker->get_current_stat(attack_category);
+        is_crit && attacker.get_stat_stage(attack_category) < 0
+            ? attacker.get_original_stat(attack_category)
+            : attacker.get_current_stat(attack_category);
     const uint16_t defender_defense =
-        is_crit && defender->get_stat_stage(defense_category) > 0
-            ? defender->get_original_stat(defense_category)
-            : defender->get_current_stat(defense_category);
+        is_crit && defender.get_stat_stage(defense_category) > 0
+            ? defender.get_original_stat(defense_category)
+            : defender.get_current_stat(defense_category);
     damage = damage * power * attacker_attack / defender_defense;
     const uint8_t screen =
     (!is_crit &&
-        ((is_special && defender->has_status(StatusWithStage::LightScreening))
-            || (!is_special && defender->
+        ((is_special && defender.has_status(StatusWithStage::LightScreening))
+            || (!is_special && defender.
                 has_status(StatusWithStage::Reflecting))))
         ? 2
         : 1;
-    const uint8_t burn = attacker->get_current_status_condition() ==
+    const uint8_t burn = attacker.get_current_status_condition() ==
                          StatusCondition::Burn && !
                          is_special
                              ? 2
@@ -112,7 +98,7 @@ uint16_t get_damage_of_power_move(
         }
     }
 
-    if (attacker->has_status(Status::FlashFired) &&
+    if (attacker.has_status(Status::FlashFired) &&
         move_type == PokemonType::Fire
     ) {
         damage = damage * 3 / 2;
@@ -122,16 +108,16 @@ uint16_t get_damage_of_power_move(
     const uint8_t crit = is_crit ? 2 : 1;
     damage = damage * crit;
 
-    const Item attacker_item = attacker->get_current_item_for_effect();
+    const Item attacker_item = attacker.get_current_item_for_effect();
     if (attacker_item == Item::LifeOrb) {
         damage = damage * 13 / 10;
     } else if (const int8_t n =
-            attacker->get_status_value(MoveStatusWithStage::MetronomeActive);
+            attacker.get_status_value(MoveStatusWithStage::MetronomeActive);
         n > 0
     ) {
         damage = (damage * 10 + damage * n) / 10;
     }
-    if (attacker->has_status(Status::StoleMoveByMeFirst)) [[unlikely]] {
+    if (attacker.has_status(Status::StoleMoveByMeFirst)) [[unlikely]] {
         damage = damage * 3 / 2;
     }
     const uint8_t random =
@@ -139,7 +125,7 @@ uint16_t get_damage_of_power_move(
             ? 100
             : effect_policy.roll_random(who_attacker_is);
     damage = damage * random / 100;
-    const bool is_stab = attacker->has_type(move_type);
+    const bool is_stab = attacker.has_type(move_type);
     if (is_stab) {
         if (attacker_ability == Ability::Adaptability) [[unlikely]]{
             damage = damage * 2;
@@ -149,7 +135,7 @@ uint16_t get_damage_of_power_move(
     }
 
     const uint16_t effectiveness = get_effectiveness(
-        defender->get_types(),
+        defender.get_types(),
         move_type
     );
     if (move->move != Move::Struggle &&
@@ -176,7 +162,7 @@ uint16_t get_damage_of_power_move(
     ) [[unlikely]] {
         damage = damage * 2;
     }
-    const auto defender_item = defender->get_current_item_for_effect();
+    const auto defender_item = defender.get_current_item_for_effect();
     if (DAMAGE_REDUCING_BERRIES.contains(defender_item) &&
         DAMAGE_REDUCING_BERRIES.at(defender_item) == move->type
     ) [[unlikely]] {
@@ -187,43 +173,39 @@ uint16_t get_damage_of_power_move(
     return damage;
 }
 
-template <IsEffectPolicy E, IsRNGPolicy R>
+template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
 uint16_t execute_power_move(
     const E& effect_policy,
     const R& rng_policy,
     BattleState& battle_state,
+    PokemonState& attacker,
+    PokemonState& defender,
     const MoveInfo* move,
     const Who who_attacker_is
 ) {
-    const bool is_player_attacker = who_attacker_is == Who::Player;
-    PokemonState* defender;
-    if (is_player_attacker) {
-        defender = &battle_state.opponent;
-    } else {
-        defender = &battle_state.player;
-    }
-
-    const auto defender_item = defender->get_current_item_for_effect();
+    const auto defender_item = defender.get_current_item_for_effect();
     if (DAMAGE_REDUCING_BERRIES.contains(defender_item) &&
         DAMAGE_REDUCING_BERRIES.at(defender_item) == move->type
     ) [[unlikely]] {
-        defender->clear_current_item();
+        defender.clear_current_item();
     }
 
-    const uint16_t hp_before = defender->get_current_stat(Stat::Health);
-    defender->add_damage(
+    const uint16_t hp_before = defender.get_current_stat(Stat::Health);
+    defender.add_damage(
         get_damage_of_power_move(
             effect_policy,
             rng_policy,
             battle_state,
+            attacker,
+            defender,
             move,
             who_attacker_is
         )
     );
-    return hp_before - defender->get_current_stat(Stat::Health);
+    return hp_before - defender.get_current_stat(Stat::Health);
 }
 
-template <IsEffectPolicy E>
+template <IsOpponentKnowledgePolicy E>
 int32_t calculate_confused_hit_damage(
     const E& effect_policy,
     const PokemonState& attacker,
@@ -265,7 +247,7 @@ int32_t calculate_confused_hit_damage(
     return damage;
 }
 
-template <IsEffectPolicy E>
+template <IsOpponentKnowledgePolicy E>
 void hit_from_confusion(
     const E& effect_policy,
     PokemonState& attacker,
@@ -293,7 +275,7 @@ inline void execute_moonlight(PokemonState& player, const Weather weather) {
     player.add_hp(hp_gained);
 }
 
-template <IsEffectPolicy E, IsRNGPolicy R>
+template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
 void roll_confusion(
     const E& effect_policy,
     const R& rng_policy,
@@ -347,11 +329,81 @@ inline bool move_will_work(
     return true;
 }
 
-template <IsEffectPolicy E, IsRNGPolicy R>
+template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
+int32_t get_struggle_damage(
+    const E& effect_policy,
+    const R& rng_policy,
+    const PokemonState& attacker,
+    const PokemonState& defender,
+    const Who who_attacker_is
+) {
+    const auto attacker_level = attacker.level;
+    int32_t damage = DAMAGE_CACHE[attacker_level];
+    if (damage < 0) {
+        damage = 2 * attacker_level / 5 + 2;
+        DAMAGE_CACHE[attacker_level] = static_cast<int16_t>(damage);
+    }
+
+    constexpr uint16_t power = 50;
+    constexpr auto attack_category = Stat::Attack;
+    constexpr auto defense_category = Stat::Defense;
+
+    const Ability defender_ability = defender.get_current_ability();
+    const bool is_crit =
+        defender_ability != Ability::BattleArmor &&
+        defender_ability != Ability::ShellArmor &&
+        !defender.has_status(StatusWithStage::LuckyChanted) &&
+        rng_policy.roll(
+            calculate_crit_chance_based_on_stage(
+                attacker.get_status_value(StatusWithStage::CritChanceModified)
+            )
+        );
+
+    const uint16_t attacker_attack =
+        is_crit && attacker.get_stat_stage(attack_category) < 0
+            ? attacker.get_original_stat(attack_category)
+            : attacker.get_current_stat(attack_category);
+    const uint16_t defender_defense =
+        is_crit && defender.get_stat_stage(defense_category) > 0
+            ? defender.get_original_stat(defense_category)
+            : defender.get_current_stat(defense_category);
+    damage = damage * power * attacker_attack / defender_defense;
+    const uint8_t screen =
+        (!is_crit && defender.has_status(StatusWithStage::Reflecting))
+            ? 2
+            : 1;
+    const uint8_t burn =
+        attacker.get_current_status_condition() == StatusCondition::Burn
+            ? 2
+            : 1;
+    damage = damage / 50 / burn / screen;
+    damage = damage + 2;
+
+    const uint8_t crit = is_crit ? 2 : 1;
+    damage = damage * crit;
+
+    const Item attacker_item = attacker.get_current_item_for_effect();
+    if (attacker_item == Item::LifeOrb) {
+        damage = damage * 4 / 3;
+    } else if (const int8_t n =
+            attacker.get_status_value(MoveStatusWithStage::MetronomeActive);
+        n > 0
+    ) {
+        damage = (damage * 10 + damage * n) / 10;
+    }
+    const uint8_t random = effect_policy.roll_random(who_attacker_is);
+    damage = damage * random / 100;
+    damage = std::max(1, damage);
+    return damage;
+}
+
+template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
 uint16_t execute_struggle(
     const E& effect_policy,
     const R& rng_policy,
     BattleState& battle_state,
+    PokemonState& attacker,
+    PokemonState& defender,
     const Who who_attacker_is
 ) {
     // TODO all of the comments before the code
@@ -392,94 +444,28 @@ uint16_t execute_struggle(
     // Despite having a base power of 50 in every generation,
     // Struggle's power is not boosted by Technician in Generation IV.
 
-    const bool is_player_attacker = who_attacker_is == Who::Player;
-    PokemonState* attacker;
-    if (is_player_attacker) {
-        attacker = &battle_state.player;
-    } else {
-        attacker = &battle_state.opponent;
-    }
-
-    PokemonState* defender;
-    if (is_player_attacker) {
-        defender = &battle_state.opponent;
-    } else {
-        defender = &battle_state.player;
-    }
-
-    const uint8_t attacker_level = attacker->level;
-    int32_t damage = DAMAGE_CACHE[attacker_level];
-    if (damage < 0) {
-        damage = 2 * attacker_level / 5 + 2;
-        DAMAGE_CACHE[attacker_level] = static_cast<int16_t>(damage);
-    }
-
-    constexpr uint16_t power = 50;
-    constexpr auto attack_category = Stat::Attack;
-    constexpr auto defense_category = Stat::Defense;
-
-    const Ability defender_ability = defender->get_current_ability();
-    const bool is_crit =
-        defender_ability != Ability::BattleArmor &&
-        defender_ability != Ability::ShellArmor &&
-        !defender->has_status(StatusWithStage::LuckyChanted) &&
-        rng_policy.roll(
-            calculate_crit_chance_based_on_stage(
-                attacker->get_status_value(StatusWithStage::CritChanceModified)
-            )
-        );
-
-    const uint16_t attacker_attack =
-        is_crit && attacker->get_stat_stage(attack_category) < 0
-            ? attacker->get_original_stat(attack_category)
-            : attacker->get_current_stat(attack_category);
-    const uint16_t defender_defense =
-        is_crit && defender->get_stat_stage(defense_category) > 0
-            ? defender->get_original_stat(defense_category)
-            : defender->get_current_stat(defense_category);
-    damage = damage * power * attacker_attack / defender_defense;
-    const uint8_t screen =
-        (!is_crit && defender->has_status(StatusWithStage::Reflecting))
-            ? 2
-            : 1;
-    const uint8_t burn =
-        attacker->get_current_status_condition() == StatusCondition::Burn
-            ? 2
-            : 1;
-    damage = damage / 50 / burn / screen;
-    damage = damage + 2;
-
-    const uint8_t crit = is_crit ? 2 : 1;
-    damage = damage * crit;
-
-    const Item attacker_item = attacker->get_current_item_for_effect();
-    if (attacker_item == Item::LifeOrb) {
-        damage = damage * 4 / 3;
-    } else if (const int8_t n =
-            attacker->get_status_value(MoveStatusWithStage::MetronomeActive);
-        n > 0
-    ) {
-        damage = (damage * 10 + damage * n) / 10;
-    }
-    const uint8_t random = effect_policy.roll_random(who_attacker_is);
-    damage = damage * random / 100;
-
-    const auto defender_item = defender->get_current_item_for_effect();
+    int32_t damage = get_struggle_damage(
+        effect_policy,
+        rng_policy,
+        attacker,
+        defender,
+        who_attacker_is
+    );
+    const auto defender_item = defender.get_current_item_for_effect();
     if (defender_item == Item::ChilanBerry) {
         damage = damage / 2;
-        defender->clear_current_item();
+        defender.clear_current_item();
     }
-    damage = std::max(1, damage);
 
-    const uint16_t hp_before = defender->get_current_stat(Stat::Health);
-    defender->add_damage(damage);
+    const uint16_t hp_before = defender.get_current_stat(Stat::Health);
+    defender.add_damage(damage);
 
-    attacker->add_damage(attacker->get_original_stat(Stat::Health) / 4);
+    attacker.add_damage(attacker.get_original_stat(Stat::Health) / 4);
 
-    return hp_before - defender->get_current_stat(Stat::Health);
+    return hp_before - defender.get_current_stat(Stat::Health);
 }
 
-template <IsEffectPolicy E>
+template <IsOpponentKnowledgePolicy E>
 void roll_stat_drop(
     const E& effect_policy,
     PokemonState& state,
@@ -493,7 +479,7 @@ void roll_stat_drop(
     }
 }
 
-template <IsEffectPolicy E, IsRNGPolicy R>
+template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
 uint16_t execute_move(
     const E& effect_policy,
     const R& rng_policy,
@@ -548,6 +534,8 @@ uint16_t execute_move(
             effect_policy,
             rng_policy,
             battle_state,
+            attacker,
+            defender,
             who_attacker_is
         );
     }
@@ -561,6 +549,8 @@ uint16_t execute_move(
             effect_policy,
             rng_policy,
             battle_state,
+            attacker,
+            defender,
             move,
             who_attacker_is
         );

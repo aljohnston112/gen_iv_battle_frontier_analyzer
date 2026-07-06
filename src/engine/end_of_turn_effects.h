@@ -83,7 +83,7 @@ inline void apply_end_of_turn_10(PokemonState& pokemon_state) {
     // 10.3 Stealth Rock
 }
 
-template <IsEffectPolicy T>
+template <IsOpponentKnowledgePolicy T>
 void apply_end_of_turn(const T& effect_policy, BattleState& battle_state) {
     auto& player = battle_state.player;
     auto& opponent = battle_state.opponent;
