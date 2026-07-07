@@ -259,7 +259,7 @@ public:
         );
     }
 
-    void lower_stat_stage(const Stat stat, const int n) {
+    void decrease_stat_stage(const Stat stat, const int n) {
         stat_stages[to_int(stat)] =
             static_cast<int8_t>(std::max(-6, get_stat_stage(stat) - n));
         set_stat(

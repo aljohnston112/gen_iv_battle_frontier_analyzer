@@ -491,7 +491,7 @@ void roll_stat_drop(
     const uint8_t probability
 ) {
     if (stat_change_policy.roll_stat_drop(probability, whose_stat_dropped)) {
-        state.lower_stat_stage(stat, stage_diff);
+        state.decrease_stat_stage(stat, stage_diff);
     }
 }
 
