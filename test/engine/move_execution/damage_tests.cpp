@@ -2,14 +2,14 @@
 #include "move_execution.h"
 #include "gtest/gtest.h"
 
-template <IsPolicyTestCase Case>
+template <IsDamageTestCase Case>
 void random_does_correct_damage_for_special_attacks(
     const MoveInfo* move
 ) {
-    using EffectPolicyType = Case::EffectPolicyType;
-    const EffectPolicyType effect_policy{};
-    using RNGPolicyType = Case::RNGPolicyType;
-    const RNGPolicyType rng_policy{};
+    using CritRNGPolicyType = Case::CritRNGPolicyType;
+    const CritRNGPolicyType crit_rng_policy{};
+    using DamageRandomFactorPolicyType = Case::DamageRandomFactorPolicyType;
+    const DamageRandomFactorPolicyType random_factor_policy{};
     static constexpr int32_t expected_damage = Case::ExpectedValue;
 
     const BattleState battle_state{
@@ -19,8 +19,8 @@ void random_does_correct_damage_for_special_attacks(
     EXPECT_EQ(
         expected_damage,
         get_damage_of_power_move(
-            effect_policy,
-            rng_policy,
+            crit_rng_policy,
+            random_factor_policy,
             battle_state,
             battle_state.player,
             battle_state.opponent,
@@ -30,7 +30,7 @@ void random_does_correct_damage_for_special_attacks(
     );
 }
 
-template <IsPolicyTestCase... Cases>
+template <IsDamageTestCase... Cases>
 void random_does_correct_damage_for_special_attack(const Move move) {
     const auto& all_move_infos =
         get_all_moves();
@@ -44,36 +44,36 @@ void random_does_correct_damage_for_special_attack(const Move move) {
 // TODO use regular effectiveness
 TEST(Engine, STABDoesCorrectDamageForSpecialAttack) {
     random_does_correct_damage_for_special_attack<
-        PolicyTestCase<LowRandomEffectPolicy, FalseRNGPolicy, 15>,
-        PolicyTestCase<HighRandomEffectPolicy, FalseRNGPolicy, 18>
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 15>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 18>
     >(Move::Psychic);
 }
 
 // TODO use non-STAB
 TEST(Engine, NotVeryEffectiveDoesCorrectDamageForSpecialAttack) {
     random_does_correct_damage_for_special_attack<
-        PolicyTestCase<LowRandomEffectPolicy, FalseRNGPolicy, 15>,
-        PolicyTestCase<HighRandomEffectPolicy, FalseRNGPolicy, 18>
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 15>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 18>
     >(Move::Psychic);
 }
 
 TEST(Engine, RandomDoesCorrectDamageForSpecialAttack) {
     random_does_correct_damage_for_special_attack<
-        PolicyTestCase<LowRandomEffectPolicy, FalseRNGPolicy, 22>,
-        PolicyTestCase<HighRandomEffectPolicy, FalseRNGPolicy, 27>
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 22>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 27>
     >(Move::IceBeam);
 }
 
 TEST(Engine, SuperEffectiveDoesTheCorrectDamageForSpecialAttack) {
     random_does_correct_damage_for_special_attack<
-        PolicyTestCase<LowRandomEffectPolicy, FalseRNGPolicy, 34>,
-        PolicyTestCase<HighRandomEffectPolicy, FalseRNGPolicy, 42>
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 34>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 42>
     >(Move::SignalBeam);
 }
 
 TEST(Engine, CriticalHitDoesTheCorrectDamageForSpecialAttack) {
     random_does_correct_damage_for_special_attack<
-        PolicyTestCase<LowRandomEffectPolicy, TrueRNGPolicy, 15>,
-        PolicyTestCase<HighRandomEffectPolicy, TrueRNGPolicy, 18>
+        DamageTestCase<AlwaysCritRNGPolicy, LowDamageRandomFactorPolicy, 31>,
+        DamageTestCase<AlwaysCritRNGPolicy, HighDamageRandomFactorPolicy, 37>
     >(Move::Psychic);
 }

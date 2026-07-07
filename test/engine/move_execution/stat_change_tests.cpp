@@ -3,51 +3,6 @@
 #include "policies.h"
 #include "gtest/gtest.h"
 
-class HighStatDropEffectPolicy :
-    public OpponentKnowledgePolicy<HighStatDropEffectPolicy> {
-public:
-    static uint8_t roll_random(const Who) {
-        return 100;
-    }
-
-    static bool roll_stat_drop(const uint8_t, const Who) {
-        return true;
-    }
-};
-
-class LowStatDropEffectPolicy :
-    public OpponentKnowledgePolicy<LowStatDropEffectPolicy> {
-public:
-    static uint8_t roll_random(const Who) {
-        return 85;
-    }
-
-    static bool roll_stat_drop(const uint8_t, const Who) {
-        return true;
-    }
-};
-
-class NoStatDropEffectPolicy :
-    public OpponentKnowledgePolicy<NoStatDropEffectPolicy> {
-public:
-    static bool is_player_faster(const BattleState& battle_state) {
-        return battle_state.player.get_current_stat(Stat::Speed) >
-            battle_state.opponent.get_current_stat(Stat::Speed);
-    }
-
-    static uint8_t roll_random_confusion(const Who who) {
-        return who == Who::Player ? 100 : 85;
-    }
-
-    static uint8_t roll_random(const Who) {
-        return 100;
-    }
-
-    static bool roll_stat_drop(const uint8_t, const Who) {
-        return false;
-    }
-};
-
 TEST(Engine, PsychicDropsSpecialDefenseOnTrueRoll) {
     const auto& all_move_infos =
         get_all_moves();
@@ -57,17 +12,30 @@ TEST(Engine, PsychicDropsSpecialDefenseOnTrueRoll) {
         PokemonState{&Cresselia}
     };
 
+    constexpr auto confusion_status_policy =
+        OpponentOptimizedConfusionStatusPolicy{};
+    constexpr auto confusion_status_rng_policy = NeverConfuseRNGPolicy{};
+    constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
+    constexpr auto random_factor_policy =
+        OpponentOptimizedDamageRandomFactorPolicy{};
+    constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
+    constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
+
     for (uint8_t i = 0; i < 6; i++) {
         execute_move(
-            HighStatDropEffectPolicy{},
-            FalseRNGPolicy{},
+            confusion_status_policy,
+            confusion_status_rng_policy,
+            crit_rng_policy,
+            random_factor_policy,
+            freeze_rng_policy,
+            stat_change_policy,
             battle_state,
-            Who::Player,
+            Who::Opponent,
             &all_move_infos[to_int(Move::Psychic)]
         );
 
         EXPECT_EQ(
-            battle_state.opponent.get_stat_stage(Stat::SpecialDefense),
+            battle_state.player.get_stat_stage(Stat::SpecialDefense),
             -i - 1
         );
     }
@@ -82,21 +50,41 @@ TEST(Engine, PsychicSpecialDefenseDropDoesNotGoBelowNegativeSix) {
         PokemonState{&Cresselia}
     };
 
+    constexpr auto confusion_status_policy =
+        OpponentOptimizedConfusionStatusPolicy{};
+    constexpr auto confusion_status_rng_policy = NeverConfuseRNGPolicy{};
+    constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
+    constexpr auto random_factor_policy =
+        OpponentOptimizedDamageRandomFactorPolicy{};
+    constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
+    constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
+
     for (uint8_t i = 0; i < 10; i++) {
         execute_move(
-            HighStatDropEffectPolicy{},
-            FalseRNGPolicy{},
+            confusion_status_policy,
+            confusion_status_rng_policy,
+            crit_rng_policy,
+            random_factor_policy,
+            freeze_rng_policy,
+            stat_change_policy,
             battle_state,
-            Who::Player,
+            Who::Opponent,
             &all_move_infos[to_int(Move::Psychic)]
         );
 
         EXPECT_EQ(
-            battle_state.opponent.get_stat_stage(Stat::SpecialDefense),
+            battle_state.player.get_stat_stage(Stat::SpecialDefense),
             std::max(-6, -i - 1)
         );
     }
 }
+
+struct NeverChangeStatPolicy :
+    StatChangePolicy<NeverChangeStatPolicy> {
+    static bool roll_stat_drop(const uint8_t, const Who who) {
+        return false;
+    }
+};
 
 TEST(Engine, PsychicDoesNotDropSpecialDefenseOnFalseRoll) {
     const auto& all_move_infos =
@@ -107,10 +95,23 @@ TEST(Engine, PsychicDoesNotDropSpecialDefenseOnFalseRoll) {
         PokemonState{&Cresselia}
     };
 
+    constexpr auto confusion_status_policy =
+        OpponentOptimizedConfusionStatusPolicy{};
+    constexpr auto confusion_status_rng_policy = NeverConfuseRNGPolicy{};
+    constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
+    constexpr auto random_factor_policy =
+        OpponentOptimizedDamageRandomFactorPolicy{};
+    constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
+    constexpr auto stat_change_policy = NeverChangeStatPolicy{};
+
     for (uint8_t i = 0; i < 6; i++) {
         execute_move(
-            NoStatDropEffectPolicy{},
-            FalseRNGPolicy{},
+            confusion_status_policy,
+            confusion_status_rng_policy,
+            crit_rng_policy,
+            random_factor_policy,
+            freeze_rng_policy,
+            stat_change_policy,
             battle_state,
             Who::Player,
             &all_move_infos[to_int(Move::Psychic)]
@@ -132,51 +133,67 @@ TEST(Engine, SpecialDefenseDropsCauseSpecialAttacksToDoMoreDamage) {
         PokemonState{&Cresselia}
     };
 
-    constexpr auto low_effect = LowStatDropEffectPolicy{};
-    constexpr auto high_effect = HighStatDropEffectPolicy{};
+    constexpr auto low_effect = LowDamageRandomFactorPolicy{};
+    constexpr auto high_effect = HighDamageRandomFactorPolicy{};
     constexpr std::array expected_low_rolls{15, 23, 30, 38, 46, 54, 61};
     constexpr std::array expected_high_rolls{18, 27, 36, 45, 54, 63, 72};
-    constexpr FalseRNGPolicy rng_policy{};
+
+    constexpr auto confusion_status_policy =
+        OpponentOptimizedConfusionStatusPolicy{};
+    constexpr auto confusion_status_rng_policy = NeverConfuseRNGPolicy{};
+    constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
+
+    constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
+    constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
+
     for (uint8_t i = 0; i < 6; i++) {
         EXPECT_EQ(
             expected_low_rolls[i],
             execute_move(
+                confusion_status_policy,
+                confusion_status_rng_policy,
+                crit_rng_policy,
                 low_effect,
-                rng_policy,
+                freeze_rng_policy,
+                stat_change_policy,
                 battle_state,
-                Who::Player,
+                Who::Opponent,
                 &all_move_infos[to_int(Move::Psychic)]
             )
         );
         EXPECT_EQ(
-            battle_state.opponent.get_stat_stage(Stat::SpecialDefense),
+            battle_state.player.get_stat_stage(Stat::SpecialDefense),
             -i - 1
         );
-        battle_state.opponent.increase_stat_stage(Stat::SpecialDefense, 1);
+        battle_state.player.increase_stat_stage(Stat::SpecialDefense, 1);
 
         EXPECT_EQ(
-            battle_state.opponent.get_stat_stage(Stat::SpecialDefense),
+            battle_state.player.get_stat_stage(Stat::SpecialDefense),
             -i
         );
         EXPECT_EQ(
             expected_high_rolls[i],
             execute_move(
+                confusion_status_policy,
+                confusion_status_rng_policy,
+                crit_rng_policy,
                 high_effect,
-                rng_policy,
+                freeze_rng_policy,
+                stat_change_policy,
                 battle_state,
-                Who::Player,
+                Who::Opponent,
                 &all_move_infos[to_int(Move::Psychic)]
             )
         );
 
         EXPECT_EQ(
-            battle_state.opponent.get_stat_stage(Stat::SpecialDefense),
+            battle_state.player.get_stat_stage(Stat::SpecialDefense),
             -i - 1
         );
 
-        battle_state.opponent.add_hp(
-            battle_state.opponent.get_original_stat(Stat::Health)
+        battle_state.player.add_hp(
+            battle_state.player.get_original_stat(Stat::Health)
         );
-        battle_state.player.increment_power_point(Move::Psychic, 2);
+        battle_state.opponent.increment_power_point(Move::Psychic, 2);
     }
 }

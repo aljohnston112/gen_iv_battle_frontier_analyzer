@@ -2,12 +2,15 @@
 #include "move_execution.h"
 #include "gtest/gtest.h"
 
-template <IsPolicyTestCase Case>
+
+template <IsDamageTestCase Case>
 void random_does_correct_damage_for_struggle_case() {
-    using EffectPolicyType = Case::EffectPolicyType;
-    const EffectPolicyType effect_policy{};
-    using RNGPolicyType = Case::RNGPolicyType;
-    const RNGPolicyType rng_policy{};
+    using CritRNGPolicyType = Case::CritRNGPolicyType;
+    const CritRNGPolicyType crit_rng_policy{};
+
+    using DamageRandomFactorPolicyType = Case::DamageRandomFactorPolicyType;
+    const DamageRandomFactorPolicyType random_factor_policy{};
+
     static constexpr int32_t expected_damage = Case::ExpectedValue;
 
     const BattleState battle_state{
@@ -17,8 +20,8 @@ void random_does_correct_damage_for_struggle_case() {
     EXPECT_EQ(
         expected_damage,
         get_struggle_damage(
-            effect_policy,
-            rng_policy,
+            random_factor_policy,
+            crit_rng_policy,
             battle_state.player,
             battle_state.opponent,
             Who::Player
@@ -26,7 +29,7 @@ void random_does_correct_damage_for_struggle_case() {
     );
 }
 
-template <IsPolicyTestCase... Cases>
+template <IsDamageTestCase... Cases>
 void random_does_correct_damage_for_struggle() {
     (random_does_correct_damage_for_struggle_case<Cases>(),
         ...
@@ -35,8 +38,8 @@ void random_does_correct_damage_for_struggle() {
 
 TEST(Engine, RandomDoesCorrectDamageForStruggle) {
     random_does_correct_damage_for_struggle<
-        PolicyTestCase<LowRandomEffectPolicy, FalseRNGPolicy, 10>,
-        PolicyTestCase<HighRandomEffectPolicy, FalseRNGPolicy, 12>
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 10>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 12>
     >();
 }
 
@@ -47,8 +50,8 @@ TEST(Engine, StruggleDoesTheRightAmountOfRecoil) {
     };
 
     execute_struggle(
-        HighRandomEffectPolicy{},
-        FalseRNGPolicy{},
+        HighDamageRandomFactorPolicy{},
+        NeverCritRNGPolicy{},
         battle_state,
         battle_state.player,
         battle_state.opponent,

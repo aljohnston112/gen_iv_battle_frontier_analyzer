@@ -4,42 +4,26 @@
 #include "gtest/gtest.h"
 
 class HighRandomConfusionEffectPolicy :
-    public OpponentKnowledgePolicy<HighRandomConfusionEffectPolicy> {
+    public ConfusionStatusPolicy<HighRandomConfusionEffectPolicy> {
 public:
-    static uint8_t roll_random(const Who) {
-        return 85;
-    }
-
     static uint8_t roll_turns_confused(const Who who) {
         return 2;
     }
 
     static uint8_t roll_random_confusion(const Who) {
         return 100;
-    }
-
-    static bool roll_stat_drop(const uint8_t, const Who who) {
-        return false;
     }
 };
 
 class LowRandomConfusionEffectPolicy :
-    public OpponentKnowledgePolicy<LowRandomConfusionEffectPolicy> {
+    public ConfusionStatusPolicy<LowRandomConfusionEffectPolicy> {
 public:
-    static uint8_t roll_random(const Who) {
-        return 100;
-    }
-
     static uint8_t roll_turns_confused(const Who who) {
         return 2;
     }
 
     static uint8_t roll_random_confusion(const Who) {
         return 85;
-    }
-
-    static bool roll_stat_drop(const uint8_t, const Who who) {
-        return false;
     }
 };
 
@@ -47,7 +31,7 @@ TEST(Engine, FalseRollDoesNotConfuse) {
     auto defender = PokemonState{&Cresselia};
     roll_confusion(
         HighRandomConfusionEffectPolicy{},
-        FalseRNGPolicy{},
+        NeverConfuseRNGPolicy{},
         defender,
         Who::Player,
         100
@@ -59,7 +43,7 @@ TEST(Engine, TrueRollDoesConfuse) {
     auto defender = PokemonState{&Cresselia};
     roll_confusion(
         HighRandomConfusionEffectPolicy{},
-        TrueRNGPolicy{},
+        AlwaysConfuseRNGPolicy{},
         defender,
         Who::Player,
         0
@@ -76,9 +60,22 @@ TEST(Engine, SignalBeamConfusesOnTrueRoll) {
         PokemonState{&Cresselia}
     };
 
+    constexpr auto confusion_status_policy =
+        HighRandomConfusionEffectPolicy{};
+    constexpr auto confusion_status_rng_policy = AlwaysConfuseRNGPolicy{};
+    constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
+    constexpr auto random_factor_policy =
+        OpponentOptimizedDamageRandomFactorPolicy{};
+    constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
+    constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
+
     execute_move(
-        HighRandomConfusionEffectPolicy{},
-        TrueRNGPolicy{},
+        confusion_status_policy,
+        confusion_status_rng_policy,
+        crit_rng_policy,
+        random_factor_policy,
+        freeze_rng_policy,
+        stat_change_policy,
         battle_state,
         Who::Player,
         &all_move_infos[to_int(Move::SignalBeam)]
@@ -98,9 +95,22 @@ TEST(Engine, SignalBeamDoesNotConfuseOnFalseRoll) {
         PokemonState{&Cresselia}
     };
 
+    constexpr auto confusion_status_policy =
+        HighRandomConfusionEffectPolicy{};
+    constexpr auto confusion_status_rng_policy = NeverConfuseRNGPolicy{};
+    constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
+    constexpr auto random_factor_policy =
+        OpponentOptimizedDamageRandomFactorPolicy{};
+    constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
+    constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
+
     execute_move(
-        HighRandomConfusionEffectPolicy{},
-        FalseRNGPolicy{},
+        confusion_status_policy,
+        confusion_status_rng_policy,
+        crit_rng_policy,
+        random_factor_policy,
+        freeze_rng_policy,
+        stat_change_policy,
         battle_state,
         Who::Player,
         &all_move_infos[to_int(Move::SignalBeam)]
@@ -119,9 +129,19 @@ TEST(Engine, BeingConfusedPreventsAttackingOnTrueRoll) {
         PokemonState{&Cresselia},
         PokemonState{&Cresselia}
     };
+
+    constexpr auto confusion_status_policy =
+        HighRandomConfusionEffectPolicy{};
+    constexpr auto confusion_status_rng_policy = AlwaysConfuseRNGPolicy{};
+    constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
+    constexpr auto random_factor_policy =
+        OpponentOptimizedDamageRandomFactorPolicy{};
+    constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
+    constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
+
     roll_confusion(
-        HighRandomConfusionEffectPolicy{},
-        TrueRNGPolicy{},
+        confusion_status_policy,
+        confusion_status_rng_policy,
         battle_state.player,
         Who::Player,
         0
@@ -133,8 +153,12 @@ TEST(Engine, BeingConfusedPreventsAttackingOnTrueRoll) {
     EXPECT_EQ(
         0,
         execute_move(
-            OpponentOptimizedKnowledgePolicy{},
-            TrueRNGPolicy{},
+            confusion_status_policy,
+            confusion_status_rng_policy,
+            crit_rng_policy,
+            random_factor_policy,
+            freeze_rng_policy,
+            stat_change_policy,
             battle_state,
             Who::Player,
             &all_move_infos[to_int(Move::Psychic)]
@@ -146,19 +170,38 @@ TEST(Engine, BeingConfusedPreventsAttackingOnTrueRoll) {
     );
 }
 
-template <IsPolicyTestCase Case>
+template <typename T>
+concept IsConfusionTestCase = requires {
+    requires IsConfusionStatusPolicy<typename T::ConfusionStatusPolicyType>;
+    requires IsConfusionStatusRNGPolicy<typename
+        T::ConfusionStatusRNGPolicyType>;
+    { +T::ExpectedValue } -> std::same_as<int32_t>;
+};
+
+template <
+    IsConfusionStatusPolicy ConfusionStatusPolicy,
+    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
+    int32_t Value
+>
+struct ConfusionTestCase {
+    using ConfusionStatusPolicyType = ConfusionStatusPolicy;
+    using ConfusionStatusRNGPolicyType = ConfusionStatusRNGPolicy;
+    static constexpr int32_t ExpectedValue = Value;
+};
+
+template <IsConfusionTestCase Case>
 void confusion_damage_is_correct(
     PokemonState&& player
 ) {
-    using EffectPolicyType = Case::EffectPolicyType;
-    const EffectPolicyType effect_policy{};
-    using RNGPolicyType = Case::RNGPolicyType;
-    const RNGPolicyType rng_policy{};
+    using ConfusionStatusPolicyType = Case::ConfusionStatusPolicyType;
+    const ConfusionStatusPolicyType confusion_status_policy{};
+    using ConfusionStatusRNGPolicyType = Case::ConfusionStatusRNGPolicyType;
+    const ConfusionStatusRNGPolicyType confusion_status_rng_policy{};
     static constexpr int32_t expected_damage = Case::ExpectedValue;
 
     roll_confusion(
-        effect_policy,
-        rng_policy,
+        confusion_status_policy,
+        confusion_status_rng_policy,
         player,
         Who::Player,
         0
@@ -170,14 +213,14 @@ void confusion_damage_is_correct(
     EXPECT_EQ(
         expected_damage,
         calculate_confused_hit_damage(
-            effect_policy,
+            confusion_status_policy,
             player,
             Who::Player
         )
     );
 }
 
-template <IsPolicyTestCase... Cases>
+template <IsConfusionTestCase... Cases>
 void confusion_damage_is_correct() {
     (
         confusion_damage_is_correct<Cases>(
@@ -189,20 +232,22 @@ void confusion_damage_is_correct() {
 
 TEST(Engine, RandomConfusionDamageIsCorrect) {
     confusion_damage_is_correct<
-        PolicyTestCase<HighRandomConfusionEffectPolicy, TrueRNGPolicy, 10>,
-        PolicyTestCase<LowRandomConfusionEffectPolicy, TrueRNGPolicy, 8>
+        ConfusionTestCase<HighRandomConfusionEffectPolicy,
+                          AlwaysConfuseRNGPolicy, 10>,
+        ConfusionTestCase<LowRandomConfusionEffectPolicy, AlwaysConfuseRNGPolicy
+                          , 8>
     >();
 }
 
-template <IsOpponentKnowledgePolicy T>
+template <IsConfusionStatusPolicy T>
 void confused_damage_is_correct_on_true_roll(
     const std::array<MoveInfo, to_int(Move::MoveCount)>& all_move_infos,
     BattleState&& battle_state
 ) {
-    T confusion_effect_policy{};
+    T confusion_status_policy{};
     roll_confusion(
-        confusion_effect_policy,
-        TrueRNGPolicy{},
+        confusion_status_policy,
+        AlwaysConfuseRNGPolicy{},
         battle_state.player,
         Who::Player,
         0
@@ -211,7 +256,7 @@ void confused_damage_is_correct_on_true_roll(
 
     const int32_t expected_damage =
         calculate_confused_hit_damage(
-            confusion_effect_policy,
+            confusion_status_policy,
             battle_state.player,
             Who::Player
         );
@@ -219,8 +264,12 @@ void confused_damage_is_correct_on_true_roll(
     EXPECT_EQ(
         0,
         execute_move(
-            confusion_effect_policy,
-            TrueRNGPolicy{},
+            confusion_status_policy,
+            AlwaysConfuseRNGPolicy{},
+            NeverCritRNGPolicy{},
+            OpponentOptimizedDamageRandomFactorPolicy{},
+            NeverFreezeRNGPolicy{},
+            OpponentOptimizedStatChangePolicy{},
             battle_state,
             Who::Player,
             &all_move_infos[to_int(Move::Psychic)]
@@ -234,7 +283,7 @@ void confused_damage_is_correct_on_true_roll(
     );
 }
 
-template <IsOpponentKnowledgePolicy... Policies>
+template <IsConfusionStatusPolicy... Policies>
 void confused_damage_is_correct_on_true_roll() {
     const auto& all_move_infos =
         get_all_moves();
@@ -266,10 +315,10 @@ TEST(Engine, BeingConfusedDoesNotPreventAttackOnFalseRoll) {
         PokemonState{&Cresselia}
     };
 
-    constexpr LowRandomConfusionEffectPolicy confusion_effect_policy{};
+    constexpr LowRandomConfusionEffectPolicy confusion_status_policy{};
     roll_confusion(
-        confusion_effect_policy,
-        TrueRNGPolicy{},
+        confusion_status_policy,
+        AlwaysConfuseRNGPolicy{},
         battle_state.player,
         Who::Player,
         0
@@ -279,8 +328,12 @@ TEST(Engine, BeingConfusedDoesNotPreventAttackOnFalseRoll) {
     EXPECT_NE(
         0,
         execute_move(
-            confusion_effect_policy,
-            FalseRNGPolicy{},
+            confusion_status_policy,
+            NeverConfuseRNGPolicy{},
+            NeverCritRNGPolicy{},
+            OpponentOptimizedDamageRandomFactorPolicy{},
+            NeverFreezeRNGPolicy{},
+            OpponentOptimizedStatChangePolicy{},
             battle_state,
             Who::Player,
             &all_move_infos[to_int(Move::Psychic)]
@@ -299,10 +352,17 @@ TEST(Engine, ConfusionEndsOnCorrectTurn) {
         PokemonState{&Cresselia}
     };
 
-    constexpr LowRandomConfusionEffectPolicy confusion_effect_policy{};
+    constexpr LowRandomConfusionEffectPolicy random_confusion_policy{};
+    constexpr auto confusion_rng_policy = AlwaysConfuseRNGPolicy{};
+    constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
+    constexpr auto damage_random_factor_policy =
+        OpponentOptimizedDamageRandomFactorPolicy{};
+    constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
+    constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
+
     roll_confusion(
-        confusion_effect_policy,
-        TrueRNGPolicy{},
+        random_confusion_policy,
+        confusion_rng_policy,
         battle_state.player,
         Who::Player,
         0
@@ -312,8 +372,12 @@ TEST(Engine, ConfusionEndsOnCorrectTurn) {
     EXPECT_EQ(
         0,
         execute_move(
-            confusion_effect_policy,
-            TrueRNGPolicy{},
+            random_confusion_policy,
+            confusion_rng_policy,
+            crit_rng_policy,
+            damage_random_factor_policy,
+            freeze_rng_policy,
+            stat_change_policy,
             battle_state,
             Who::Player,
             &all_move_infos[to_int(Move::Psychic)]
@@ -325,8 +389,12 @@ TEST(Engine, ConfusionEndsOnCorrectTurn) {
     EXPECT_EQ(
         0,
         execute_move(
-            confusion_effect_policy,
-            TrueRNGPolicy{},
+            random_confusion_policy,
+            confusion_rng_policy,
+            crit_rng_policy,
+            damage_random_factor_policy,
+            freeze_rng_policy,
+            stat_change_policy,
             battle_state,
             Who::Player,
             &all_move_infos[to_int(Move::Psychic)]
@@ -338,8 +406,12 @@ TEST(Engine, ConfusionEndsOnCorrectTurn) {
     EXPECT_NE(
         0,
         execute_move(
-            confusion_effect_policy,
-            TrueRNGPolicy{},
+            random_confusion_policy,
+            confusion_rng_policy,
+            crit_rng_policy,
+            damage_random_factor_policy,
+            freeze_rng_policy,
+            stat_change_policy,
             battle_state,
             Who::Player,
             &all_move_infos[to_int(Move::Psychic)]

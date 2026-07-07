@@ -29,7 +29,11 @@ struct AlwaysCritRNGPolicy :
 
 template <typename T>
 struct ConfusionStatusRNGPolicy {
-    bool roll(const double percent) const {
+    bool roll_for_confusion(const double percent) const {
+        return static_cast<const T*>(this)->roll(percent);
+    }
+
+    bool roll_for_self_hit(const double percent) const {
         return static_cast<const T*>(this)->roll(percent);
     }
 };
@@ -40,14 +44,22 @@ concept IsConfusionStatusRNGPolicy =
 
 struct NeverConfuseRNGPolicy :
     ConfusionStatusRNGPolicy<NeverConfuseRNGPolicy> {
-    static bool roll(const int8_t) {
+    static bool roll_for_confusion(const int8_t) {
+        return false;
+    }
+
+    static bool roll_for_self_hit(const double) {
         return false;
     }
 };
 
 struct AlwaysConfuseRNGPolicy :
     ConfusionStatusRNGPolicy<AlwaysConfuseRNGPolicy> {
-    static bool roll(const int8_t) {
+    static bool roll_for_confusion(const int8_t) {
+        return true;
+    }
+
+    static bool roll_for_self_hit(const double) {
         return true;
     }
 };
@@ -57,6 +69,7 @@ struct FreezeRNGPolicy {
     bool roll_for_freeze(const double percent) const {
         return static_cast<const T*>(this)->roll_for_freeze(percent);
     }
+
     bool roll_for_thaw(const double percent) const {
         return static_cast<const T*>(this)->roll_for_freeze(percent);
     }
@@ -71,6 +84,7 @@ struct NeverFreezeRNGPolicy :
     static bool roll_for_freeze(const int8_t) {
         return false;
     }
+
     static bool roll_for_thaw(const int8_t) {
         return true;
     }
@@ -81,6 +95,7 @@ struct AlwaysFreezeRNGPolicy :
     static bool roll_for_freeze(const int8_t) {
         return true;
     }
+
     static bool roll_for_thaw(const int8_t) {
         return false;
     }
@@ -102,8 +117,8 @@ protected:
 template <typename T>
 concept IsSpeedAdvantagePolicy = std::derived_from<T, SpeedAdvantagePolicy<T>>;
 
-class OpponentOptimizedSpeedAdvantagePolicy :
-    public SpeedAdvantagePolicy<OpponentOptimizedSpeedAdvantagePolicy> {
+struct OpponentOptimizedSpeedAdvantagePolicy :
+    SpeedAdvantagePolicy<OpponentOptimizedSpeedAdvantagePolicy> {
     static bool is_player_faster_impl(const BattleState& battle_state) {
         return is_player_speed_higher(battle_state);
     }
@@ -121,8 +136,8 @@ template <typename T>
 concept IsDamageRandomFactorPolicy =
     std::derived_from<T, DamageRandomFactorPolicy<T>>;
 
-class OpponentOptimizedDamageRandomFactorPolicy :
-    public DamageRandomFactorPolicy<OpponentOptimizedDamageRandomFactorPolicy> {
+struct OpponentOptimizedDamageRandomFactorPolicy :
+    DamageRandomFactorPolicy<OpponentOptimizedDamageRandomFactorPolicy> {
     static uint8_t roll_random(const Who who) {
         return who == Who::Player ? 85 : 100;
     }
@@ -144,8 +159,8 @@ template <typename T>
 concept IsConfusionStatusPolicy =
     std::derived_from<T, ConfusionStatusPolicy<T>>;
 
-class OpponentOptimizedConfusionStatusPolicy :
-    public ConfusionStatusPolicy<OpponentOptimizedConfusionStatusPolicy> {
+struct OpponentOptimizedConfusionStatusPolicy :
+    ConfusionStatusPolicy<OpponentOptimizedConfusionStatusPolicy> {
     static uint8_t roll_turns_confused(const Who who) {
         return who == Who::Player ? 4 : 1;
     }
@@ -166,8 +181,8 @@ struct StatChangePolicy {
 template <typename T>
 concept IsStatChangePolicy = std::derived_from<T, StatChangePolicy<T>>;
 
-class OpponentOptimizedStatChangePolicy :
-    public StatChangePolicy<OpponentOptimizedStatChangePolicy> {
+struct OpponentOptimizedStatChangePolicy :
+    StatChangePolicy<OpponentOptimizedStatChangePolicy> {
     static bool roll_stat_drop(const uint8_t, const Who who) {
         return who == Who::Player;
     }
@@ -184,33 +199,32 @@ template <typename T>
 concept IsOpponentKnowledgePolicy =
     std::derived_from<T, OpponentKnowledgePolicy<T>>;
 
-class OpponentOptimizedKnowledgePolicy :
-    public OpponentKnowledgePolicy<OpponentOptimizedKnowledgePolicy> {
-public:
+struct OpponentOptimizedKnowledgePolicy :
+    OpponentKnowledgePolicy<OpponentOptimizedKnowledgePolicy> {
     static bool opponent_knows_player_move() {
         return true;
     }
 };
 
 template <
-    IsCritRNGPolicy CR,
-    IsConfusionStatusRNGPolicy CSR,
-    IsFreezeRNGPolicy F,
-    IsOpponentKnowledgePolicy E,
-    IsSpeedAdvantagePolicy S,
-    IsDamageRandomFactorPolicy D,
-    IsConfusionStatusPolicy C,
-    IsStatChangePolicy SC
+    IsConfusionStatusPolicy ConfusionStatusPolicy,
+    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
+    IsCritRNGPolicy CritRNGPolicy,
+    IsDamageRandomFactorPolicy DamageRandomFactorPolicy,
+    IsFreezeRNGPolicy FreezeRNGPolicy,
+    IsOpponentKnowledgePolicy OpponentKnowledgePolicy,
+    IsSpeedAdvantagePolicy SpeedAdvantagePolicy,
+    IsStatChangePolicy StatChangePolicy
 >
 struct PolicyContainer {
-    CR crit_rng_policy;
-    CSR confusion_status_rng_policy;
-    F freeze_rng_policy;
-    E effect_policy;
-    S speed_advantage_policy;
-    D damage_random_factor_policy;
-    C confusion_status_policy;
-    SC stat_change_policy;
+    ConfusionStatusPolicy confusion_status_policy;
+    ConfusionStatusRNGPolicy confusion_status_rng_policy;
+    CritRNGPolicy crit_rng_policy;
+    DamageRandomFactorPolicy damage_random_factor_policy;
+    FreezeRNGPolicy freeze_rng_policy;
+    OpponentKnowledgePolicy opponent_knowledge_policy;
+    SpeedAdvantagePolicy speed_advantage_policy;
+    StatChangePolicy stat_change_policy;
 };
 
 

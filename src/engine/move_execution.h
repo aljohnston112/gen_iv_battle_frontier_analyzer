@@ -18,10 +18,13 @@ inline std::array<int16_t, LEVEL + 1> DAMAGE_CACHE = [] {
 }();
 
 
-template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
+template <
+    IsCritRNGPolicy CritRNGPolicy,
+    IsDamageRandomFactorPolicy RandomFactorPolicy
+>
 uint16_t get_damage_of_power_move(
-    const E& effect_policy,
-    const R& rng_policy,
+    const CritRNGPolicy& crit_rng_policy,
+    const RandomFactorPolicy& random_factor_policy,
     const BattleState& battle_state,
     const PokemonState& attacker,
     const PokemonState& defender,
@@ -53,7 +56,7 @@ uint16_t get_damage_of_power_move(
         defender_ability != Ability::BattleArmor && defender_ability !=
         Ability::ShellArmor &&
         !defender.has_status(StatusWithStage::LuckyChanted) &&
-        rng_policy.roll(
+        crit_rng_policy.roll(
             calculate_crit_chance_based_on_stage(
                 attacker.get_status_value(StatusWithStage::CritChanceModified)
             )
@@ -123,7 +126,7 @@ uint16_t get_damage_of_power_move(
     const uint8_t random =
         move->move == Move::SpitUp
             ? 100
-            : effect_policy.roll_random(who_attacker_is);
+            : random_factor_policy.roll_random(who_attacker_is);
     damage = damage * random / 100;
     const bool is_stab = attacker.has_type(move_type);
     if (is_stab) {
@@ -173,10 +176,13 @@ uint16_t get_damage_of_power_move(
     return damage;
 }
 
-template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
+template <
+    IsCritRNGPolicy CritRNGPolicy,
+    IsDamageRandomFactorPolicy RandomFactorPolicy
+>
 uint16_t execute_power_move(
-    const E& effect_policy,
-    const R& rng_policy,
+    const RandomFactorPolicy& random_factor_policy,
+    const CritRNGPolicy& crit_rng_policy,
     BattleState& battle_state,
     PokemonState& attacker,
     PokemonState& defender,
@@ -193,8 +199,8 @@ uint16_t execute_power_move(
     const uint16_t hp_before = defender.get_current_stat(Stat::Health);
     defender.add_damage(
         get_damage_of_power_move(
-            effect_policy,
-            rng_policy,
+            crit_rng_policy,
+            random_factor_policy,
             battle_state,
             attacker,
             defender,
@@ -205,9 +211,9 @@ uint16_t execute_power_move(
     return hp_before - defender.get_current_stat(Stat::Health);
 }
 
-template <IsOpponentKnowledgePolicy E>
+template <IsConfusionStatusPolicy ConfusionStatusPolicy>
 int32_t calculate_confused_hit_damage(
-    const E& effect_policy,
+    const ConfusionStatusPolicy& confusion_status_policy,
     const PokemonState& attacker,
     const Who who_attacker_is
 ) {
@@ -241,21 +247,22 @@ int32_t calculate_confused_hit_damage(
                              : 1;
     damage = damage / 50 / burn;
     damage = damage + 2;
-    const uint8_t random = effect_policy.roll_random_confusion(who_attacker_is);
+    const uint8_t random =
+        confusion_status_policy.roll_random_confusion(who_attacker_is);
     damage = damage * random / 100;
     damage = std::max(1, damage);
     return damage;
 }
 
-template <IsOpponentKnowledgePolicy E>
+template <IsConfusionStatusPolicy ConfusionStatusPolicy>
 void hit_from_confusion(
-    const E& effect_policy,
+    const ConfusionStatusPolicy& confusion_status_policy,
     PokemonState& attacker,
     const Who who_attacker_is
 ) {
     attacker.add_damage(
         calculate_confused_hit_damage(
-            effect_policy,
+            confusion_status_policy,
             attacker,
             who_attacker_is
         )
@@ -275,30 +282,33 @@ inline void execute_moonlight(PokemonState& player, const Weather weather) {
     player.add_hp(hp_gained);
 }
 
-template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
+template <
+    IsConfusionStatusPolicy ConfusionStatusPolicy,
+    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy
+>
 void roll_confusion(
-    const E& effect_policy,
-    const R& rng_policy,
+    const ConfusionStatusPolicy& confusion_status_policy,
+    const ConfusionStatusRNGPolicy& confusion_status_rng_policy,
     PokemonState& defender,
     const Who who,
     const int chance
 ) {
-    if (rng_policy.roll(static_cast<uint8_t>(chance))) {
+    if (confusion_status_rng_policy.roll_for_confusion(chance)) {
         // 1 to 4 since the game decrements before acting,
         // but this engine decrements after the confusion check
-        defender.set_confused(effect_policy.roll_turns_confused(who));
+        defender.set_confused(confusion_status_policy.roll_turns_confused(who));
     }
 }
 
-template <IsRNGPolicy R>
+template <IsFreezeRNGPolicy FreezeRNGPolicy>
 void roll_freeze(
-    const R& rng_policy,
+    const FreezeRNGPolicy& freeze_rng_policy,
     const Weather weather,
     PokemonState& defender,
     const int chance
 ) {
     if (weather != Weather::Sun &&
-        rng_policy.roll(static_cast<uint8_t>(chance))
+        freeze_rng_policy.roll_for_freeze(chance)
     ) {
         defender.try_set_status(StatusCondition::Freeze);
     }
@@ -329,10 +339,13 @@ inline bool move_will_work(
     return true;
 }
 
-template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
+template <
+    IsCritRNGPolicy CritRNGPolicy,
+    IsDamageRandomFactorPolicy RandomFactorPolicy
+>
 int32_t get_struggle_damage(
-    const E& effect_policy,
-    const R& rng_policy,
+    const RandomFactorPolicy& random_factor_policy,
+    const CritRNGPolicy& crit_rng_policy,
     const PokemonState& attacker,
     const PokemonState& defender,
     const Who who_attacker_is
@@ -353,7 +366,7 @@ int32_t get_struggle_damage(
         defender_ability != Ability::BattleArmor &&
         defender_ability != Ability::ShellArmor &&
         !defender.has_status(StatusWithStage::LuckyChanted) &&
-        rng_policy.roll(
+        crit_rng_policy.roll(
             calculate_crit_chance_based_on_stage(
                 attacker.get_status_value(StatusWithStage::CritChanceModified)
             )
@@ -391,16 +404,19 @@ int32_t get_struggle_damage(
     ) {
         damage = (damage * 10 + damage * n) / 10;
     }
-    const uint8_t random = effect_policy.roll_random(who_attacker_is);
+    const uint8_t random = random_factor_policy.roll_random(who_attacker_is);
     damage = damage * random / 100;
     damage = std::max(1, damage);
     return damage;
 }
 
-template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
+template <
+    IsCritRNGPolicy CritRNGPolicy,
+    IsDamageRandomFactorPolicy RandomFactorPolicy
+>
 uint16_t execute_struggle(
-    const E& effect_policy,
-    const R& rng_policy,
+    const RandomFactorPolicy& random_factor_policy,
+    const CritRNGPolicy& crit_rng_policy,
     BattleState& battle_state,
     PokemonState& attacker,
     PokemonState& defender,
@@ -445,8 +461,8 @@ uint16_t execute_struggle(
     // Struggle's power is not boosted by Technician in Generation IV.
 
     int32_t damage = get_struggle_damage(
-        effect_policy,
-        rng_policy,
+        random_factor_policy,
+        crit_rng_policy,
         attacker,
         defender,
         who_attacker_is
@@ -465,24 +481,35 @@ uint16_t execute_struggle(
     return hp_before - defender.get_current_stat(Stat::Health);
 }
 
-template <IsOpponentKnowledgePolicy E>
+template <IsStatChangePolicy StatChangePolicy>
 void roll_stat_drop(
-    const E& effect_policy,
+    const StatChangePolicy& stat_change_policy,
     PokemonState& state,
     const Who whose_stat_dropped,
     const Stat stat,
     const int8_t stage_diff,
     const uint8_t probability
 ) {
-    if (effect_policy.roll_stat_drop(probability, whose_stat_dropped)) {
+    if (stat_change_policy.roll_stat_drop(probability, whose_stat_dropped)) {
         state.lower_stat_stage(stat, stage_diff);
     }
 }
 
-template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
+template <
+    IsConfusionStatusPolicy ConfusionStatusPolicy,
+    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
+    IsCritRNGPolicy CritRNGPolicy,
+    IsDamageRandomFactorPolicy RandomFactorPolicy,
+    IsFreezeRNGPolicy FreezeRNGPolicy,
+    IsStatChangePolicy StatChangePolicy
+>
 uint16_t execute_move(
-    const E& effect_policy,
-    const R& rng_policy,
+    const ConfusionStatusPolicy& confusion_status_policy,
+    const ConfusionStatusRNGPolicy& confusion_status_rng_policy,
+    const CritRNGPolicy& crit_rng_policy,
+    const RandomFactorPolicy& random_factor_policy,
+    const FreezeRNGPolicy& freeze_rng_policy,
+    const StatChangePolicy& stat_change_policy,
     BattleState& battle_state,
     const Who who_attacker_is,
     const MoveInfo* move
@@ -502,7 +529,7 @@ uint16_t execute_move(
     if (attacker.get_current_status_condition() ==
         StatusCondition::Freeze
     ) [[unlikely]] {
-        if (rng_policy.roll(static_cast<uint8_t>(20)) ||
+        if (freeze_rng_policy.roll_for_thaw(static_cast<uint8_t>(20)) ||
             move->move == Move::FlameWheel ||
             move->move == Move::FlareBlitz ||
             move->move == Move::SacredFire
@@ -518,8 +545,9 @@ uint16_t execute_move(
     // also must return before the confusion check!
 
     if (attacker.get_status_value(StatusWithStage::Confused) > 0) {
-        if (rng_policy.roll(static_cast<uint8_t>(50))) {
-            hit_from_confusion(effect_policy, attacker, who_attacker_is);
+        if (confusion_status_rng_policy.roll_for_self_hit(50)) {
+            hit_from_confusion(confusion_status_policy, attacker,
+                               who_attacker_is);
             attacker.decrement_status_value(StatusWithStage::Confused);
             return 0;
         }
@@ -531,8 +559,8 @@ uint16_t execute_move(
 
     if (move->move == Move::Struggle) {
         return execute_struggle(
-            effect_policy,
-            rng_policy,
+            random_factor_policy,
+            crit_rng_policy,
             battle_state,
             attacker,
             defender,
@@ -546,8 +574,8 @@ uint16_t execute_move(
         execute_moonlight(attacker, weather);
     } else if (move_has_flag(move->move, MoveFlag::HAS_POWER)) {
         damage = execute_power_move(
-            effect_policy,
-            rng_policy,
+            random_factor_policy,
+            crit_rng_policy,
             battle_state,
             attacker,
             defender,
@@ -563,22 +591,22 @@ uint16_t execute_move(
     if (move_has_flag(move->move, MoveFlag::CONFUSES_DEFENDER_10)) [[unlikely]
     ] {
         roll_confusion(
-            effect_policy,
-            rng_policy,
+            confusion_status_policy,
+            confusion_status_rng_policy,
             defender,
             who_defender_is,
             10
         );
     }
     if (move_has_flag(move->move, MoveFlag::FREEZES_DEFENDER_10)) [[unlikely]] {
-        roll_freeze(rng_policy, weather, defender, 10);
+        roll_freeze(freeze_rng_policy, weather, defender, 10);
     }
     if (move_has_flag(
             move->move,
             MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)
     ) [[unlikely]] {
         roll_stat_drop(
-            effect_policy,
+            stat_change_policy,
             defender,
             is_player_attacker ? Who::Opponent : Who::Player,
             Stat::SpecialDefense,

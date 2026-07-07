@@ -51,7 +51,7 @@ std::vector<PokemonBattleResultEntries> do_battles(
     std::vector<PokemonBattleResultEntries> all_battle_result_entries{};
     all_battle_result_entries.resize(pokemon_to_battle_entries.size());
 
-    const unsigned int number_of_threads = getNumberOfThreads();
+    const unsigned int number_of_threads = getNumberOfThreads() * 10;
     ThreadPool thread_pool{number_of_threads};
     const size_t chunk_size =
         pokemon_to_battle_entries.size() / number_of_threads;

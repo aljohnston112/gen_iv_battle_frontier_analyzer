@@ -83,11 +83,15 @@ inline void apply_end_of_turn_10(PokemonState& pokemon_state) {
     // 10.3 Stealth Rock
 }
 
-template <IsOpponentKnowledgePolicy T>
-void apply_end_of_turn(const T& effect_policy, BattleState& battle_state) {
+template <IsSpeedAdvantagePolicy SpeedAdvantagePolicy>
+void apply_end_of_turn(
+    const SpeedAdvantagePolicy& speed_advantage_policy,
+    BattleState& battle_state
+    ) {
     auto& player = battle_state.player;
     auto& opponent = battle_state.opponent;
-    const bool player_faster = effect_policy.is_player_faster(battle_state);
+    const bool player_faster =
+        speed_advantage_policy.is_player_faster(battle_state);
     auto& first_state = player_faster ? player : opponent;
     auto& second_state = player_faster ? opponent : player;
 

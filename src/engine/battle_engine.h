@@ -10,28 +10,70 @@
 #include "thread_pool.h"
 #include "serebii_pokemon_data_source.h"
 
-template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
+template <
+    IsConfusionStatusPolicy ConfusionStatusPolicy,
+    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
+    IsCritRNGPolicy CritRNGPolicy,
+    IsDamageRandomFactorPolicy DamageRandomFactorPolicy,
+    IsFreezeRNGPolicy FreezeRNGPolicy,
+    IsOpponentKnowledgePolicy OpponentKnowledgePolicy,
+    IsSpeedAdvantagePolicy SpeedAdvantagePolicy,
+    IsStatChangePolicy StatChangePolicy
+>
 class BattleEngine {
 public:
-    const PolicyContainer<E, R> policy_container;
-    const E& effect_policy;
-    const R& rng_policy;
+    const PolicyContainer<
+        ConfusionStatusPolicy,
+        ConfusionStatusRNGPolicy,
+        CritRNGPolicy,
+        DamageRandomFactorPolicy,
+        FreezeRNGPolicy,
+        OpponentKnowledgePolicy,
+        SpeedAdvantagePolicy,
+        StatChangePolicy
+    > policy_container;
+    ConfusionStatusPolicy confusion_status_policy;
+    ConfusionStatusRNGPolicy confusion_status_rng_policy;
+    CritRNGPolicy crit_rng_policy;
+    DamageRandomFactorPolicy damage_random_factor_policy;
+    FreezeRNGPolicy freeze_rng_policy;
+    OpponentKnowledgePolicy opponent_knowledge_policy;
+    SpeedAdvantagePolicy speed_advantage_policy;
+    StatChangePolicy stat_change_policy;
 
     explicit BattleEngine(
-        const PolicyContainer<E, R>&& policy_container_in
+        const PolicyContainer<
+            ConfusionStatusPolicy,
+            ConfusionStatusRNGPolicy,
+            CritRNGPolicy,
+            DamageRandomFactorPolicy,
+            FreezeRNGPolicy,
+            OpponentKnowledgePolicy,
+            SpeedAdvantagePolicy,
+            StatChangePolicy
+        >&& policy_container_in
     ) : policy_container(std::move(policy_container_in)),
-        effect_policy(policy_container.effect_policy),
-        rng_policy(policy_container.rng_policy) {}
+        confusion_status_policy(policy_container.confusion_status_policy),
+        confusion_status_rng_policy(
+            policy_container.confusion_status_rng_policy),
+        crit_rng_policy(policy_container.crit_rng_policy),
+        damage_random_factor_policy(
+            policy_container.damage_random_factor_policy),
+        freeze_rng_policy(policy_container.freeze_rng_policy),
+        opponent_knowledge_policy(policy_container.opponent_knowledge_policy),
+        speed_advantage_policy(policy_container.speed_advantage_policy),
+        stat_change_policy(policy_container.stat_change_policy) {}
 };
 
-template <IsOpponentKnowledgePolicy T>
+template <IsSpeedAdvantagePolicy SpeedAdvantagePolicy>
 Who who_goes_first(
-    const T& effect_policy,
+    const SpeedAdvantagePolicy& speed_advantage_policy,
     const BattleState& battle_state,
     const MoveInfo* player_move,
     const MoveInfo* opponent_move
 ) {
-    const bool player_faster = effect_policy.is_player_faster(battle_state);
+    const bool player_faster =
+        speed_advantage_policy.is_player_faster(battle_state);
     if (player_faster) {
         return Who::Player;
     } else {
@@ -39,19 +81,39 @@ Who who_goes_first(
     }
 }
 
-template <IsOpponentKnowledgePolicy T, IsRNGPolicy R>
+template <
+    IsConfusionStatusPolicy ConfusioStatusPolicy,
+    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
+    IsCritRNGPolicy CritRNGPolicy,
+    IsDamageRandomFactorPolicy DamageRandomFactorPolicy,
+    IsFreezeRNGPolicy FreezeRNGPolicy,
+    IsOpponentKnowledgePolicy OpponentKnowledgePolicy,
+    IsSpeedAdvantagePolicy SpeedAdvantagePolicy,
+    IsStatChangePolicy StatChangePolicy
+>
 TurnResult execute_turn(
-    const PolicyContainer<T, R>& policy_container,
+    const PolicyContainer<
+        ConfusioStatusPolicy,
+        ConfusionStatusRNGPolicy,
+        CritRNGPolicy,
+        DamageRandomFactorPolicy,
+        FreezeRNGPolicy,
+        OpponentKnowledgePolicy,
+        SpeedAdvantagePolicy,
+        StatChangePolicy
+    >& policy_container,
     BattleState& battle_state,
     const MoveInfo* player_move,
     const MoveInfo* opponent_move,
     const size_t parent_index
 ) {
-    const T& effect_policy = policy_container.effect_policy;
-    const R& rng_policy = policy_container.rng_policy;
     const bool player_goes_first =
-        who_goes_first(effect_policy, battle_state, player_move,
-                       opponent_move) == Who::Player;
+        who_goes_first(
+            policy_container.speed_advantage_policy,
+            battle_state,
+            player_move,
+            opponent_move
+        ) == Who::Player;
     const Who first = player_goes_first ? Who::Player : Who::Opponent;
     const Who second = player_goes_first ? Who::Opponent : Who::Player;
     const MoveInfo* first_move =
@@ -62,21 +124,29 @@ TurnResult execute_turn(
 
     const uint16_t first_move_damage =
         execute_move(
-            effect_policy,
-            rng_policy,
+            policy_container.confusion_status_policy,
+            policy_container.confusion_status_rng_policy,
+            policy_container.crit_rng_policy,
+            policy_container.damage_random_factor_policy,
+            policy_container.freeze_rng_policy,
+            policy_container.stat_change_policy,
             battle_state,
             first,
             first_move
         );
     const uint16_t second_move_damage =
         execute_move(
-            effect_policy,
-            rng_policy,
+            policy_container.confusion_status_policy,
+            policy_container.confusion_status_rng_policy,
+            policy_container.crit_rng_policy,
+            policy_container.damage_random_factor_policy,
+            policy_container.freeze_rng_policy,
+            policy_container.stat_change_policy,
             battle_state,
             second,
             second_move
         );
-    apply_end_of_turn(effect_policy, battle_state);
+    apply_end_of_turn(policy_container.speed_advantage_policy, battle_state);
 
     return TurnResult{
         .battle_state = battle_state,
@@ -101,10 +171,21 @@ struct BestMoveResult {
     uint16_t total_damage;
 };
 
-template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
+template <
+    IsConfusionStatusPolicy ConfusionStatusPolicy,
+    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
+    IsCritRNGPolicy CritRNGPolicy,
+    IsDamageRandomFactorPolicy RandomFactorPolicy,
+    IsFreezeRNGPolicy FreezeRNGPolicy,
+    IsStatChangePolicy StatChangePolicy
+>
 BestMoveResult get_best_special_move(
-    const E& effect_policy,
-    const R& rng_policy,
+    const ConfusionStatusPolicy& confusion_status_policy,
+    const ConfusionStatusRNGPolicy& confusion_status_rng_policy,
+    const CritRNGPolicy& crit_rng_policy,
+    const RandomFactorPolicy& random_factor_policy,
+    const FreezeRNGPolicy& freeze_rng_policy,
+    const StatChangePolicy& stat_change_policy,
     const BattleState& battle_state,
     const PokemonState& attacker,
     const PokemonState& defender,
@@ -127,16 +208,17 @@ BestMoveResult get_best_special_move(
         const auto& move_info = &all_move_infos[to_int(move)];
         if (move_info->category == Category::SPECIAL) {
             const uint16_t damage = get_damage_of_power_move(
-                effect_policy,
-                rng_policy,
+                crit_rng_policy,
+                random_factor_policy,
                 battle_state,
                 attacker,
                 defender,
                 move_info,
                 who_is_picking
             );
-            uint16_t hits_to_ko;
-            uint16_t total_damage;
+            uint16_t hits_to_ko =
+                std::ceil(static_cast<double>(defender_hp) / damage);
+            uint16_t total_damage = damage * hits_to_ko;
 
             if (who_is_picking == Who::Opponent) {
                 if (move_has_flag(
@@ -147,27 +229,32 @@ BestMoveResult get_best_special_move(
                     PokemonState& temp_defender = temp_battle_state.player;
                     hits_to_ko = 1;
                     total_damage = execute_move(
-                        effect_policy,
-                        rng_policy,
+                        confusion_status_policy,
+                        confusion_status_rng_policy,
+                        crit_rng_policy,
+                        random_factor_policy,
+                        freeze_rng_policy,
+                        stat_change_policy,
                         temp_battle_state,
                         who_is_picking,
                         move_info
                     );
+                    hits_to_ko = 0;
                     while (temp_defender.get_current_stat(Stat::Health) > 0) {
-                        hits_to_ko++;
+                        ++hits_to_ko;
                         total_damage += execute_move(
-                            effect_policy,
-                            rng_policy,
+                            confusion_status_policy,
+                            confusion_status_rng_policy,
+                            crit_rng_policy,
+                            random_factor_policy,
+                            freeze_rng_policy,
+                            stat_change_policy,
                             temp_battle_state,
                             who_is_picking,
                             move_info
                         );
                     }
                 }
-            } else {
-                hits_to_ko =
-                    std::ceil(static_cast<double>(defender_hp) / damage);
-                total_damage = damage * hits_to_ko;
             }
 
             if (hits_to_ko < best.number_of_hits_to_ko ||
@@ -184,10 +271,21 @@ BestMoveResult get_best_special_move(
     return best;
 }
 
-template <IsOpponentKnowledgePolicy E, IsRNGPolicy R>
+template <
+    IsConfusionStatusPolicy ConfusionStatusPolicy,
+    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
+    IsCritRNGPolicy CritRNGPolicy,
+    IsDamageRandomFactorPolicy RandomFactorPolicy,
+    IsFreezeRNGPolicy FreezeRNGPolicy,
+    IsStatChangePolicy StatChangePolicy
+>
 Move choose_move_against_defender(
-    const E& effect_policy,
-    const R& rng_policy,
+    const ConfusionStatusPolicy& confusion_status_policy,
+    const ConfusionStatusRNGPolicy& confusion_status_rng_policy,
+    const CritRNGPolicy& crit_rng_policy,
+    const RandomFactorPolicy& random_factor_policy,
+    const FreezeRNGPolicy& freeze_rng_policy,
+    const StatChangePolicy& stat_change_policy,
     const BattleState& battle_state,
     const PokemonState& attacker,
     const PokemonState& defender,
@@ -198,8 +296,12 @@ Move choose_move_against_defender(
         return Move::Struggle;
     }
     BestMoveResult best_special = get_best_special_move(
-        effect_policy,
-        rng_policy,
+        confusion_status_policy,
+        confusion_status_rng_policy,
+        crit_rng_policy,
+        random_factor_policy,
+        freeze_rng_policy,
+        stat_change_policy,
         battle_state,
         attacker,
         defender,
@@ -229,10 +331,21 @@ inline BattleResultEntry single_battle(
     );
 
     const BattleEngine battle_engine{
-        std::move(PolicyContainer{
-            .effect_policy = OpponentOptimizedKnowledgePolicy{},
-            .rng_policy = FalseRNGPolicy{}
-        }),
+        std::move(
+            PolicyContainer{
+                .confusion_status_policy =
+                OpponentOptimizedConfusionStatusPolicy{},
+                .confusion_status_rng_policy = NeverConfuseRNGPolicy{},
+                .crit_rng_policy = NeverCritRNGPolicy{},
+                .damage_random_factor_policy =
+                OpponentOptimizedDamageRandomFactorPolicy{},
+                .freeze_rng_policy = NeverFreezeRNGPolicy{},
+                .opponent_knowledge_policy = OpponentOptimizedKnowledgePolicy{},
+                .speed_advantage_policy =
+                OpponentOptimizedSpeedAdvantagePolicy{},
+                .stat_change_policy = OpponentOptimizedStatChangePolicy{}
+            }
+        ),
     };
 
     bool won = false;
@@ -257,8 +370,12 @@ inline BattleResultEntry single_battle(
     while (!is_battle_over(*battle_state)) {
         const Move player_move =
             choose_move_against_defender(
-                battle_engine.effect_policy,
-                battle_engine.rng_policy,
+                battle_engine.confusion_status_policy,
+                battle_engine.confusion_status_rng_policy,
+                battle_engine.crit_rng_policy,
+                battle_engine.damage_random_factor_policy,
+                battle_engine.freeze_rng_policy,
+                battle_engine.stat_change_policy,
                 *battle_state,
                 battle_state->player,
                 battle_state->opponent,
@@ -266,8 +383,12 @@ inline BattleResultEntry single_battle(
             );
         const Move opponent_move =
             choose_move_against_defender(
-                battle_engine.effect_policy,
-                battle_engine.rng_policy,
+                battle_engine.confusion_status_policy,
+                battle_engine.confusion_status_rng_policy,
+                battle_engine.crit_rng_policy,
+                battle_engine.damage_random_factor_policy,
+                battle_engine.freeze_rng_policy,
+                battle_engine.stat_change_policy,
                 *battle_state,
                 battle_state->opponent,
                 battle_state->player,

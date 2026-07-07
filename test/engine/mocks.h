@@ -25,53 +25,36 @@ const CustomPokemon CresseliaNoItem{
     .pounds = 188.7
 };
 
-class LowRandomEffectPolicy :
-    public OpponentKnowledgePolicy<LowRandomEffectPolicy> {
-public:
-    static bool is_player_faster(const BattleState& battle_state) {
-        return battle_state.player.get_current_stat(Stat::Speed) >
-            battle_state.opponent.get_current_stat(Stat::Speed);
-    }
-
+struct LowDamageRandomFactorPolicy :
+    DamageRandomFactorPolicy<LowDamageRandomFactorPolicy> {
     static uint8_t roll_random(const Who) {
         return 85;
     }
-
-    static bool roll_stat_drop(const uint8_t, const Who) {
-        return false;
-    }
 };
 
-class HighRandomEffectPolicy :
-    public OpponentKnowledgePolicy<HighRandomEffectPolicy> {
-public:
-    static bool is_player_faster(const BattleState& battle_state) {
-        return battle_state.player.get_current_stat(Stat::Speed) >
-            battle_state.opponent.get_current_stat(Stat::Speed);
-    }
-
+struct HighDamageRandomFactorPolicy :
+    DamageRandomFactorPolicy<HighDamageRandomFactorPolicy> {
     static uint8_t roll_random(const Who) {
         return 100;
-    }
-
-    static bool roll_stat_drop(const uint8_t, const Who) {
-        return false;
     }
 };
 
 template <typename T>
-concept IsPolicyTestCase = requires {
-    requires IsOpponentKnowledgePolicy<typename T::EffectPolicyType>;
-    requires IsRNGPolicy<typename  T::RNGPolicyType>;
+concept IsDamageTestCase = requires {
+    requires IsCritRNGPolicy<typename T::CritRNGPolicyType>;
+    requires IsDamageRandomFactorPolicy<typename T::DamageRandomFactorPolicyType>;
     { +T::ExpectedValue } -> std::same_as<int32_t>;
 };
 
-template <typename EffectPolicy, typename RNGPolicy, int32_t Expected>
-struct PolicyTestCase {
-    using EffectPolicyType = EffectPolicy;
-    using RNGPolicyType = RNGPolicy;
-    static constexpr int32_t ExpectedValue = Expected;
+template <
+    IsCritRNGPolicy CritRNGPolicy,
+    IsDamageRandomFactorPolicy DamageRandomFactorPolicy,
+    int32_t Value
+>
+struct DamageTestCase {
+    using CritRNGPolicyType = CritRNGPolicy;
+    using DamageRandomFactorPolicyType = DamageRandomFactorPolicy;
+    static constexpr int32_t ExpectedValue = Value;
 };
-
 
 #endif //GEN_IV_BATTLE_FRONTIER_ANALYZER_MOCKS_H
