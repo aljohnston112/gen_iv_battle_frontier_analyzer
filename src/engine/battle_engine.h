@@ -104,8 +104,7 @@ TurnResult execute_turn(
     >& policy_container,
     BattleState& battle_state,
     const MoveInfo* player_move,
-    const MoveInfo* opponent_move,
-    const size_t parent_index
+    const MoveInfo* opponent_move
 ) {
     const bool player_goes_first =
         who_goes_first(
@@ -338,7 +337,7 @@ inline BattleResultEntry single_battle(
                 .confusion_status_rng_policy = NeverConfuseRNGPolicy{},
                 .crit_rng_policy = NeverCritRNGPolicy{},
                 .damage_random_factor_policy =
-                OpponentOptimizedDamageRandomFactorPolicy{},
+                OpponentOptimizedRandomFactorPolicy{},
                 .freeze_rng_policy = NeverFreezeRNGPolicy{},
                 .opponent_knowledge_policy = OpponentOptimizedKnowledgePolicy{},
                 .speed_advantage_policy =
@@ -399,8 +398,7 @@ inline BattleResultEntry single_battle(
                 battle_engine.policy_container,
                 *battle_state,
                 &all_move_infos[to_int(player_move)],
-                &all_move_infos[to_int(opponent_move)],
-                path.size()
+                &all_move_infos[to_int(opponent_move)]
             );
         path.emplace_back(std::move(turn_result));
         battle_state = &path.back().battle_state;

@@ -60,12 +60,10 @@ TEST(Engine, SignalBeamConfusesOnTrueRoll) {
         PokemonState{&Cresselia}
     };
 
-    constexpr auto confusion_status_policy =
-        HighRandomConfusionEffectPolicy{};
+    constexpr auto confusion_status_policy = HighRandomConfusionEffectPolicy{};
     constexpr auto confusion_status_rng_policy = AlwaysConfuseRNGPolicy{};
     constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
-    constexpr auto random_factor_policy =
-        OpponentOptimizedDamageRandomFactorPolicy{};
+    constexpr auto random_factor_policy = OpponentOptimizedRandomFactorPolicy{};
     constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
     constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
 
@@ -100,7 +98,7 @@ TEST(Engine, SignalBeamDoesNotConfuseOnFalseRoll) {
     constexpr auto confusion_status_rng_policy = NeverConfuseRNGPolicy{};
     constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
     constexpr auto random_factor_policy =
-        OpponentOptimizedDamageRandomFactorPolicy{};
+        OpponentOptimizedRandomFactorPolicy{};
     constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
     constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
 
@@ -135,7 +133,7 @@ TEST(Engine, BeingConfusedPreventsAttackingOnTrueRoll) {
     constexpr auto confusion_status_rng_policy = AlwaysConfuseRNGPolicy{};
     constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
     constexpr auto random_factor_policy =
-        OpponentOptimizedDamageRandomFactorPolicy{};
+        OpponentOptimizedRandomFactorPolicy{};
     constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
     constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
 
@@ -267,7 +265,7 @@ void confused_damage_is_correct_on_true_roll(
             confusion_status_policy,
             AlwaysConfuseRNGPolicy{},
             NeverCritRNGPolicy{},
-            OpponentOptimizedDamageRandomFactorPolicy{},
+            OpponentOptimizedRandomFactorPolicy{},
             NeverFreezeRNGPolicy{},
             OpponentOptimizedStatChangePolicy{},
             battle_state,
@@ -331,7 +329,7 @@ TEST(Engine, BeingConfusedDoesNotPreventAttackOnFalseRoll) {
             confusion_status_policy,
             NeverConfuseRNGPolicy{},
             NeverCritRNGPolicy{},
-            OpponentOptimizedDamageRandomFactorPolicy{},
+            OpponentOptimizedRandomFactorPolicy{},
             NeverFreezeRNGPolicy{},
             OpponentOptimizedStatChangePolicy{},
             battle_state,
@@ -356,7 +354,7 @@ TEST(Engine, ConfusionEndsOnCorrectTurn) {
     constexpr auto confusion_rng_policy = AlwaysConfuseRNGPolicy{};
     constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
     constexpr auto damage_random_factor_policy =
-        OpponentOptimizedDamageRandomFactorPolicy{};
+        OpponentOptimizedRandomFactorPolicy{};
     constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
     constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
 

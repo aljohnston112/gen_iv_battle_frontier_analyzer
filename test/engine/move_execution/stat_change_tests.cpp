@@ -17,7 +17,7 @@ TEST(Engine, PsychicDropsSpecialDefenseOnTrueRoll) {
     constexpr auto confusion_status_rng_policy = NeverConfuseRNGPolicy{};
     constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
     constexpr auto random_factor_policy =
-        OpponentOptimizedDamageRandomFactorPolicy{};
+        OpponentOptimizedRandomFactorPolicy{};
     constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
     constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
 
@@ -55,7 +55,7 @@ TEST(Engine, PsychicSpecialDefenseDropDoesNotGoBelowNegativeSix) {
     constexpr auto confusion_status_rng_policy = NeverConfuseRNGPolicy{};
     constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
     constexpr auto random_factor_policy =
-        OpponentOptimizedDamageRandomFactorPolicy{};
+        OpponentOptimizedRandomFactorPolicy{};
     constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
     constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
 
@@ -100,7 +100,7 @@ TEST(Engine, PsychicDoesNotDropSpecialDefenseOnFalseRoll) {
     constexpr auto confusion_status_rng_policy = NeverConfuseRNGPolicy{};
     constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
     constexpr auto random_factor_policy =
-        OpponentOptimizedDamageRandomFactorPolicy{};
+        OpponentOptimizedRandomFactorPolicy{};
     constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
     constexpr auto stat_change_policy = NeverChangeStatPolicy{};
 

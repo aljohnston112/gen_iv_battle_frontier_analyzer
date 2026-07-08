@@ -136,8 +136,8 @@ template <typename T>
 concept IsDamageRandomFactorPolicy =
     std::derived_from<T, DamageRandomFactorPolicy<T>>;
 
-struct OpponentOptimizedDamageRandomFactorPolicy :
-    DamageRandomFactorPolicy<OpponentOptimizedDamageRandomFactorPolicy> {
+struct OpponentOptimizedRandomFactorPolicy :
+    DamageRandomFactorPolicy<OpponentOptimizedRandomFactorPolicy> {
     static uint8_t roll_random(const Who who) {
         return who == Who::Player ? 85 : 100;
     }
