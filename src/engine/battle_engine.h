@@ -238,7 +238,6 @@ BestMoveResult get_best_special_move(
                         who_is_picking,
                         move_info
                     );
-                    hits_to_ko = 0;
                     while (temp_defender.get_current_stat(Stat::Health) > 0) {
                         ++hits_to_ko;
                         total_damage += execute_move(

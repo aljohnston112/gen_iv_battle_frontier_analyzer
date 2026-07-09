@@ -121,7 +121,7 @@ FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(test)
 
-add_custom_target(build_all_tests DEPENDS test_runner engine_test)
+add_custom_target(build_all_tests DEPENDS engine_test)
 
 add_custom_target(run_tests DEPENDS build_all_tests
         COMMAND ${CMAKE_CTEST_COMMAND}

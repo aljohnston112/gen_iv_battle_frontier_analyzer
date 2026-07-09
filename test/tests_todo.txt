@@ -1,0 +1,10 @@
+TODO
+
+    Not effective damage
+
+    Damage calcs for pysical attacks
+
+    These moves clear freeze
+        FlameWheel
+        FlareBlitz
+        SacredFire

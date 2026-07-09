@@ -3,7 +3,7 @@
 #include "gtest/gtest.h"
 
 template <IsDamageTestCase Case>
-void random_does_correct_damage_for_special_attacks(
+void random_does_correct_damage_for_attack(
     const BattleState& battle_state,
     const MoveInfo* move
 ) {
@@ -29,13 +29,13 @@ void random_does_correct_damage_for_special_attacks(
 
 template <IsDamageTestCase... Cases>
 void random_does_correct_damage_for_special_attack(
-const BattleState& battle_state,
+    const BattleState& battle_state,
     const Move move
-    ) {
+) {
     const auto& all_move_infos =
         get_all_moves();
-    (random_does_correct_damage_for_special_attacks<Cases>(
-        battle_state,
+    (random_does_correct_damage_for_attack<Cases>(
+            battle_state,
             &all_move_infos[to_int(move)]
         ),
         ...
@@ -99,7 +99,10 @@ TEST(Engine, CriticalHitDoesTheCorrectDamageForSpecialAttack) {
     >(battle_state, Move::Psychic);
 }
 
-TEST(Engine, CriticalHitWithSpecialAttackBoostDoesTheCorrectDamageForSpecialAttack) {
+TEST(
+    Engine,
+    CriticalHitWithSpecialAttackBoostDoesTheCorrectDamageForSpecialAttack
+) {
     BattleState battle_state{
         PokemonState{&Cresselia},
         PokemonState{&Cresselia}
@@ -111,7 +114,10 @@ TEST(Engine, CriticalHitWithSpecialAttackBoostDoesTheCorrectDamageForSpecialAtta
     >(battle_state, Move::Psychic);
 }
 
-TEST(Engine, CriticalHitWithSpecialDefenseLossDoesTheCorrectDamageForSpecialAttack) {
+TEST(
+    Engine,
+    CriticalHitWithSpecialDefenseLossDoesTheCorrectDamageForSpecialAttack
+) {
     BattleState battle_state{
         PokemonState{&Cresselia},
         PokemonState{&Cresselia}
@@ -123,7 +129,10 @@ TEST(Engine, CriticalHitWithSpecialDefenseLossDoesTheCorrectDamageForSpecialAtta
     >(battle_state, Move::Psychic);
 }
 
-TEST(Engine, CriticalHitWithSpecialAttackLossDoesTheCorrectDamageForSpecialAttack) {
+TEST(
+    Engine,
+    CriticalHitWithSpecialAttackLossDoesTheCorrectDamageForSpecialAttack
+) {
     BattleState battle_state{
         PokemonState{&Cresselia},
         PokemonState{&Cresselia}
@@ -135,7 +144,10 @@ TEST(Engine, CriticalHitWithSpecialAttackLossDoesTheCorrectDamageForSpecialAttac
     >(battle_state, Move::Psychic);
 }
 
-TEST(Engine, CriticalHitWithSpecialDefenseBoostDoesTheCorrectDamageForSpecialAttack) {
+TEST(
+    Engine,
+    CriticalHitWithSpecialDefenseBoostDoesTheCorrectDamageForSpecialAttack
+) {
     BattleState battle_state{
         PokemonState{&Cresselia},
         PokemonState{&Cresselia}
@@ -145,4 +157,77 @@ TEST(Engine, CriticalHitWithSpecialDefenseBoostDoesTheCorrectDamageForSpecialAtt
         DamageTestCase<AlwaysCritRNGPolicy, LowDamageRandomFactorPolicy, 31>,
         DamageTestCase<AlwaysCritRNGPolicy, HighDamageRandomFactorPolicy, 37>
     >(battle_state, Move::Psychic);
+}
+
+struct IncreasingDamageRandomFactorPolicy :
+    DamageRandomFactorPolicy<IncreasingDamageRandomFactorPolicy> {
+    uint8_t roll_random(const Who) const {
+        return current_random++;
+    }
+
+    uint8_t peek_next_random() const {
+        return current_random;
+    }
+
+private:
+    mutable uint8_t current_random = 85;
+};
+
+TEST(Engine,
+     DamageMonotonicallyIncreasesWithIncreasingRandomForSpecialAttacks) {
+    BattleState battle_state{
+        PokemonState{&Cresselia},
+        PokemonState{&Cresselia}
+    };
+    battle_state.opponent.decrease_stat_stage(Stat::SpecialDefense, 5);
+
+    constexpr int16_t min_damage = 108;
+    constexpr int16_t max_damage = 127;
+    random_does_correct_damage_for_special_attack<
+        DamageTestCase<
+            AlwaysCritRNGPolicy,
+            LowDamageRandomFactorPolicy,
+            min_damage
+        >,
+        DamageTestCase<
+            AlwaysCritRNGPolicy,
+            HighDamageRandomFactorPolicy,
+            max_damage
+        >
+    >(battle_state, Move::Psychic);
+
+
+    constexpr auto crit_rng_policy = AlwaysCritRNGPolicy{};
+    constexpr auto random_factor_policy = IncreasingDamageRandomFactorPolicy{};
+    const auto& all_move_infos =
+        get_all_moves();
+    const auto move = &all_move_infos[to_int(Move::Psychic)];
+
+    int16_t current_damage =
+        get_damage_of_power_move(
+            crit_rng_policy,
+            random_factor_policy,
+            battle_state,
+            battle_state.player,
+            battle_state.opponent,
+            move,
+            Who::Player
+        );
+    EXPECT_EQ(current_damage, min_damage);
+    int16_t last_damage = current_damage;
+
+    while (random_factor_policy.peek_next_random() <= 100) {
+        current_damage =
+            get_damage_of_power_move(
+                crit_rng_policy,
+                random_factor_policy,
+                battle_state,
+                battle_state.player,
+                battle_state.opponent,
+                move,
+                Who::Player
+            );
+        EXPECT_TRUE(current_damage >= last_damage);
+        last_damage = current_damage;
+    }
 }

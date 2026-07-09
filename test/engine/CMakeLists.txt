@@ -6,10 +6,11 @@ add_executable(
         battle_engine/pp_tests.cpp
 
         move_execution/confusion_tests.cpp
-        move_execution/damage_tests.cpp
+        move_execution/special_attack_damage_tests.cpp
         move_execution/move_execution_test.cpp
         move_execution/struggle_tests.cpp
         move_execution/stat_change_tests.cpp
+        move_execution/moonlight_tests.cpp
 )
 
 target_link_libraries(
