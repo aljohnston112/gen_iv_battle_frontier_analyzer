@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <ranges>
 #include <unordered_set>
 
@@ -14,9 +15,6 @@ inline std::array<
     MoveInfo,
     to_int(Move::MoveCount)
 > MOVE_INFO_MAP{};
-
-inline std::unordered_map<std::string, SerebiiPokemon>
-SEREBII_PLAYER_POKEMON_MAP{};
 
 std::string extract_left_string(const std::string& line) {
     const auto first = line.find('"') + 1;
@@ -435,10 +433,12 @@ SerebiiPokemon parse_pokemon(std::ifstream& input_stream) {
     return serebii_pokemon;
 }
 
-static bool is_loaded = false;
-
-const std::unordered_map<std::string, SerebiiPokemon>& ensure_dataset_is_loaded() {
-    if (!is_loaded) {
+inline std::unordered_map<std::string, SerebiiPokemon>&
+get_serebii_pokemon_map() {
+    static auto SEREBII_PLAYER_POKEMON_MAP =
+        std::unordered_map<std::string, SerebiiPokemon>();
+    static std::once_flag flag;
+    std::call_once(flag, [] {
         std::ifstream input_stream("./data/fresh/all_pokemon.json");
         if (!input_stream) {
             throw std::runtime_error("Failed to open data/fresh/all_pokemon.json");
@@ -449,25 +449,23 @@ const std::unordered_map<std::string, SerebiiPokemon>& ensure_dataset_is_loaded(
         // Index_number : {
         while (std::getline(input_stream, line)) {
             if (line.find('{') != std::string::npos) {
-                const auto pokemon = parse_pokemon(input_stream);
-                SEREBII_PLAYER_POKEMON_MAP[pokemon.name] = pokemon;
+                auto pokemon = parse_pokemon(input_stream);
+                SEREBII_PLAYER_POKEMON_MAP[pokemon.name] = std::move(pokemon);
             }
         }
-    }
-    is_loaded = true;
+    });
     return SEREBII_PLAYER_POKEMON_MAP;
 }
 
 // TODO make a helper that gets a MoveInfo* from a Move
 const std::array<MoveInfo, to_int(Move::MoveCount)>& get_all_moves() {
-    ensure_dataset_is_loaded();
+    get_serebii_pokemon_map();
     return MOVE_INFO_MAP;
 }
 
 const std::unordered_map<std::string, SerebiiPokemon>&
 get_all_serebii_pokemon() {
-    ensure_dataset_is_loaded();
-    return SEREBII_PLAYER_POKEMON_MAP;
+    return get_serebii_pokemon_map();
 }
 
 

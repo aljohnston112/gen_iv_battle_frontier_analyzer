@@ -4,7 +4,7 @@
 #include "battle_state.h"
 #include "policies.h"
 
-inline void apply_end_of_turn_1(PokemonState& pokemon_state) {
+inline void apply_end_of_turn_1([[maybe_unused]] PokemonState& pokemon_state) {
     // 1.0 Reflect wears off: "your team's reflect wore off"
     // 1.1 Light Screen wears off: "your team's light screen wore off"
     // 1.2 Mist wears off: "your team's mist wore off"
@@ -13,19 +13,19 @@ inline void apply_end_of_turn_1(PokemonState& pokemon_state) {
     // 1.5 Lucky Chant: your team's lucky chant wore off"
 }
 
-inline void apply_end_of_turn_2(PokemonState& pokemon_state) {
+inline void apply_end_of_turn_2([[maybe_unused]] PokemonState& pokemon_state) {
     // 2.0 Wish: "pokemon's wish came true"
 }
 
-inline void apply_end_of_turn_3(PokemonState& pokemon_state) {
+inline void apply_end_of_turn_3([[maybe_unused]]PokemonState& pokemon_state) {
     // 3.0 Hail, Rain, Sandstorm, or Sun message
 }
 
-inline void apply_end_of_turn_4(PokemonState& pokemon_state) {
+inline void apply_end_of_turn_4([[maybe_unused]]PokemonState& pokemon_state) {
     // 4.0 Dry Skin, Hydration, Ice Body, Rain Dish
 }
 
-inline void apply_end_of_turn_5(PokemonState& pokemon_state) {
+inline void apply_end_of_turn_5([[maybe_unused]]PokemonState& pokemon_state) {
     // 5.0 Gravity
 }
 
@@ -64,19 +64,19 @@ inline void apply_end_of_turn_6(PokemonState& pokemon_state) {
     // 6.18 Sticky Barb
 }
 
-inline void apply_end_of_turn_7(PokemonState& pokemon_state) {
+inline void apply_end_of_turn_7([[maybe_unused]]PokemonState& pokemon_state) {
     // 7.0 Doom Desire, Future Sight
 }
 
-inline void apply_end_of_turn_8(PokemonState& pokemon_state) {
+inline void apply_end_of_turn_8([[maybe_unused]]PokemonState& pokemon_state) {
     // 8.0 Perish Song
 }
 
-inline void apply_end_of_turn_9(PokemonState& pokemon_state) {
+inline void apply_end_of_turn_9([[maybe_unused]]PokemonState& pokemon_state) {
     // 9.0 Trick Room
 }
 
-inline void apply_end_of_turn_10(PokemonState& pokemon_state) {
+inline void apply_end_of_turn_10([[maybe_unused]]PokemonState& pokemon_state) {
     // 10.0 Pokemon is switched in (if previous Pokemon fainted)
     // 10.1 Toxic Spikes
     // 10.2 Spikes

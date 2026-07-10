@@ -7,13 +7,13 @@
 #include "pokemon.h"
 #include "policies.h"
 
-TEST(Engine, LeftoversHealsTheCorrectAmountOfHPAtTurnEnd) {
+TEST(MoveExecution, LeftoversHealsTheCorrectAmountOfHPAtTurnEnd) {
     const auto& all_move_infos =
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
 
     constexpr auto expected_damage = 34;

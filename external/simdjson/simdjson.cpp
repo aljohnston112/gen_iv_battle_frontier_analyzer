@@ -9275,7 +9275,7 @@ namespace simdjson {
             std::is_trivially_destructible<unsupported_implementation>::value,
             "unsupported_singleton should be trivially destructible");
 
-        [[returns_nonnull]] const unsupported_implementation* get_unsupported_singleton() {
+        const unsupported_implementation* get_unsupported_singleton() {
             static const unsupported_implementation unsupported_singleton{};
             return &unsupported_singleton;
         }
@@ -9294,7 +9294,7 @@ namespace simdjson {
             return internal::get_available_implementation_pointers().end();
         }
 
-        [[returns_nonnull]] const implementation*
+        const implementation*
         available_implementation_list::detect_best_supported() const noexcept {
             // They are prelisted in priority order, so we just go down the list
             uint32_t supported_instruction_sets =
@@ -9337,14 +9337,14 @@ namespace simdjson {
         }
     } // namespace internal
 
-    SIMDJSON_DLLIMPORTEXPORT [[returns_nonnull]] const internal::available_implementation_list&
+    SIMDJSON_DLLIMPORTEXPORT const internal::available_implementation_list&
     get_available_implementations() {
         static const internal::available_implementation_list
             available_implementations{};
         return available_implementations;
     }
 
-    SIMDJSON_DLLIMPORTEXPORT [[returns_nonnull]] internal::atomic_ptr<const implementation>&
+    SIMDJSON_DLLIMPORTEXPORT internal::atomic_ptr<const implementation>&
     get_active_implementation() {
 #if SIMDJSON_SINGLE_IMPLEMENTATION
         // We immediately select the only implementation we have, skipping the

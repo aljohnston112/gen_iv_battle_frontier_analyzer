@@ -4,10 +4,10 @@
 #include "../mocks.h"
 #include "gtest/gtest.h"
 
-TEST(Engine, PPLossTriggersStruggle) {
+TEST(BattleEngine, PPLossTriggersStruggle) {
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
 
     const auto player_moves = battle_state.player.get_moves();

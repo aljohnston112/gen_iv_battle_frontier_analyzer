@@ -14,8 +14,8 @@ void random_does_correct_damage_for_struggle_case() {
     static constexpr int32_t expected_damage = Case::ExpectedValue;
 
     const BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
     EXPECT_EQ(
         expected_damage,
@@ -36,17 +36,17 @@ void random_does_correct_damage_for_struggle() {
     );
 }
 
-TEST(Engine, RandomDoesCorrectDamageForStruggle) {
+TEST(MoveExecution, RandomDoesCorrectDamageForStruggle) {
     random_does_correct_damage_for_struggle<
         DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 10>,
         DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 12>
     >();
 }
 
-TEST(Engine, StruggleDoesTheRightAmountOfRecoil) {
+TEST(MoveExecution, StruggleDoesTheRightAmountOfRecoil) {
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
 
     execute_struggle(

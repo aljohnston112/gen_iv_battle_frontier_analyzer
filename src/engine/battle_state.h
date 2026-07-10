@@ -260,6 +260,9 @@ public:
     }
 
     void decrease_stat_stage(const Stat stat, const int n) {
+        if (stat == Stat::Health) {
+            throw std::runtime_error{"Health does not have a state stage"};
+        }
         stat_stages[to_int(stat)] =
             static_cast<int8_t>(std::max(-6, get_stat_stage(stat) - n));
         set_stat(
@@ -269,6 +272,10 @@ public:
                 get_stat_stage(stat)
             )
         );
+        if (current_item == Item::WhiteHerb && stat_stages[to_int(stat)] < 0) {
+            stat_stages[to_int(stat)] = 0;
+            clear_current_item();
+        }
     }
 
     [[nodiscard]] StatusCondition get_current_status_condition() const {
@@ -290,7 +297,7 @@ public:
     }
 
     void clear_current_item() {
-        const Item held_item = current_item;
+        [[maybe_unused]] const Item held_item = current_item;
         // Make sure to update any state if the old item set any!
 
         current_item = Item::NoItem;

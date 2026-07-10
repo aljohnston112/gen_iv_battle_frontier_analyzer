@@ -43,7 +43,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
             -Wmultichar
             -Wstrict-overflow=5
             -Wnormalized=nfkc
-            -fanalyzer
             -Wformat-signedness
             -Wlogical-op
             -Wformat-truncation=2
@@ -74,12 +73,12 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
             --strict-flex-arrays=3
             -Wanalyzer-symbol-too-complex
             -fstack-clash-protection
-            -Wframe-larger-than=8192
-            -Wstack-usage=8192
+            -Wframe-larger-than=8388608
+            -Wstack-usage=8388608
+            -fstack-usage
             -fstack-protector
             --param=analyzer-max-svalue-depth=50
             -mtune=native
-            -flto
             -fno-inline
     )
 else ()
@@ -87,7 +86,7 @@ else ()
 endif ()
 
 add_compile_options(${COMMON_COMPILE_FLAGS})
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -flto")
 
 find_package(OpenMP REQUIRED)
 
@@ -112,6 +111,9 @@ add_executable(gen_iv_battle_frontier_analyzer main.cpp)
 target_link_libraries(gen_iv_battle_frontier_analyzer PRIVATE core)
 target_link_libraries(gen_iv_battle_frontier_analyzer PRIVATE OpenMP::OpenMP_CXX)
 
+
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
+
 include(FetchContent)
 FetchContent_Declare(
         googletest
@@ -121,7 +123,13 @@ FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(test)
 
-add_custom_target(build_all_tests DEPENDS engine_test)
+add_custom_target(
+        build_all_tests DEPENDS
+
+        battle_engine_test
+        battle_state_test
+        move_execution_test
+)
 
 add_custom_target(run_tests DEPENDS build_all_tests
         COMMAND ${CMAKE_CTEST_COMMAND}

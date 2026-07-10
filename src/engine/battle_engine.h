@@ -69,8 +69,8 @@ template <IsSpeedAdvantagePolicy SpeedAdvantagePolicy>
 Who who_goes_first(
     const SpeedAdvantagePolicy& speed_advantage_policy,
     const BattleState& battle_state,
-    const MoveInfo* player_move,
-    const MoveInfo* opponent_move
+    [[maybe_unused]] const MoveInfo* player_move,
+    [[maybe_unused]] const MoveInfo* opponent_move
 ) {
     const bool player_faster =
         speed_advantage_policy.is_player_faster(battle_state);
@@ -215,8 +215,9 @@ BestMoveResult get_best_special_move(
                 move_info,
                 who_is_picking
             );
-            uint16_t hits_to_ko =
-                std::ceil(static_cast<double>(defender_hp) / damage);
+            uint16_t hits_to_ko = static_cast<uint16_t>(
+                std::ceil(static_cast<double>(defender_hp) / damage)
+            );
             uint16_t total_damage = damage * hits_to_ko;
 
             if (who_is_picking == Who::Opponent) {

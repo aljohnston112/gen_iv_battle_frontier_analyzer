@@ -6,7 +6,7 @@
 class HighRandomConfusionEffectPolicy :
     public ConfusionStatusPolicy<HighRandomConfusionEffectPolicy> {
 public:
-    static uint8_t roll_turns_confused(const Who who) {
+    static uint8_t roll_turns_confused(const Who) {
         return 2;
     }
 
@@ -18,7 +18,7 @@ public:
 class LowRandomConfusionEffectPolicy :
     public ConfusionStatusPolicy<LowRandomConfusionEffectPolicy> {
 public:
-    static uint8_t roll_turns_confused(const Who who) {
+    static uint8_t roll_turns_confused(const Who) {
         return 2;
     }
 
@@ -27,8 +27,8 @@ public:
     }
 };
 
-TEST(Engine, FalseRollDoesNotConfuse) {
-    auto defender = PokemonState{&Cresselia};
+TEST(MoveExecution, FalseRollDoesNotConfuse) {
+    auto defender = PokemonState{&CresseliaLeftovers};
     roll_confusion(
         HighRandomConfusionEffectPolicy{},
         NeverConfuseRNGPolicy{},
@@ -39,8 +39,8 @@ TEST(Engine, FalseRollDoesNotConfuse) {
     EXPECT_FALSE(defender.has_status(StatusWithStage::Confused));
 }
 
-TEST(Engine, TrueRollDoesConfuse) {
-    auto defender = PokemonState{&Cresselia};
+TEST(MoveExecution, TrueRollDoesConfuse) {
+    auto defender = PokemonState{&CresseliaLeftovers};
     roll_confusion(
         HighRandomConfusionEffectPolicy{},
         AlwaysConfuseRNGPolicy{},
@@ -51,13 +51,13 @@ TEST(Engine, TrueRollDoesConfuse) {
     EXPECT_TRUE(defender.has_status(StatusWithStage::Confused));
 }
 
-TEST(Engine, SignalBeamConfusesOnTrueRoll) {
+TEST(MoveExecution, SignalBeamConfusesOnTrueRoll) {
     const auto& all_move_infos =
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
 
     constexpr auto confusion_status_policy = HighRandomConfusionEffectPolicy{};
@@ -84,13 +84,13 @@ TEST(Engine, SignalBeamConfusesOnTrueRoll) {
     );
 }
 
-TEST(Engine, SignalBeamDoesNotConfuseOnFalseRoll) {
+TEST(MoveExecution, SignalBeamDoesNotConfuseOnFalseRoll) {
     const auto& all_move_infos =
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
 
     constexpr auto confusion_status_policy =
@@ -119,13 +119,13 @@ TEST(Engine, SignalBeamDoesNotConfuseOnFalseRoll) {
     );
 }
 
-TEST(Engine, BeingConfusedPreventsAttackingOnTrueRoll) {
+TEST(MoveExecution, BeingConfusedPreventsAttackingOnTrueRoll) {
     const auto& all_move_infos =
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
 
     constexpr auto confusion_status_policy =
@@ -228,7 +228,7 @@ void confusion_damage_is_correct() {
     );
 }
 
-TEST(Engine, RandomConfusionDamageIsCorrect) {
+TEST(MoveExecution, RandomConfusionDamageIsCorrect) {
     confusion_damage_is_correct<
         ConfusionTestCase<HighRandomConfusionEffectPolicy,
                           AlwaysConfuseRNGPolicy, 10>,
@@ -290,27 +290,27 @@ void confused_damage_is_correct_on_true_roll() {
             all_move_infos,
             {
                 PokemonState{&CresseliaNoItem},
-                PokemonState{&Cresselia}
+                PokemonState{&CresseliaLeftovers}
             }
         ),
         ...
     );
 }
 
-TEST(Engine, BeingConfusedDamageIsCorrectOnFalseRoll) {
+TEST(MoveExecution, BeingConfusedDamageIsCorrectOnFalseRoll) {
     confused_damage_is_correct_on_true_roll<
         LowRandomConfusionEffectPolicy,
         HighRandomConfusionEffectPolicy
     >();
 }
 
-TEST(Engine, BeingConfusedDoesNotPreventAttackOnFalseRoll) {
+TEST(MoveExecution, BeingConfusedDoesNotPreventAttackOnFalseRoll) {
     const auto& all_move_infos =
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
 
     constexpr LowRandomConfusionEffectPolicy confusion_status_policy{};
@@ -341,13 +341,13 @@ TEST(Engine, BeingConfusedDoesNotPreventAttackOnFalseRoll) {
     EXPECT_TRUE(battle_state.player.has_status(StatusWithStage::Confused));
 }
 
-TEST(Engine, ConfusionEndsOnCorrectTurn) {
+TEST(MoveExecution, ConfusionEndsOnCorrectTurn) {
     const auto& all_move_infos =
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
 
     constexpr LowRandomConfusionEffectPolicy random_confusion_policy{};

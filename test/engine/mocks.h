@@ -3,7 +3,7 @@
 #include "pokemon.h"
 #include "policies.h"
 
-const CustomPokemon Cresselia{
+const CustomPokemon CresseliaLeftovers{
     .name = Pokemon::Cresselia,
     .ability = Ability::Levitate,
     .level = 50,

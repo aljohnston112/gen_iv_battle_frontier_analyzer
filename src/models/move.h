@@ -496,7 +496,7 @@ struct MoveInfo {
     }
 };
 
-inline const std::unordered_map<std::string, Move> STRING_TO_MOVE_MAP = {
+inline const std::unordered_map<std::string, Move> STRING_TO_MOVE_MAP{
     {"Pound", Move::Pound},
     {"Karate Chop", Move::KarateChop},
     {"Doubleslap", Move::DoubleSlap},

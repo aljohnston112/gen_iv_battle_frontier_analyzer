@@ -43,10 +43,10 @@ void random_does_correct_damage_for_special_attack(
 }
 
 // TODO use regular effectiveness
-TEST(Engine, STABDoesCorrectDamageForSpecialAttack) {
+TEST(MoveExecution, STABDoesCorrectDamageForSpecialAttack) {
     const BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
     random_does_correct_damage_for_special_attack<
         DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 15>,
@@ -55,10 +55,10 @@ TEST(Engine, STABDoesCorrectDamageForSpecialAttack) {
 }
 
 // TODO use non-STAB
-TEST(Engine, NotVeryEffectiveDoesCorrectDamageForSpecialAttack) {
+TEST(MoveExecution, NotVeryEffectiveDoesCorrectDamageForSpecialAttack) {
     const BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
     random_does_correct_damage_for_special_attack<
         DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 15>,
@@ -66,10 +66,10 @@ TEST(Engine, NotVeryEffectiveDoesCorrectDamageForSpecialAttack) {
     >(battle_state, Move::Psychic);
 }
 
-TEST(Engine, RandomDoesCorrectDamageForSpecialAttack) {
+TEST(MoveExecution, RandomDoesCorrectDamageForSpecialAttack) {
     const BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
     random_does_correct_damage_for_special_attack<
         DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 22>,
@@ -77,10 +77,10 @@ TEST(Engine, RandomDoesCorrectDamageForSpecialAttack) {
     >(battle_state, Move::IceBeam);
 }
 
-TEST(Engine, SuperEffectiveDoesTheCorrectDamageForSpecialAttack) {
+TEST(MoveExecution, SuperEffectiveDoesTheCorrectDamageForSpecialAttack) {
     const BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
     random_does_correct_damage_for_special_attack<
         DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 34>,
@@ -88,10 +88,10 @@ TEST(Engine, SuperEffectiveDoesTheCorrectDamageForSpecialAttack) {
     >(battle_state, Move::SignalBeam);
 }
 
-TEST(Engine, CriticalHitDoesTheCorrectDamageForSpecialAttack) {
+TEST(MoveExecution, CriticalHitDoesTheCorrectDamageForSpecialAttack) {
     const BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
     random_does_correct_damage_for_special_attack<
         DamageTestCase<AlwaysCritRNGPolicy, LowDamageRandomFactorPolicy, 31>,
@@ -104,8 +104,8 @@ TEST(
     CriticalHitWithSpecialAttackBoostDoesTheCorrectDamageForSpecialAttack
 ) {
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
     battle_state.player.increase_stat_stage(Stat::SpecialAttack, 6);
     random_does_correct_damage_for_special_attack<
@@ -119,8 +119,8 @@ TEST(
     CriticalHitWithSpecialDefenseLossDoesTheCorrectDamageForSpecialAttack
 ) {
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
     battle_state.opponent.decrease_stat_stage(Stat::SpecialDefense, 5);
     random_does_correct_damage_for_special_attack<
@@ -134,8 +134,8 @@ TEST(
     CriticalHitWithSpecialAttackLossDoesTheCorrectDamageForSpecialAttack
 ) {
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
     battle_state.player.decrease_stat_stage(Stat::SpecialAttack, 6);
     random_does_correct_damage_for_special_attack<
@@ -149,8 +149,8 @@ TEST(
     CriticalHitWithSpecialDefenseBoostDoesTheCorrectDamageForSpecialAttack
 ) {
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
     battle_state.opponent.increase_stat_stage(Stat::SpecialDefense, 5);
     random_does_correct_damage_for_special_attack<
@@ -173,11 +173,11 @@ private:
     mutable uint8_t current_random = 85;
 };
 
-TEST(Engine,
+TEST(MoveExecution,
      DamageMonotonicallyIncreasesWithIncreasingRandomForSpecialAttacks) {
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
     battle_state.opponent.decrease_stat_stage(Stat::SpecialDefense, 5);
 

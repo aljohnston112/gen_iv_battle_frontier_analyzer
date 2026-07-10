@@ -173,7 +173,7 @@ uint16_t get_damage_of_power_move(
     }
 
     damage = std::max(1, damage);
-    return damage;
+    return static_cast<uint16_t>(damage);
 }
 
 template <
@@ -212,7 +212,7 @@ uint16_t execute_power_move(
 }
 
 template <IsConfusionStatusPolicy ConfusionStatusPolicy>
-int32_t calculate_confused_hit_damage(
+uint16_t calculate_confused_hit_damage(
     const ConfusionStatusPolicy& confusion_status_policy,
     const PokemonState& attacker,
     const Who who_attacker_is
@@ -223,19 +223,19 @@ int32_t calculate_confused_hit_damage(
         damage = 2 * attacker_level / 5 + 2;
         DAMAGE_CACHE[attacker_level] = static_cast<uint16_t>(damage);
     }
-    uint16_t power = 40;
+    uint32_t power = 40;
     if (attacker.get_current_ability() == Ability::Technician) {
-        power = static_cast<uint16_t>(power * 3 / 2);
+        power = static_cast<uint16_t>(power * 3u / 2u);
     }
     const Item attacker_item = attacker.get_current_item_for_effect();
     if (attacker_item == Item::SilkScarf) {
-        power = static_cast<uint16_t>(power * 6 / 5);
+        power = static_cast<uint16_t>(power * 6u / 5u);
     }
     // Power boosted by 50% if Helping Hand is in effect
 
-    uint16_t attacker_attack = attacker.get_current_stat(Stat::Attack);
+    uint32_t attacker_attack = attacker.get_current_stat(Stat::Attack);
     if (attacker_item == Item::ChoiceBand) {
-        attacker_attack = static_cast<uint16_t>(attacker_attack * 3 / 2);
+        attacker_attack = static_cast<uint16_t>(attacker_attack * 3u / 2u);
     }
     // TODO Attack possibly boosted Thick Club or Light Ball; but do they?
 
@@ -251,7 +251,7 @@ int32_t calculate_confused_hit_damage(
         confusion_status_policy.roll_random_confusion(who_attacker_is);
     damage = damage * random / 100;
     damage = std::max(1, damage);
-    return damage;
+    return static_cast<uint16_t>(damage);
 }
 
 template <IsConfusionStatusPolicy ConfusionStatusPolicy>
@@ -291,7 +291,7 @@ void roll_confusion(
     const ConfusionStatusRNGPolicy& confusion_status_rng_policy,
     PokemonState& defender,
     const Who who,
-    const int chance
+    const int8_t chance
 ) {
     if (confusion_status_rng_policy.roll_for_confusion(chance)) {
         // 1 to 4 since the game decrements before acting,
@@ -305,7 +305,7 @@ void roll_freeze(
     const FreezeRNGPolicy& freeze_rng_policy,
     const Weather weather,
     PokemonState& defender,
-    const int chance
+    const int8_t chance
 ) {
     if (weather != Weather::Sun &&
         freeze_rng_policy.roll_for_freeze(chance)
@@ -343,7 +343,7 @@ template <
     IsCritRNGPolicy CritRNGPolicy,
     IsDamageRandomFactorPolicy RandomFactorPolicy
 >
-int32_t get_struggle_damage(
+uint16_t get_struggle_damage(
     const RandomFactorPolicy& random_factor_policy,
     const CritRNGPolicy& crit_rng_policy,
     const PokemonState& attacker,
@@ -407,7 +407,7 @@ int32_t get_struggle_damage(
     const uint8_t random = random_factor_policy.roll_random(who_attacker_is);
     damage = damage * random / 100;
     damage = std::max(1, damage);
-    return damage;
+    return static_cast<uint16_t>(damage);
 }
 
 template <
@@ -417,7 +417,7 @@ template <
 uint16_t execute_struggle(
     const RandomFactorPolicy& random_factor_policy,
     const CritRNGPolicy& crit_rng_policy,
-    BattleState& battle_state,
+    [[maybe_unused]] BattleState& battle_state,
     PokemonState& attacker,
     PokemonState& defender,
     const Who who_attacker_is
@@ -460,7 +460,7 @@ uint16_t execute_struggle(
     // Despite having a base power of 50 in every generation,
     // Struggle's power is not boosted by Technician in Generation IV.
 
-    int32_t damage = get_struggle_damage(
+    uint16_t damage = get_struggle_damage(
         random_factor_policy,
         crit_rng_policy,
         attacker,
@@ -546,8 +546,11 @@ uint16_t execute_move(
 
     if (attacker.get_status_value(StatusWithStage::Confused) > 0) {
         if (confusion_status_rng_policy.roll_for_self_hit(50)) {
-            hit_from_confusion(confusion_status_policy, attacker,
-                               who_attacker_is);
+            hit_from_confusion(
+                confusion_status_policy,
+                attacker,
+                who_attacker_is
+            );
             attacker.decrement_status_value(StatusWithStage::Confused);
             return 0;
         }

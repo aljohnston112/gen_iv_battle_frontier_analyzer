@@ -3,13 +3,13 @@
 #include "policies.h"
 #include "gtest/gtest.h"
 
-TEST(Engine, PsychicDropsSpecialDefenseOnTrueRoll) {
+TEST(MoveExecution, PsychicDropsSpecialDefenseOnTrueRoll) {
     const auto& all_move_infos =
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
 
     constexpr auto confusion_status_policy =
@@ -41,13 +41,13 @@ TEST(Engine, PsychicDropsSpecialDefenseOnTrueRoll) {
     }
 }
 
-TEST(Engine, PsychicSpecialDefenseDropDoesNotGoBelowNegativeSix) {
+TEST(MoveExecution, PsychicSpecialDefenseDropDoesNotGoBelowNegativeSix) {
     const auto& all_move_infos =
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
 
     constexpr auto confusion_status_policy =
@@ -81,18 +81,18 @@ TEST(Engine, PsychicSpecialDefenseDropDoesNotGoBelowNegativeSix) {
 
 struct NeverChangeStatPolicy :
     StatChangePolicy<NeverChangeStatPolicy> {
-    static bool roll_stat_drop(const uint8_t, const Who who) {
+    static bool roll_stat_drop(const uint8_t, const Who) {
         return false;
     }
 };
 
-TEST(Engine, PsychicDoesNotDropSpecialDefenseOnFalseRoll) {
+TEST(MoveExecution, PsychicDoesNotDropSpecialDefenseOnFalseRoll) {
     const auto& all_move_infos =
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
 
     constexpr auto confusion_status_policy =
@@ -124,13 +124,13 @@ TEST(Engine, PsychicDoesNotDropSpecialDefenseOnFalseRoll) {
     }
 }
 
-TEST(Engine, SpecialDefenseDropsCauseSpecialAttacksToDoMoreDamage) {
+TEST(MoveExecution, SpecialDefenseDropsCauseSpecialAttacksToDoMoreDamage) {
     const auto& all_move_infos =
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&Cresselia},
-        PokemonState{&Cresselia}
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
     };
 
     constexpr auto low_effect = LowDamageRandomFactorPolicy{};
