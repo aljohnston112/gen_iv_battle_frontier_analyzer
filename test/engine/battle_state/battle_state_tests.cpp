@@ -1,4 +1,8 @@
+#include "../mocks.h"
 #include "battle_state.h"
+#include "move_heuristic.h"
+#include "policies.h"
+
 #include "gtest/gtest.h"
 
 const CustomPokemon Cresselia{
@@ -11,6 +15,28 @@ const CustomPokemon Cresselia{
     .stats = {213, 78, 158, 101, 168, 102},
     .pounds = 188.7
 };
+
+TEST(BattleEngine, PPLossTriggersStruggle) {
+    BattleState battle_state{
+        PokemonState{&CresseliaLeftovers},
+        PokemonState{&CresseliaLeftovers}
+    };
+
+    const auto player_moves = battle_state.player.get_moves();
+    for (const auto move : player_moves) {
+        battle_state.player.clear_power_points(move);
+    }
+
+    const auto moves = battle_state.player.get_moves();
+    EXPECT_EQ(
+        1,
+        moves.size()
+    );
+    EXPECT_EQ(
+        Move::Struggle,
+        moves[0]
+    );
+}
 
 TEST(BattleState, WhiteHerbClearsNegativeStatus) {
     auto state = PokemonState{&Cresselia};

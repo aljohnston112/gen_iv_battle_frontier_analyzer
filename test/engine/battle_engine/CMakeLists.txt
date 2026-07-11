@@ -1,7 +1,6 @@
 add_executable(
         battle_engine_test
-
-        pp_tests.cpp
+        battle_engine_tests.cpp
 )
 
 target_link_libraries(

@@ -107,11 +107,6 @@ target_link_libraries(core INTERFACE
         simdjson
 )
 
-add_executable(gen_iv_battle_frontier_analyzer main.cpp)
-target_link_libraries(gen_iv_battle_frontier_analyzer PRIVATE core)
-target_link_libraries(gen_iv_battle_frontier_analyzer PRIVATE OpenMP::OpenMP_CXX)
-
-
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
 
 include(FetchContent)
@@ -138,16 +133,3 @@ add_custom_target(run_tests DEPENDS build_all_tests
         COMMENT "Running tests via ctest..."
         VERBATIM
 )
-
-function(add_data_copy_post_build target_name)
-    add_custom_command(
-            TARGET ${target_name} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CMAKE_SOURCE_DIR}/data"
-            "${CMAKE_BINARY_DIR}/data"
-            COMMENT "Copying data assets"
-            VERBATIM
-    )
-endfunction()
-
-add_data_copy_post_build(gen_iv_battle_frontier_analyzer)

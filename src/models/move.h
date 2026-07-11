@@ -1036,7 +1036,8 @@ enum class MoveFlag {
     LOWERS_DEFENDER_ATTACK,
     LOWERS_DEFENDER_DEFENSE,
     LOWERS_DEFENDER_EVASION,
-    LOWERS_DEFENDER_SPECIAL_ATTACK,
+    LOWERS_DEFENDER_SPECIAL_ATTACK, // TODO replace
+    LOWERS_DEFENDER_SPECIAL_ATTACK_ONE_STAGE_50,
     LOWERS_DEFENDER_SPECIAL_DEFENSE, // TODO replace
     LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10,
     LOWERS_DEFENDER_SPEED,
@@ -1488,7 +1489,7 @@ inline constexpr std::array<
     flags[to_int(Move::Memento)][to_int(
         MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK)] = true;
     flags[to_int(Move::MistBall)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK)] = true;
+        MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK_ONE_STAGE_50)] = true;
 
     flags[to_int(Move::TailWhip)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] =
         true;
@@ -2755,7 +2756,7 @@ inline constexpr std::array<
 }();
 
 inline bool move_has_flag(const Move move, const MoveFlag move_flag) {
-    return MOVE_FLAGS[to_int(move)][to_int(move_flag)];
+    return move != Move::MoveCount && MOVE_FLAGS[to_int(move)][to_int(move_flag)];
 }
 
 constexpr auto IMPLEMENTED_MOVES = [] {
@@ -2764,6 +2765,7 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::SignalBeam)] = true;
     implemented_moves[to_int(Move::Psychic)] = true;
     implemented_moves[to_int(Move::IceBeam)] = true;
+    implemented_moves[to_int(Move::MistBall)] = true;
     return implemented_moves;
 }();
 

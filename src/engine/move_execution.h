@@ -533,7 +533,7 @@ uint16_t execute_move(
             move->move == Move::FlameWheel ||
             move->move == Move::FlareBlitz ||
             move->move == Move::SacredFire
-        ) {
+        ) [[unlikely]] {
             attacker.clear_status_condition();
         } else {
             return 0;
@@ -604,6 +604,20 @@ uint16_t execute_move(
     if (move_has_flag(move->move, MoveFlag::FREEZES_DEFENDER_10)) [[unlikely]] {
         roll_freeze(freeze_rng_policy, weather, defender, 10);
     }
+
+    if (move_has_flag(
+        move->move,
+        MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK_ONE_STAGE_50)) [[unlikely]] {
+        roll_stat_drop(
+            stat_change_policy,
+            defender,
+            who_defender_is,
+            Stat::SpecialAttack,
+            1,
+            50
+        );
+    }
+
     if (move_has_flag(
             move->move,
             MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)
@@ -611,7 +625,7 @@ uint16_t execute_move(
         roll_stat_drop(
             stat_change_policy,
             defender,
-            is_player_attacker ? Who::Opponent : Who::Player,
+            who_defender_is,
             Stat::SpecialDefense,
             1,
             10

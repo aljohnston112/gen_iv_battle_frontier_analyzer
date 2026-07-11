@@ -5,6 +5,7 @@ add_library(
         battle_state.h
         end_of_turn_effects.h
         move_execution.h
+        move_heuristic.h
         policies.h
         round_robin.h
         thread_pool.h

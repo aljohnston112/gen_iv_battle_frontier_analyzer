@@ -5,6 +5,7 @@
 #include "battle_state.h"
 #include "end_of_turn_effects.h"
 #include "move_execution.h"
+#include "move_heuristic.h"
 #include "pokemon.h"
 #include "policies.h"
 #include "thread_pool.h"
@@ -163,154 +164,6 @@ inline bool is_battle_over(const BattleState& battle_state) {
         battle_state.opponent.get_current_stat(Stat::Health) == 0;
 }
 
-struct BestMoveResult {
-    Move move;
-    uint16_t damage;
-    uint16_t number_of_hits_to_ko;
-    uint16_t total_damage;
-};
-
-template <
-    IsConfusionStatusPolicy ConfusionStatusPolicy,
-    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
-    IsCritRNGPolicy CritRNGPolicy,
-    IsDamageRandomFactorPolicy RandomFactorPolicy,
-    IsFreezeRNGPolicy FreezeRNGPolicy,
-    IsStatChangePolicy StatChangePolicy
->
-BestMoveResult get_best_special_move(
-    const ConfusionStatusPolicy& confusion_status_policy,
-    const ConfusionStatusRNGPolicy& confusion_status_rng_policy,
-    const CritRNGPolicy& crit_rng_policy,
-    const RandomFactorPolicy& random_factor_policy,
-    const FreezeRNGPolicy& freeze_rng_policy,
-    const StatChangePolicy& stat_change_policy,
-    const BattleState& battle_state,
-    const PokemonState& attacker,
-    const PokemonState& defender,
-    const std::vector<Move>& moves,
-    const Who who_is_picking
-) {
-    const auto& all_move_infos =
-        get_all_moves();
-
-    auto best = BestMoveResult{
-        Move::MoveCount,
-        0,
-        UINT16_MAX,
-        0
-    };
-
-    const uint16_t defender_hp = defender.get_current_stat(Stat::Health);
-
-    for (const auto move : moves) {
-        const auto& move_info = &all_move_infos[to_int(move)];
-        if (move_info->category == Category::SPECIAL) {
-            const uint16_t damage = get_damage_of_power_move(
-                crit_rng_policy,
-                random_factor_policy,
-                battle_state,
-                attacker,
-                defender,
-                move_info,
-                who_is_picking
-            );
-            uint16_t hits_to_ko = static_cast<uint16_t>(
-                std::ceil(static_cast<double>(defender_hp) / damage)
-            );
-            uint16_t total_damage = damage * hits_to_ko;
-
-            if (who_is_picking == Who::Opponent) {
-                if (move_has_flag(
-                        move,
-                        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)
-                ) [[unlikely]] {
-                    BattleState temp_battle_state = battle_state;
-                    PokemonState& temp_defender = temp_battle_state.player;
-                    hits_to_ko = 1;
-                    total_damage = execute_move(
-                        confusion_status_policy,
-                        confusion_status_rng_policy,
-                        crit_rng_policy,
-                        random_factor_policy,
-                        freeze_rng_policy,
-                        stat_change_policy,
-                        temp_battle_state,
-                        who_is_picking,
-                        move_info
-                    );
-                    while (temp_defender.get_current_stat(Stat::Health) > 0) {
-                        ++hits_to_ko;
-                        total_damage += execute_move(
-                            confusion_status_policy,
-                            confusion_status_rng_policy,
-                            crit_rng_policy,
-                            random_factor_policy,
-                            freeze_rng_policy,
-                            stat_change_policy,
-                            temp_battle_state,
-                            who_is_picking,
-                            move_info
-                        );
-                    }
-                }
-            }
-
-            if (hits_to_ko < best.number_of_hits_to_ko ||
-                (hits_to_ko == best.number_of_hits_to_ko && damage &&
-                    damage > best.damage)
-            ) {
-                best.move = move;
-                best.damage = damage;
-                best.number_of_hits_to_ko = hits_to_ko;
-                best.total_damage = total_damage;
-            }
-        }
-    }
-    return best;
-}
-
-template <
-    IsConfusionStatusPolicy ConfusionStatusPolicy,
-    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
-    IsCritRNGPolicy CritRNGPolicy,
-    IsDamageRandomFactorPolicy RandomFactorPolicy,
-    IsFreezeRNGPolicy FreezeRNGPolicy,
-    IsStatChangePolicy StatChangePolicy
->
-Move choose_move_against_defender(
-    const ConfusionStatusPolicy& confusion_status_policy,
-    const ConfusionStatusRNGPolicy& confusion_status_rng_policy,
-    const CritRNGPolicy& crit_rng_policy,
-    const RandomFactorPolicy& random_factor_policy,
-    const FreezeRNGPolicy& freeze_rng_policy,
-    const StatChangePolicy& stat_change_policy,
-    const BattleState& battle_state,
-    const PokemonState& attacker,
-    const PokemonState& defender,
-    const Who who_is_picking
-) {
-    const std::vector<Move>& moves = attacker.get_moves();
-    if (moves.size() == 1 && moves.front() == Move::Struggle) {
-        return Move::Struggle;
-    }
-    BestMoveResult best_special = get_best_special_move(
-        confusion_status_policy,
-        confusion_status_rng_policy,
-        crit_rng_policy,
-        random_factor_policy,
-        freeze_rng_policy,
-        stat_change_policy,
-        battle_state,
-        attacker,
-        defender,
-        moves,
-        who_is_picking
-    );
-
-    return best_special.move;
-}
-
 inline BattleResultEntry single_battle(
     const std::span<const CustomPokemon>& all_player_pokemon,
     const std::span<const CustomPokemon>& all_opponent_pokemon,
@@ -329,6 +182,11 @@ inline BattleResultEntry single_battle(
         opponent_pokemon.item
     );
 
+    verify_moves_implemented(
+        player_pokemon.moves,
+        opponent_pokemon.moves
+    );
+
     const BattleEngine battle_engine{
         std::move(
             PolicyContainer{
@@ -339,7 +197,8 @@ inline BattleResultEntry single_battle(
                 .damage_random_factor_policy =
                 OpponentOptimizedRandomFactorPolicy{},
                 .freeze_rng_policy = NeverFreezeRNGPolicy{},
-                .opponent_knowledge_policy = OpponentOptimizedKnowledgePolicy{},
+                .opponent_knowledge_policy =
+                OpponentOptimizedKnowledgePolicy{},
                 .speed_advantage_policy =
                 OpponentOptimizedSpeedAdvantagePolicy{},
                 .stat_change_policy = OpponentOptimizedStatChangePolicy{}
@@ -367,7 +226,7 @@ inline BattleResultEntry single_battle(
 
     auto* battle_state = &path.back().battle_state;
     while (!is_battle_over(*battle_state)) {
-        const Move player_move =
+        const BestMoveResults player_move_results =
             choose_move_against_defender(
                 battle_engine.confusion_status_policy,
                 battle_engine.confusion_status_rng_policy,
@@ -377,10 +236,13 @@ inline BattleResultEntry single_battle(
                 battle_engine.stat_change_policy,
                 *battle_state,
                 battle_state->player,
+                battle_state->player.get_moves(),
                 battle_state->opponent,
-                Who::Player
+                Who::Player,
+                std::nullopt,
+                std::nullopt
             );
-        const Move opponent_move =
+        const BestMoveResults opponent_move_results =
             choose_move_against_defender(
                 battle_engine.confusion_status_policy,
                 battle_engine.confusion_status_rng_policy,
@@ -390,15 +252,22 @@ inline BattleResultEntry single_battle(
                 battle_engine.stat_change_policy,
                 *battle_state,
                 battle_state->opponent,
+                battle_state->opponent.get_moves(),
                 battle_state->player,
-                Who::Opponent
+                Who::Opponent,
+                std::nullopt,
+                player_move_results.attacker_results
             );
         auto turn_result =
             execute_turn(
                 battle_engine.policy_container,
                 *battle_state,
-                &all_move_infos[to_int(player_move)],
-                &all_move_infos[to_int(opponent_move)]
+                &all_move_infos[
+                    to_int(player_move_results.attacker_results.move)
+                ],
+                &all_move_infos[
+                    to_int(opponent_move_results.attacker_results.move)
+                ]
             );
         path.emplace_back(std::move(turn_result));
         battle_state = &path.back().battle_state;
