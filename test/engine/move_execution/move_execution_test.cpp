@@ -15,26 +15,22 @@ TEST(MoveExecution, LeftoversHealsTheCorrectAmountOfHPAtTurnEnd) {
         PokemonState{&CresseliaLeftovers},
         PokemonState{&CresseliaLeftovers}
     };
-
     constexpr auto expected_damage = 34;
-    constexpr auto confusion_status_policy =
-        OpponentOptimizedConfusionStatusPolicy{};
-    constexpr auto confusion_status_rng_policy = NeverConfuseRNGPolicy{};
-    constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
-    constexpr auto random_factor_policy =
-        OpponentOptimizedRandomFactorPolicy{};
-    constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
-    constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
+
+    constexpr PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        OpponentOptimizedRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        OpponentOptimizedStatChangePolicy,
+        OpponentOptimizedSpeedAdvantagePolicy
+    > policy_container{};
 
     EXPECT_EQ(
         expected_damage,
         execute_move(
-            confusion_status_policy,
-            confusion_status_rng_policy,
-            crit_rng_policy,
-            random_factor_policy,
-            freeze_rng_policy,
-            stat_change_policy,
+            policy_container,
             battle_state,
             Who::Player,
             &all_move_infos[to_int(Move::SignalBeam)]
@@ -43,12 +39,7 @@ TEST(MoveExecution, LeftoversHealsTheCorrectAmountOfHPAtTurnEnd) {
     EXPECT_EQ(
         expected_damage,
         execute_move(
-            confusion_status_policy,
-            confusion_status_rng_policy,
-            crit_rng_policy,
-            random_factor_policy,
-            freeze_rng_policy,
-            stat_change_policy,
+            policy_container,
             battle_state,
             Who::Player,
             &all_move_infos[to_int(Move::SignalBeam)]
@@ -64,7 +55,7 @@ TEST(MoveExecution, LeftoversHealsTheCorrectAmountOfHPAtTurnEnd) {
         original_opponent_health - total_damage
     );
 
-    apply_end_of_turn(OpponentOptimizedSpeedAdvantagePolicy{}, battle_state);
+    apply_end_of_turn(policy_container, battle_state);
 
     EXPECT_EQ(
         battle_state.opponent.get_current_stat(Stat::Health),

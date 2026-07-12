@@ -19,24 +19,19 @@ void move_drops_targets_stat_on_true_roll(
     const auto& all_move_infos =
         get_all_moves();
 
-    constexpr auto confusion_status_policy =
-        OpponentOptimizedConfusionStatusPolicy{};
-    constexpr auto confusion_status_rng_policy = NeverConfuseRNGPolicy{};
-    constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
-    constexpr auto random_factor_policy =
-        OpponentOptimizedRandomFactorPolicy{};
-    constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
-    constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
+    constexpr PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        OpponentOptimizedRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        OpponentOptimizedStatChangePolicy
+    > policy_container{};
 
     const uint8_t m = 6u / n;
     for (uint8_t i = 0; i < m; i++) {
         execute_move(
-            confusion_status_policy,
-            confusion_status_rng_policy,
-            crit_rng_policy,
-            random_factor_policy,
-            freeze_rng_policy,
-            stat_change_policy,
+            policy_container,
             battle_state,
             Who::Opponent,
             &all_move_infos[to_int(move)]
@@ -60,24 +55,19 @@ void move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
     const auto& all_move_infos =
         get_all_moves();
 
-    constexpr auto confusion_status_policy =
-        OpponentOptimizedConfusionStatusPolicy{};
-    constexpr auto confusion_status_rng_policy = NeverConfuseRNGPolicy{};
-    constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
-    constexpr auto random_factor_policy =
-        OpponentOptimizedRandomFactorPolicy{};
-    constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
-    constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
+    constexpr PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        OpponentOptimizedRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        OpponentOptimizedStatChangePolicy
+    > policy_container{};
 
     const uint8_t m = 10u / n;
     for (uint8_t i = 0; i < m; i++) {
         execute_move(
-            confusion_status_policy,
-            confusion_status_rng_policy,
-            crit_rng_policy,
-            random_factor_policy,
-            freeze_rng_policy,
-            stat_change_policy,
+            policy_container,
             battle_state,
             Who::Opponent,
             &all_move_infos[to_int(move)]
@@ -100,23 +90,18 @@ void move_does_not_drop_targets_stat_on_false_roll(
     const auto& all_move_infos =
         get_all_moves();
 
-    constexpr auto confusion_status_policy =
-        OpponentOptimizedConfusionStatusPolicy{};
-    constexpr auto confusion_status_rng_policy = NeverConfuseRNGPolicy{};
-    constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
-    constexpr auto random_factor_policy =
-        OpponentOptimizedRandomFactorPolicy{};
-    constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
-    constexpr auto stat_change_policy = NeverDropStatPolicy{};
+    constexpr PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        OpponentOptimizedRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        NeverDropStatPolicy
+    > policy_container{};
 
     for (uint8_t i = 0; i < 6; i++) {
         execute_move(
-            confusion_status_policy,
-            confusion_status_rng_policy,
-            crit_rng_policy,
-            random_factor_policy,
-            freeze_rng_policy,
-            stat_change_policy,
+            policy_container,
             battle_state,
             Who::Player,
             &all_move_infos[to_int(move)]
@@ -216,29 +201,32 @@ TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {
         PokemonState{&LatiasWhiteHerb}
     };
 
-    constexpr auto low_effect = LowDamageRandomFactorPolicy{};
-    constexpr auto high_effect = HighDamageRandomFactorPolicy{};
     constexpr std::array expected_low_rolls{18, 12, 9, 7, 6, 5, 4};
     constexpr std::array expected_high_rolls{21, 15, 11, 9, 7, 6, 6};
 
-    constexpr auto confusion_status_policy =
-        OpponentOptimizedConfusionStatusPolicy{};
-    constexpr auto confusion_status_rng_policy = NeverConfuseRNGPolicy{};
-    constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
+    constexpr PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        LowDamageRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        OpponentOptimizedStatChangePolicy
+    > low_random_policy_container{};
 
-    constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
-    constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
+    constexpr PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        HighDamageRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        OpponentOptimizedStatChangePolicy
+    > high_random_policy_container{};
 
     for (uint8_t i = 0; i < 6; i++) {
         EXPECT_EQ(
             expected_low_rolls[i],
             execute_move(
-                confusion_status_policy,
-                confusion_status_rng_policy,
-                crit_rng_policy,
-                low_effect,
-                freeze_rng_policy,
-                stat_change_policy,
+                low_random_policy_container,
                 battle_state,
                 Who::Player,
                 &all_move_infos[to_int(Move::Psychic)]
@@ -246,12 +234,7 @@ TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {
         );
 
         execute_move(
-            confusion_status_policy,
-            confusion_status_rng_policy,
-            crit_rng_policy,
-            low_effect,
-            freeze_rng_policy,
-            stat_change_policy,
+            low_random_policy_container,
             battle_state,
             Who::Opponent,
             &all_move_infos[to_int(Move::MistBall)]
@@ -270,12 +253,7 @@ TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {
         EXPECT_EQ(
             expected_high_rolls[i],
             execute_move(
-                confusion_status_policy,
-                confusion_status_rng_policy,
-                crit_rng_policy,
-                high_effect,
-                freeze_rng_policy,
-                stat_change_policy,
+                high_random_policy_container,
                 battle_state,
                 Who::Player,
                 &all_move_infos[to_int(Move::Psychic)]
@@ -283,12 +261,7 @@ TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {
         );
 
         execute_move(
-            confusion_status_policy,
-            confusion_status_rng_policy,
-            crit_rng_policy,
-            low_effect,
-            freeze_rng_policy,
-            stat_change_policy,
+            low_random_policy_container,
             battle_state,
             Who::Opponent,
             &all_move_infos[to_int(Move::MistBall)]
@@ -363,29 +336,32 @@ TEST(MoveExecution, SpecialDefenseDropsCauseSpecialAttacksToDoMoreDamage) {
         PokemonState{&CresseliaLeftovers}
     };
 
-    constexpr auto low_effect = LowDamageRandomFactorPolicy{};
-    constexpr auto high_effect = HighDamageRandomFactorPolicy{};
     constexpr std::array expected_low_rolls{15, 23, 30, 38, 46, 54, 61};
     constexpr std::array expected_high_rolls{18, 27, 36, 45, 54, 63, 72};
 
-    constexpr auto confusion_status_policy =
-        OpponentOptimizedConfusionStatusPolicy{};
-    constexpr auto confusion_status_rng_policy = NeverConfuseRNGPolicy{};
-    constexpr auto crit_rng_policy = NeverCritRNGPolicy{};
+    constexpr PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        LowDamageRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        OpponentOptimizedStatChangePolicy
+    > low_random_policy_container{};
 
-    constexpr auto freeze_rng_policy = NeverFreezeRNGPolicy{};
-    constexpr auto stat_change_policy = OpponentOptimizedStatChangePolicy{};
+    constexpr PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        HighDamageRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        OpponentOptimizedStatChangePolicy
+    > high_random_policy_container{};
 
     for (uint8_t i = 0; i < 6; i++) {
         EXPECT_EQ(
             expected_low_rolls[i],
             execute_move(
-                confusion_status_policy,
-                confusion_status_rng_policy,
-                crit_rng_policy,
-                low_effect,
-                freeze_rng_policy,
-                stat_change_policy,
+                low_random_policy_container,
                 battle_state,
                 Who::Opponent,
                 &all_move_infos[to_int(Move::Psychic)]
@@ -404,12 +380,7 @@ TEST(MoveExecution, SpecialDefenseDropsCauseSpecialAttacksToDoMoreDamage) {
         EXPECT_EQ(
             expected_high_rolls[i],
             execute_move(
-                confusion_status_policy,
-                confusion_status_rng_policy,
-                crit_rng_policy,
-                high_effect,
-                freeze_rng_policy,
-                stat_change_policy,
+                high_random_policy_container,
                 battle_state,
                 Who::Opponent,
                 &all_move_infos[to_int(Move::Psychic)]

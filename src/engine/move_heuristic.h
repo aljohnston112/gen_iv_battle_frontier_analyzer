@@ -15,21 +15,9 @@ struct BestMoveResults {
     BestMoveResult defender_results;
 };
 
-template <
-    IsConfusionStatusPolicy ConfusionStatusPolicy,
-    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
-    IsCritRNGPolicy CritRNGPolicy,
-    IsDamageRandomFactorPolicy RandomFactorPolicy,
-    IsFreezeRNGPolicy FreezeRNGPolicy,
-    IsStatChangePolicy StatChangePolicy
->
+template <typename... Policies>
 BestMoveResults choose_move_against_defender(
-    const ConfusionStatusPolicy& confusion_status_policy,
-    const ConfusionStatusRNGPolicy& confusion_status_rng_policy,
-    const CritRNGPolicy& crit_rng_policy,
-    const RandomFactorPolicy& random_factor_policy,
-    const FreezeRNGPolicy& freeze_rng_policy,
-    const StatChangePolicy& stat_change_policy,
+    PolicyContainer<Policies...> policy_container,
     const BattleState& battle_state,
     const PokemonState& attacker,
     const std::vector<Move>& attacker_moves,
@@ -39,22 +27,9 @@ BestMoveResults choose_move_against_defender(
     std::optional<BestMoveResult> defender_move_results
 );
 
-template <
-    IsConfusionStatusPolicy ConfusionStatusPolicy,
-    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
-    IsCritRNGPolicy CritRNGPolicy,
-    IsDamageRandomFactorPolicy RandomFactorPolicy,
-    IsFreezeRNGPolicy FreezeRNGPolicy,
-    IsStatChangePolicy StatChangePolicy
->
+template <typename... Policies>
 BestMoveResults get_best_power_move(
-    const ConfusionStatusPolicy& confusion_status_policy,
-    const ConfusionStatusRNGPolicy&
-    confusion_status_rng_policy,
-    const CritRNGPolicy& crit_rng_policy,
-    const RandomFactorPolicy& random_factor_policy,
-    const FreezeRNGPolicy& freeze_rng_policy,
-    const StatChangePolicy& stat_change_policy,
+    const PolicyContainer<Policies...> policy_container,
     const BattleState& battle_state,
     const PokemonState& attacker,
     const PokemonState& defender,
@@ -88,12 +63,7 @@ BestMoveResults get_best_power_move(
     if (!defender_move_results.has_value()) {
         defender_move_results =
             choose_move_against_defender(
-                confusion_status_policy,
-                confusion_status_rng_policy,
-                crit_rng_policy,
-                random_factor_policy,
-                freeze_rng_policy,
-                stat_change_policy,
+                policy_container,
                 battle_state,
                 defender,
                 defender.get_moves(),
@@ -104,15 +74,15 @@ BestMoveResults get_best_power_move(
             ).attacker_results;
     }
     BestMoveResult best_defender_move = *defender_move_results;
-    int64_t diff = best_defender_move.number_of_hits_to_ko - UINT16_MAX - UINT16_MAX;
+    int64_t diff = best_defender_move.number_of_hits_to_ko - UINT16_MAX -
+        UINT16_MAX;
 
     const uint16_t defender_hp = defender.get_current_stat(Stat::Health);
     for (const auto move : moves) {
         const auto& move_info = &all_move_infos[to_int(move)];
         if (move_info->category == category) {
             uint16_t damage = get_damage_of_power_move(
-                crit_rng_policy,
-                random_factor_policy,
+                policy_container,
                 battle_state,
                 attacker,
                 defender,
@@ -139,12 +109,7 @@ BestMoveResults get_best_power_move(
                     PokemonState& temp_defender = temp_battle_state.player;
                     hits_to_ko = 1;
                     total_damage = execute_move(
-                        confusion_status_policy,
-                        confusion_status_rng_policy,
-                        crit_rng_policy,
-                        random_factor_policy,
-                        freeze_rng_policy,
-                        stat_change_policy,
+                        policy_container,
                         temp_battle_state,
                         Who::Opponent,
                         move_info
@@ -153,12 +118,7 @@ BestMoveResults get_best_power_move(
                     while (temp_defender.get_current_stat(Stat::Health) > 0) {
                         ++hits_to_ko;
                         total_damage += execute_move(
-                            confusion_status_policy,
-                            confusion_status_rng_policy,
-                            crit_rng_policy,
-                            random_factor_policy,
-                            freeze_rng_policy,
-                            stat_change_policy,
+                            policy_container,
                             temp_battle_state,
                             Who::Opponent,
                             move_info
@@ -174,12 +134,7 @@ BestMoveResults get_best_power_move(
             }
             BestMoveResults temp_best_defender_move_results =
                 choose_move_against_defender(
-                    confusion_status_policy,
-                    confusion_status_rng_policy,
-                    crit_rng_policy,
-                    random_factor_policy,
-                    freeze_rng_policy,
-                    stat_change_policy,
+                    policy_container,
                     battle_state,
                     defender,
                     defender.get_moves(),
@@ -209,21 +164,9 @@ BestMoveResults get_best_power_move(
     };
 }
 
-template <
-    IsConfusionStatusPolicy ConfusionStatusPolicy,
-    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
-    IsCritRNGPolicy CritRNGPolicy,
-    IsDamageRandomFactorPolicy RandomFactorPolicy,
-    IsFreezeRNGPolicy FreezeRNGPolicy,
-    IsStatChangePolicy StatChangePolicy
->
+template <typename... Policies>
 BestMoveResults get_best_power_move(
-    const ConfusionStatusPolicy& confusion_status_policy,
-    const ConfusionStatusRNGPolicy& confusion_status_rng_policy,
-    const CritRNGPolicy& crit_rng_policy,
-    const RandomFactorPolicy& random_factor_policy,
-    const FreezeRNGPolicy& freeze_rng_policy,
-    const StatChangePolicy& stat_change_policy,
+const PolicyContainer<Policies...> policy_container,
     const BattleState& battle_state,
     const PokemonState& attacker,
     const PokemonState& defender,
@@ -243,8 +186,7 @@ BestMoveResults get_best_power_move(
 
     if (moves.size() == 1 && moves.front() == Move::Struggle) {
         const uint16_t struggle_damage = get_struggle_damage(
-            random_factor_policy,
-            crit_rng_policy,
+           policy_container,
             attacker,
             defender,
             who_attacker_is
@@ -268,12 +210,7 @@ BestMoveResults get_best_power_move(
                 : Who::Player;
         const BestMoveResults defender_power_move =
             choose_move_against_defender(
-                confusion_status_policy,
-                confusion_status_rng_policy,
-                crit_rng_policy,
-                random_factor_policy,
-                freeze_rng_policy,
-                stat_change_policy,
+                policy_container,
                 battle_state,
                 defender,
                 defender.get_moves(),
@@ -290,12 +227,7 @@ BestMoveResults get_best_power_move(
 
     const BestMoveResults best_physical =
         get_best_power_move(
-            confusion_status_policy,
-            confusion_status_rng_policy,
-            crit_rng_policy,
-            random_factor_policy,
-            freeze_rng_policy,
-            stat_change_policy,
+            policy_container,
             battle_state,
             attacker,
             defender,
@@ -307,12 +239,7 @@ BestMoveResults get_best_power_move(
         );
     const BestMoveResults best_special =
         get_best_power_move(
-            confusion_status_policy,
-            confusion_status_rng_policy,
-            crit_rng_policy,
-            random_factor_policy,
-            freeze_rng_policy,
-            stat_change_policy,
+            policy_container,
             battle_state,
             attacker,
             defender,
@@ -338,21 +265,9 @@ BestMoveResults get_best_power_move(
     return best_special;
 }
 
-template <
-    IsConfusionStatusPolicy ConfusionStatusPolicy,
-    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
-    IsCritRNGPolicy CritRNGPolicy,
-    IsDamageRandomFactorPolicy RandomFactorPolicy,
-    IsFreezeRNGPolicy FreezeRNGPolicy,
-    IsStatChangePolicy StatChangePolicy
->
+template <typename... Policies>
 BestMoveResults choose_move_against_defender(
-    const ConfusionStatusPolicy& confusion_status_policy,
-    const ConfusionStatusRNGPolicy& confusion_status_rng_policy,
-    const CritRNGPolicy& crit_rng_policy,
-    const RandomFactorPolicy& random_factor_policy,
-    const FreezeRNGPolicy& freeze_rng_policy,
-    const StatChangePolicy& stat_change_policy,
+    const PolicyContainer<Policies...> policy_container,
     const BattleState& battle_state,
     const PokemonState& attacker,
     const std::vector<Move>& attacker_moves,
@@ -373,12 +288,7 @@ BestMoveResults choose_move_against_defender(
     const auto& all_move_infos =
         get_all_moves();
     BestMoveResults best_power_move = get_best_power_move(
-        confusion_status_policy,
-        confusion_status_rng_policy,
-        crit_rng_policy,
-        random_factor_policy,
-        freeze_rng_policy,
-        stat_change_policy,
+        policy_container,
         battle_state,
         attacker,
         defender,
@@ -403,12 +313,7 @@ BestMoveResults choose_move_against_defender(
         const auto temp_move =
             &all_move_infos[to_int(best_power_move.attacker_results.move)];
         best_power_move.attacker_results.total_damage = execute_move(
-            confusion_status_policy,
-            confusion_status_rng_policy,
-            crit_rng_policy,
-            random_factor_policy,
-            freeze_rng_policy,
-            stat_change_policy,
+            policy_container,
             temp_battle_state,
             who_attacker_is,
             temp_move
@@ -421,12 +326,7 @@ BestMoveResults choose_move_against_defender(
         while (temp_defender.get_current_stat(Stat::Health) > 0) {
             ++best_power_move.attacker_results.number_of_hits_to_ko;
             best_power_move.attacker_results.total_damage += execute_move(
-                confusion_status_policy,
-                confusion_status_rng_policy,
-                crit_rng_policy,
-                random_factor_policy,
-                freeze_rng_policy,
-                stat_change_policy,
+                policy_container,
                 temp_battle_state,
                 who_attacker_is,
                 temp_move
@@ -442,12 +342,7 @@ BestMoveResults choose_move_against_defender(
         if (!physical_moves.empty()) {
             BestMoveResults best_physical_move_results =
                 choose_move_against_defender(
-                    confusion_status_policy,
-                    confusion_status_rng_policy,
-                    crit_rng_policy,
-                    random_factor_policy,
-                    freeze_rng_policy,
-                    stat_change_policy,
+                    policy_container,
                     battle_state,
                     attacker,
                     physical_moves,

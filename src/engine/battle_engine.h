@@ -33,17 +33,9 @@ public:
         SpeedAdvantagePolicy,
         StatChangePolicy
     > policy_container;
-    ConfusionStatusPolicy confusion_status_policy;
-    ConfusionStatusRNGPolicy confusion_status_rng_policy;
-    CritRNGPolicy crit_rng_policy;
-    DamageRandomFactorPolicy damage_random_factor_policy;
-    FreezeRNGPolicy freeze_rng_policy;
-    OpponentKnowledgePolicy opponent_knowledge_policy;
-    SpeedAdvantagePolicy speed_advantage_policy;
-    StatChangePolicy stat_change_policy;
 
     explicit BattleEngine(
-        const PolicyContainer<
+        PolicyContainer<
             ConfusionStatusPolicy,
             ConfusionStatusRNGPolicy,
             CritRNGPolicy,
@@ -53,28 +45,18 @@ public:
             SpeedAdvantagePolicy,
             StatChangePolicy
         >&& policy_container_in
-    ) : policy_container(std::move(policy_container_in)),
-        confusion_status_policy(policy_container.confusion_status_policy),
-        confusion_status_rng_policy(
-            policy_container.confusion_status_rng_policy),
-        crit_rng_policy(policy_container.crit_rng_policy),
-        damage_random_factor_policy(
-            policy_container.damage_random_factor_policy),
-        freeze_rng_policy(policy_container.freeze_rng_policy),
-        opponent_knowledge_policy(policy_container.opponent_knowledge_policy),
-        speed_advantage_policy(policy_container.speed_advantage_policy),
-        stat_change_policy(policy_container.stat_change_policy) {}
+    ) : policy_container(std::move(policy_container_in)) {}
 };
 
-template <IsSpeedAdvantagePolicy SpeedAdvantagePolicy>
+template <typename... Policies>
 Who who_goes_first(
-    const SpeedAdvantagePolicy& speed_advantage_policy,
+    const PolicyContainer<Policies...>& policy_container,
     const BattleState& battle_state,
     [[maybe_unused]] const MoveInfo* player_move,
     [[maybe_unused]] const MoveInfo* opponent_move
 ) {
     const bool player_faster =
-        speed_advantage_policy.is_player_faster(battle_state);
+        policy_container.is_player_faster(battle_state);
     if (player_faster) {
         return Who::Player;
     } else {
@@ -109,7 +91,7 @@ TurnResult execute_turn(
 ) {
     const bool player_goes_first =
         who_goes_first(
-            policy_container.speed_advantage_policy,
+            policy_container,
             battle_state,
             player_move,
             opponent_move
@@ -124,29 +106,19 @@ TurnResult execute_turn(
 
     const uint16_t first_move_damage =
         execute_move(
-            policy_container.confusion_status_policy,
-            policy_container.confusion_status_rng_policy,
-            policy_container.crit_rng_policy,
-            policy_container.damage_random_factor_policy,
-            policy_container.freeze_rng_policy,
-            policy_container.stat_change_policy,
+            policy_container,
             battle_state,
             first,
             first_move
         );
     const uint16_t second_move_damage =
         execute_move(
-            policy_container.confusion_status_policy,
-            policy_container.confusion_status_rng_policy,
-            policy_container.crit_rng_policy,
-            policy_container.damage_random_factor_policy,
-            policy_container.freeze_rng_policy,
-            policy_container.stat_change_policy,
+            policy_container,
             battle_state,
             second,
             second_move
         );
-    apply_end_of_turn(policy_container.speed_advantage_policy, battle_state);
+    apply_end_of_turn(policy_container, battle_state);
 
     return TurnResult{
         .battle_state = battle_state,
@@ -189,20 +161,16 @@ inline BattleResultEntry single_battle(
 
     const BattleEngine battle_engine{
         std::move(
-            PolicyContainer{
-                .confusion_status_policy =
-                OpponentOptimizedConfusionStatusPolicy{},
-                .confusion_status_rng_policy = NeverConfuseRNGPolicy{},
-                .crit_rng_policy = NeverCritRNGPolicy{},
-                .damage_random_factor_policy =
-                OpponentOptimizedRandomFactorPolicy{},
-                .freeze_rng_policy = NeverFreezeRNGPolicy{},
-                .opponent_knowledge_policy =
-                OpponentOptimizedKnowledgePolicy{},
-                .speed_advantage_policy =
-                OpponentOptimizedSpeedAdvantagePolicy{},
-                .stat_change_policy = OpponentOptimizedStatChangePolicy{}
-            }
+            PolicyContainer<
+                OpponentOptimizedConfusionStatusPolicy,
+                NeverConfuseRNGPolicy,
+                NeverCritRNGPolicy,
+                OpponentOptimizedRandomFactorPolicy,
+                NeverFreezeRNGPolicy,
+                OpponentOptimizedKnowledgePolicy,
+                OpponentOptimizedSpeedAdvantagePolicy,
+                OpponentOptimizedStatChangePolicy
+            >{}
         ),
     };
 
@@ -228,12 +196,7 @@ inline BattleResultEntry single_battle(
     while (!is_battle_over(*battle_state)) {
         const BestMoveResults player_move_results =
             choose_move_against_defender(
-                battle_engine.confusion_status_policy,
-                battle_engine.confusion_status_rng_policy,
-                battle_engine.crit_rng_policy,
-                battle_engine.damage_random_factor_policy,
-                battle_engine.freeze_rng_policy,
-                battle_engine.stat_change_policy,
+                battle_engine.policy_container,
                 *battle_state,
                 battle_state->player,
                 battle_state->player.get_moves(),
@@ -244,12 +207,7 @@ inline BattleResultEntry single_battle(
             );
         const BestMoveResults opponent_move_results =
             choose_move_against_defender(
-                battle_engine.confusion_status_policy,
-                battle_engine.confusion_status_rng_policy,
-                battle_engine.crit_rng_policy,
-                battle_engine.damage_random_factor_policy,
-                battle_engine.freeze_rng_policy,
-                battle_engine.stat_change_policy,
+            battle_engine.policy_container,
                 *battle_state,
                 battle_state->opponent,
                 battle_state->opponent.get_moves(),

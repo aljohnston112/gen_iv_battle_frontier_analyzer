@@ -3,10 +3,12 @@
 
 #include "battle_state.h"
 
+// Crit
+// =============================================================================
 template <typename T>
 struct CritRNGPolicy {
-    bool roll(const double percent) const {
-        return static_cast<const T*>(this)->roll(percent);
+    bool roll_for_crit(const double percent) const {
+        return static_cast<const T*>(this)->roll_for_crit(percent);
     }
 };
 
@@ -15,26 +17,28 @@ concept IsCritRNGPolicy = std::derived_from<T, CritRNGPolicy<T>>;
 
 struct NeverCritRNGPolicy :
     CritRNGPolicy<NeverCritRNGPolicy> {
-    static bool roll(const double) {
+    static bool roll_for_crit(const double) {
         return false;
     }
 };
 
 struct AlwaysCritRNGPolicy :
     CritRNGPolicy<AlwaysCritRNGPolicy> {
-    static bool roll(const double) {
+    static bool roll_for_crit(const double) {
         return true;
     }
 };
 
+// Confusion
+// =============================================================================
 template <typename T>
 struct ConfusionStatusRNGPolicy {
     bool roll_for_confusion(const double percent) const {
-        return static_cast<const T*>(this)->roll(percent);
+        return static_cast<const T*>(this)->roll_for_confusion(percent);
     }
 
     bool roll_for_self_hit(const double percent) const {
-        return static_cast<const T*>(this)->roll(percent);
+        return static_cast<const T*>(this)->roll_for_self_hit(percent);
     }
 };
 
@@ -59,18 +63,66 @@ struct AlwaysConfuseRNGPolicy :
         return true;
     }
 
-    static bool roll_for_self_hit(const double) {
+    static bool roll_for_self_hit(const int8_t) {
         return true;
     }
 };
 
 template <typename T>
+struct ConfusionStatusPolicy {
+    uint8_t roll_turns_confused(const Who who) const {
+        return static_cast<const T*>(this)->roll_turns_confused(who);
+    }
+
+    uint8_t roll_random_confusion(const Who who) const {
+        return static_cast<const T*>(this)->roll_random_confusion(who);
+    }
+};
+
+template <typename T>
+concept IsConfusionStatusPolicy =
+    std::derived_from<T, ConfusionStatusPolicy<T>>;
+
+struct OpponentOptimizedConfusionStatusPolicy :
+    ConfusionStatusPolicy<OpponentOptimizedConfusionStatusPolicy> {
+    static uint8_t roll_turns_confused(const Who who) {
+        return who == Who::Player ? 4 : 1;
+    }
+
+    static uint8_t roll_random_confusion(const Who who) {
+        return who == Who::Player ? 100 : 85;
+    }
+};
+
+// Damage
+// =============================================================================
+template <typename T>
+struct DamageRandomFactorPolicy {
+    uint8_t roll_random(const Who who) const {
+        return static_cast<const T*>(this)->roll_random(who);
+    }
+};
+
+template <typename T>
+concept IsDamageRandomFactorPolicy =
+    std::derived_from<T, DamageRandomFactorPolicy<T>>;
+
+struct OpponentOptimizedRandomFactorPolicy :
+    DamageRandomFactorPolicy<OpponentOptimizedRandomFactorPolicy> {
+    static uint8_t roll_random(const Who who) {
+        return who == Who::Player ? 85 : 100;
+    }
+};
+
+// Freeze
+// =============================================================================
+template <typename T>
 struct FreezeRNGPolicy {
-    bool roll_for_freeze(const double percent) const {
+    bool roll_for_freeze(const uint8_t percent) const {
         return static_cast<const T*>(this)->roll_for_freeze(percent);
     }
 
-    bool roll_for_thaw(const double percent) const {
+    bool roll_for_thaw(const uint8_t percent) const {
         return static_cast<const T*>(this)->roll_for_freeze(percent);
     }
 };
@@ -101,6 +153,28 @@ struct AlwaysFreezeRNGPolicy :
     }
 };
 
+// Opponent Knowledge
+// =============================================================================
+template <typename T>
+struct OpponentKnowledgePolicy {
+    bool opponent_knows_player_move() {
+        return static_cast<const T*>(this)->opponent_knows_player_move();
+    }
+};
+
+template <typename T>
+concept IsOpponentKnowledgePolicy =
+    std::derived_from<T, OpponentKnowledgePolicy<T>>;
+
+struct OpponentOptimizedKnowledgePolicy :
+    OpponentKnowledgePolicy<OpponentOptimizedKnowledgePolicy> {
+    static bool opponent_knows_player_move() {
+        return true;
+    }
+};
+
+// Speed
+// =============================================================================
 template <typename T>
 struct SpeedAdvantagePolicy {
     bool is_player_faster(const BattleState& battle_state) const {
@@ -124,53 +198,8 @@ struct OpponentOptimizedSpeedAdvantagePolicy :
     }
 };
 
-
-template <typename T>
-struct DamageRandomFactorPolicy {
-    uint8_t roll_random(const Who who) const {
-        return static_cast<const T*>(this)->roll_random(who);
-    }
-};
-
-template <typename T>
-concept IsDamageRandomFactorPolicy =
-    std::derived_from<T, DamageRandomFactorPolicy<T>>;
-
-struct OpponentOptimizedRandomFactorPolicy :
-    DamageRandomFactorPolicy<OpponentOptimizedRandomFactorPolicy> {
-    static uint8_t roll_random(const Who who) {
-        return who == Who::Player ? 85 : 100;
-    }
-};
-
-
-template <typename T>
-struct ConfusionStatusPolicy {
-    uint8_t roll_turns_confused(const Who who) const {
-        return static_cast<const T*>(this)->roll_turns_confused(who);
-    }
-
-    uint8_t roll_random_confusion(const Who who) const {
-        return static_cast<const T*>(this)->roll_random_confusion(who);
-    }
-};
-
-template <typename T>
-concept IsConfusionStatusPolicy =
-    std::derived_from<T, ConfusionStatusPolicy<T>>;
-
-struct OpponentOptimizedConfusionStatusPolicy :
-    ConfusionStatusPolicy<OpponentOptimizedConfusionStatusPolicy> {
-    static uint8_t roll_turns_confused(const Who who) {
-        return who == Who::Player ? 4 : 1;
-    }
-
-    static uint8_t roll_random_confusion(const Who who) {
-        return who == Who::Player ? 100 : 85;
-    }
-};
-
-
+// Stat change
+// =============================================================================
 template <typename T>
 struct StatChangePolicy {
     bool roll_stat_drop(const uint8_t percent, const Who who) {
@@ -188,44 +217,78 @@ struct OpponentOptimizedStatChangePolicy :
     }
 };
 
-template <typename T>
-struct OpponentKnowledgePolicy {
-    bool opponent_knows_player_move() {
-        return static_cast<const T*>(this)->opponent_knows_player_move();
-    }
+
+template <template <typename> typename TemplateBase, typename T>
+concept derives_from_template = requires(T t) {
+    []<typename U>(const TemplateBase<U>&) {}(t);
 };
+
+template <template <typename> typename BaseTemplate, typename... Ts>
+constexpr std::size_t count_base =
+    (static_cast<std::size_t>(derives_from_template<BaseTemplate, Ts>) + ...);
+
+template <template <typename> typename BaseTemplate, typename... Ts>
+constexpr bool contains_at_most_one =
+    count_base<BaseTemplate, Ts...> <= 1;
 
 template <typename T>
-concept IsOpponentKnowledgePolicy =
-    std::derived_from<T, OpponentKnowledgePolicy<T>>;
+concept IsAllowedPolicy =
+    (derives_from_template<CritRNGPolicy, T> &&
+        requires(const T& t) {
+            { t.roll_for_crit(static_cast<double>(0.0)) } -> std::same_as<bool>;
+        }) ||
+    (derives_from_template<ConfusionStatusPolicy, T> &&
+        requires(const T& t) {
+            { t.roll_turns_confused(Who::Player) } -> std::same_as<uint8_t>;
+            { t.roll_random_confusion(Who::Player) } -> std::same_as<uint8_t>;
+        }) ||
+    (derives_from_template<ConfusionStatusRNGPolicy, T> &&
+        requires(const T& t) {
+            {
+                t.roll_for_confusion(static_cast<double>(0.0))
+            } -> std::same_as<bool>;
+            {
+                t.roll_for_self_hit(static_cast<double>(0.0))
+            } -> std::same_as<bool>;
+        }) ||
+    (derives_from_template<DamageRandomFactorPolicy, T> &&
+        requires(const T& t) {
+            { t.roll_random(Who::Player) } -> std::same_as<uint8_t>;
+        }) ||
+    (derives_from_template<FreezeRNGPolicy, T> &&
+        requires(const T& t) {
+            {
+                t.roll_for_freeze(static_cast<uint8_t>(0))
+            } -> std::same_as<bool>;
+            { t.roll_for_thaw(static_cast<uint8_t>(0)) } -> std::same_as<bool>;
+        }) ||
+    (derives_from_template<OpponentKnowledgePolicy, T> &&
+        requires(const T& t) {
+            { t.opponent_knows_player_move() } -> std::same_as<bool>;
+        }) ||
+    (derives_from_template<SpeedAdvantagePolicy, T> &&
+        requires(const T& t, const BattleState& state) {
+            { t.is_player_faster(state) } -> std::same_as<bool>;
+        })
+    ||
+    (derives_from_template<StatChangePolicy, T> && requires(const T& t) {
+        {
+            t.roll_stat_drop(static_cast<uint8_t>(0), Who::Player)
+        } -> std::same_as<bool>;
+    });
 
-struct OpponentOptimizedKnowledgePolicy :
-    OpponentKnowledgePolicy<OpponentOptimizedKnowledgePolicy> {
-    static bool opponent_knows_player_move() {
-        return true;
-    }
-};
-
-template <
-    IsConfusionStatusPolicy ConfusionStatusPolicy,
-    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
-    IsCritRNGPolicy CritRNGPolicy,
-    IsDamageRandomFactorPolicy DamageRandomFactorPolicy,
-    IsFreezeRNGPolicy FreezeRNGPolicy,
-    IsOpponentKnowledgePolicy OpponentKnowledgePolicy,
-    IsSpeedAdvantagePolicy SpeedAdvantagePolicy,
-    IsStatChangePolicy StatChangePolicy
->
-struct PolicyContainer {
-    ConfusionStatusPolicy confusion_status_policy;
-    ConfusionStatusRNGPolicy confusion_status_rng_policy;
-    CritRNGPolicy crit_rng_policy;
-    DamageRandomFactorPolicy damage_random_factor_policy;
-    FreezeRNGPolicy freeze_rng_policy;
-    OpponentKnowledgePolicy opponent_knowledge_policy;
-    SpeedAdvantagePolicy speed_advantage_policy;
-    StatChangePolicy stat_change_policy;
-};
+template <typename... Policies>
+    requires
+    (IsAllowedPolicy<Policies> && ...) &&
+    contains_at_most_one<CritRNGPolicy, Policies...> &&
+    contains_at_most_one<ConfusionStatusPolicy, Policies...> &&
+    contains_at_most_one<ConfusionStatusRNGPolicy, Policies...> &&
+    contains_at_most_one<DamageRandomFactorPolicy, Policies...> &&
+    contains_at_most_one<FreezeRNGPolicy, Policies...> &&
+    contains_at_most_one<OpponentKnowledgePolicy, Policies...> &&
+    contains_at_most_one<SpeedAdvantagePolicy, Policies...> &&
+    contains_at_most_one<StatChangePolicy, Policies...>
+struct PolicyContainer : Policies... {};
 
 
 #endif //GEN_IV_BATTLE_FRONTIER_ANALYZER_POLICIES_H

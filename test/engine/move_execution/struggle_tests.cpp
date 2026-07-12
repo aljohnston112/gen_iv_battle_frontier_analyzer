@@ -5,11 +5,10 @@
 
 template <IsDamageTestCase Case>
 void random_does_correct_damage_for_struggle_case() {
-    using CritRNGPolicyType = Case::CritRNGPolicyType;
-    const CritRNGPolicyType crit_rng_policy{};
-
-    using DamageRandomFactorPolicyType = Case::DamageRandomFactorPolicyType;
-    const DamageRandomFactorPolicyType random_factor_policy{};
+    constexpr PolicyContainer<
+        typename Case::CritRNGPolicyType,
+        typename Case::DamageRandomFactorPolicyType
+    > policy_container{};
 
     static constexpr int32_t expected_damage = Case::ExpectedValue;
 
@@ -20,8 +19,7 @@ void random_does_correct_damage_for_struggle_case() {
     EXPECT_EQ(
         expected_damage,
         get_struggle_damage(
-            random_factor_policy,
-            crit_rng_policy,
+            policy_container,
             battle_state.player,
             battle_state.opponent,
             Who::Player
@@ -49,9 +47,13 @@ TEST(MoveExecution, StruggleDoesTheRightAmountOfRecoil) {
         PokemonState{&CresseliaLeftovers}
     };
 
+    constexpr PolicyContainer<
+        HighDamageRandomFactorPolicy,
+        NeverCritRNGPolicy
+    > policy_container{};
+
     execute_struggle(
-        HighDamageRandomFactorPolicy{},
-        NeverCritRNGPolicy{},
+        policy_container,
         battle_state,
         battle_state.player,
         battle_state.opponent,

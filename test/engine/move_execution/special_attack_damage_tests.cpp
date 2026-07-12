@@ -7,17 +7,16 @@ void random_does_correct_damage_for_attack(
     const BattleState& battle_state,
     const MoveInfo* move
 ) {
-    using CritRNGPolicyType = Case::CritRNGPolicyType;
-    const CritRNGPolicyType crit_rng_policy{};
-    using DamageRandomFactorPolicyType = Case::DamageRandomFactorPolicyType;
-    const DamageRandomFactorPolicyType random_factor_policy{};
+    constexpr PolicyContainer<
+        typename Case::CritRNGPolicyType,
+        typename Case::DamageRandomFactorPolicyType
+    > policy_container{};
     static constexpr int32_t expected_damage = Case::ExpectedValue;
 
     EXPECT_EQ(
         expected_damage,
         get_damage_of_power_move(
-            crit_rng_policy,
-            random_factor_policy,
+            policy_container,
             battle_state,
             battle_state.player,
             battle_state.opponent,
@@ -196,17 +195,18 @@ TEST(MoveExecution,
         >
     >(battle_state, Move::Psychic);
 
+    constexpr PolicyContainer<
+        IncreasingDamageRandomFactorPolicy,
+        AlwaysCritRNGPolicy
+    > policy_container{};
 
-    constexpr auto crit_rng_policy = AlwaysCritRNGPolicy{};
-    constexpr auto random_factor_policy = IncreasingDamageRandomFactorPolicy{};
     const auto& all_move_infos =
         get_all_moves();
     const auto move = &all_move_infos[to_int(Move::Psychic)];
 
     int16_t current_damage =
         get_damage_of_power_move(
-            crit_rng_policy,
-            random_factor_policy,
+            policy_container,
             battle_state,
             battle_state.player,
             battle_state.opponent,
@@ -216,11 +216,10 @@ TEST(MoveExecution,
     EXPECT_EQ(current_damage, min_damage);
     int16_t last_damage = current_damage;
 
-    while (random_factor_policy.peek_next_random() <= 100) {
+    while (policy_container.peek_next_random() <= 100) {
         current_damage =
             get_damage_of_power_move(
-                crit_rng_policy,
-                random_factor_policy,
+                policy_container,
                 battle_state,
                 battle_state.player,
                 battle_state.opponent,
