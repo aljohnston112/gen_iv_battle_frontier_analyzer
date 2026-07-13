@@ -308,6 +308,8 @@ BestMoveResults choose_move_against_defender(
             defender_move_results->move,
             MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK_ONE_STAGE_50)
     )[[unlikely]] {
+        // TODO find damage of best physical,
+        //      and do special till physical does more
         BattleState temp_battle_state = battle_state;
         best_power_move.attacker_results.number_of_hits_to_ko = 1;
         const auto temp_move =

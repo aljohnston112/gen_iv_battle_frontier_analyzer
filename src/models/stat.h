@@ -21,6 +21,16 @@ struct BaseStats {
     uint16_t speed;
 };
 
+enum class StatusCondition {
+    Burn,
+    Freeze,
+    Paralysis,
+    PoisonStatus,
+    BadlyPoisoned,
+    Sleep,
+    NoCondition
+};
+
 inline const std::unordered_map<std::string, Stat> STRING_TO_STAT_MAP{
     {"health", Stat::Health},
     {"attack", Stat::Attack},
@@ -49,7 +59,8 @@ inline u_int16_t calculate_hp_stat(
 
 inline uint16_t calculate_stat_based_on_stage(
     const uint16_t stat,
-    const int stage
+    const int stage,
+    const StatusCondition status_condition
 ) {
     static constexpr std::array<std::pair<uint16_t, uint16_t>, 13> multipliers =
     {
@@ -74,7 +85,11 @@ inline uint16_t calculate_stat_based_on_stage(
     }
     const auto [num, den] =
         multipliers[stage + 6];
-    return static_cast<uint16_t>(num * stat / den);
+    uint32_t damage = num * stat / den;
+    if (status_condition == StatusCondition::Paralysis) [[unlikely]] {
+        damage = damage / 4;
+    }
+    return static_cast<uint16_t>(damage);
 }
 
 inline double calculate_crit_chance_based_on_stage(const uint8_t stage) {

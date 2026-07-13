@@ -11,40 +11,13 @@
 #include "thread_pool.h"
 #include "serebii_pokemon_data_source.h"
 
-template <
-    IsConfusionStatusPolicy ConfusionStatusPolicy,
-    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
-    IsCritRNGPolicy CritRNGPolicy,
-    IsDamageRandomFactorPolicy DamageRandomFactorPolicy,
-    IsFreezeRNGPolicy FreezeRNGPolicy,
-    IsOpponentKnowledgePolicy OpponentKnowledgePolicy,
-    IsSpeedAdvantagePolicy SpeedAdvantagePolicy,
-    IsStatChangePolicy StatChangePolicy
->
+template <typename... Policies>
 class BattleEngine {
 public:
-    const PolicyContainer<
-        ConfusionStatusPolicy,
-        ConfusionStatusRNGPolicy,
-        CritRNGPolicy,
-        DamageRandomFactorPolicy,
-        FreezeRNGPolicy,
-        OpponentKnowledgePolicy,
-        SpeedAdvantagePolicy,
-        StatChangePolicy
-    > policy_container;
+    const PolicyContainer<Policies...> policy_container;
 
     explicit BattleEngine(
-        PolicyContainer<
-            ConfusionStatusPolicy,
-            ConfusionStatusRNGPolicy,
-            CritRNGPolicy,
-            DamageRandomFactorPolicy,
-            FreezeRNGPolicy,
-            OpponentKnowledgePolicy,
-            SpeedAdvantagePolicy,
-            StatChangePolicy
-        >&& policy_container_in
+        PolicyContainer<Policies...>&& policy_container_in
     ) : policy_container(std::move(policy_container_in)) {}
 };
 
@@ -64,27 +37,9 @@ Who who_goes_first(
     }
 }
 
-template <
-    IsConfusionStatusPolicy ConfusioStatusPolicy,
-    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
-    IsCritRNGPolicy CritRNGPolicy,
-    IsDamageRandomFactorPolicy DamageRandomFactorPolicy,
-    IsFreezeRNGPolicy FreezeRNGPolicy,
-    IsOpponentKnowledgePolicy OpponentKnowledgePolicy,
-    IsSpeedAdvantagePolicy SpeedAdvantagePolicy,
-    IsStatChangePolicy StatChangePolicy
->
+template <typename... Policies>
 TurnResult execute_turn(
-    const PolicyContainer<
-        ConfusioStatusPolicy,
-        ConfusionStatusRNGPolicy,
-        CritRNGPolicy,
-        DamageRandomFactorPolicy,
-        FreezeRNGPolicy,
-        OpponentKnowledgePolicy,
-        SpeedAdvantagePolicy,
-        StatChangePolicy
-    >& policy_container,
+    const PolicyContainer<Policies...>& policy_container,
     BattleState& battle_state,
     const MoveInfo* player_move,
     const MoveInfo* opponent_move
@@ -167,6 +122,7 @@ inline BattleResultEntry single_battle(
                 NeverCritRNGPolicy,
                 OpponentOptimizedRandomFactorPolicy,
                 NeverFreezeRNGPolicy,
+                NeverParalyzeRNGPolicy,
                 OpponentOptimizedKnowledgePolicy,
                 OpponentOptimizedSpeedAdvantagePolicy,
                 OpponentOptimizedStatChangePolicy

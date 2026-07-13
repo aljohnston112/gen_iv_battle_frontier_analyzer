@@ -83,16 +83,6 @@ struct MoveStatusStage {
     Move move;
 };
 
-enum class StatusCondition {
-    Burn,
-    Freeze,
-    Paralysis,
-    PoisonStatus,
-    BadlyPoisoned,
-    Sleep,
-    NoCondition
-};
-
 class PokemonState {
     const CustomPokemon* pokemon;
 
@@ -254,7 +244,8 @@ public:
             stat,
             calculate_stat_based_on_stage(
                 pokemon->get_stat(stat),
-                get_stat_stage(stat)
+                get_stat_stage(stat),
+                current_status_condition
             )
         );
     }
@@ -269,7 +260,8 @@ public:
             stat,
             calculate_stat_based_on_stage(
                 pokemon->get_stat(stat),
-                get_stat_stage(stat)
+                get_stat_stage(stat),
+                current_status_condition
             )
         );
         if (current_item == Item::WhiteHerb && stat_stages[to_int(stat)] < 0) {
@@ -285,11 +277,33 @@ public:
     void try_set_status(const StatusCondition status_condition) {
         if (current_status_condition == StatusCondition::NoCondition) {
             current_status_condition = status_condition;
+            if (status_condition == StatusCondition::Paralysis) {
+                set_stat(
+                    Stat::Speed,
+                    calculate_stat_based_on_stage(
+                        pokemon->get_stat(Stat::Speed),
+                        get_stat_stage(Stat::Speed),
+                        current_status_condition
+                    )
+                );
+            }
         }
     }
 
     void clear_status_condition() {
+        const bool was_paralysis =
+            current_status_condition == StatusCondition::Paralysis;
         current_status_condition = StatusCondition::NoCondition;
+        if (was_paralysis) {
+            set_stat(
+                    Stat::Speed,
+                    calculate_stat_based_on_stage(
+                        pokemon->get_stat(Stat::Speed),
+                        get_stat_stage(Stat::Speed),
+                        current_status_condition
+                    )
+                );
+        }
     }
 
     [[nodiscard]] Item get_current_item_for_effect() const {

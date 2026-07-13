@@ -25,7 +25,8 @@ void move_drops_targets_stat_on_true_roll(
         NeverCritRNGPolicy,
         OpponentOptimizedRandomFactorPolicy,
         NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy
+        OpponentOptimizedStatChangePolicy,
+        NeverParalyzeRNGPolicy
     > policy_container{};
 
     const uint8_t m = 6u / n;
@@ -61,7 +62,8 @@ void move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
         NeverCritRNGPolicy,
         OpponentOptimizedRandomFactorPolicy,
         NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy
+        OpponentOptimizedStatChangePolicy,
+        NeverParalyzeRNGPolicy
     > policy_container{};
 
     const uint8_t m = 10u / n;
@@ -96,7 +98,8 @@ void move_does_not_drop_targets_stat_on_false_roll(
         NeverCritRNGPolicy,
         OpponentOptimizedRandomFactorPolicy,
         NeverFreezeRNGPolicy,
-        NeverDropStatPolicy
+        NeverDropStatPolicy,
+        NeverParalyzeRNGPolicy
     > policy_container{};
 
     for (uint8_t i = 0; i < 6; i++) {
@@ -117,39 +120,6 @@ void move_does_not_drop_targets_stat_on_false_roll(
 
 // Special Attack
 // =============================================================================
-
-const CustomPokemon Latias{
-    .name = Pokemon::Latias,
-    .ability = Ability::Levitate,
-    .level = 50,
-    .item = Item::NoItem,
-    .types = {PokemonType::Psychic, PokemonType::NoType},
-    .moves = {
-        Move::MistBall,
-        Move::DracoMeteor,
-        Move::Thunderbolt,
-        Move::Surf
-    },
-    .stats = {152, 87, 107, 173, 147, 158},
-    .pounds = 88.2
-};
-
-const CustomPokemon LatiasWhiteHerb{
-    .name = Pokemon::Latias,
-    .ability = Ability::Levitate,
-    .level = 50,
-    .item = Item::WhiteHerb,
-    .types = {PokemonType::Psychic, PokemonType::NoType},
-    .moves = {
-        Move::MistBall,
-        Move::DracoMeteor,
-        Move::Thunderbolt,
-        Move::Surf
-    },
-    .stats = {152, 87, 107, 173, 147, 158},
-    .pounds = 88.2
-};
-
 TEST(MoveExecution, MistBallDropsSpecialAttackOnTrueRoll) {
     BattleState battle_state{
         PokemonState{&Latias},
@@ -210,7 +180,8 @@ TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {
         NeverCritRNGPolicy,
         LowDamageRandomFactorPolicy,
         NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy
+        OpponentOptimizedStatChangePolicy,
+        NeverParalyzeRNGPolicy
     > low_random_policy_container{};
 
     constexpr PolicyContainer<
@@ -219,7 +190,8 @@ TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {
         NeverCritRNGPolicy,
         HighDamageRandomFactorPolicy,
         NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy
+        OpponentOptimizedStatChangePolicy,
+        NeverParalyzeRNGPolicy
     > high_random_policy_container{};
 
     for (uint8_t i = 0; i < 6; i++) {
@@ -345,7 +317,8 @@ TEST(MoveExecution, SpecialDefenseDropsCauseSpecialAttacksToDoMoreDamage) {
         NeverCritRNGPolicy,
         LowDamageRandomFactorPolicy,
         NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy
+        OpponentOptimizedStatChangePolicy,
+        NeverParalyzeRNGPolicy
     > low_random_policy_container{};
 
     constexpr PolicyContainer<
@@ -354,7 +327,8 @@ TEST(MoveExecution, SpecialDefenseDropsCauseSpecialAttacksToDoMoreDamage) {
         NeverCritRNGPolicy,
         HighDamageRandomFactorPolicy,
         NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy
+        OpponentOptimizedStatChangePolicy,
+        NeverParalyzeRNGPolicy
     > high_random_policy_container{};
 
     for (uint8_t i = 0; i < 6; i++) {

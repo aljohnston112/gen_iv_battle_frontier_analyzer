@@ -76,7 +76,8 @@ TEST(MoveExecution, SignalBeamConfusesOnTrueRoll) {
         NeverCritRNGPolicy,
         OpponentOptimizedRandomFactorPolicy,
         NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy
+        OpponentOptimizedStatChangePolicy,
+        NeverParalyzeRNGPolicy
     > policy_container{};
 
     execute_move(
@@ -106,7 +107,8 @@ TEST(MoveExecution, SignalBeamDoesNotConfuseOnFalseRoll) {
         NeverCritRNGPolicy,
         OpponentOptimizedRandomFactorPolicy,
         NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy
+        OpponentOptimizedStatChangePolicy,
+        NeverParalyzeRNGPolicy
     > policy_container{};
 
     execute_move(
@@ -136,7 +138,8 @@ TEST(MoveExecution, BeingConfusedPreventsAttackingOnTrueRoll) {
         NeverCritRNGPolicy,
         OpponentOptimizedRandomFactorPolicy,
         NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy
+        OpponentOptimizedStatChangePolicy,
+        NeverParalyzeRNGPolicy
     > policy_container{};
 
     roll_confusion(
@@ -244,7 +247,8 @@ void confused_damage_is_correct_on_true_roll(
         NeverCritRNGPolicy,
         OpponentOptimizedRandomFactorPolicy,
         NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy
+        OpponentOptimizedStatChangePolicy,
+        NeverParalyzeRNGPolicy
     > policy_container{};
 
     roll_confusion(
@@ -330,7 +334,8 @@ TEST(MoveExecution, BeingConfusedDoesNotPreventAttackOnFalseRoll) {
         NeverCritRNGPolicy,
         OpponentOptimizedRandomFactorPolicy,
         NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy
+        OpponentOptimizedStatChangePolicy,
+        NeverParalyzeRNGPolicy
     > never_confuse_policy_container{};
 
     EXPECT_NE(
@@ -361,7 +366,8 @@ TEST(MoveExecution, ConfusionEndsOnCorrectTurn) {
         NeverCritRNGPolicy,
         OpponentOptimizedRandomFactorPolicy,
         NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy
+        OpponentOptimizedStatChangePolicy,
+        NeverParalyzeRNGPolicy
     > policy_container{};
 
     roll_confusion(

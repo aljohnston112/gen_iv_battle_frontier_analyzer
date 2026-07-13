@@ -25,6 +25,39 @@ const CustomPokemon CresseliaNoItem{
     .pounds = 188.7
 };
 
+const CustomPokemon Latias{
+    .name = Pokemon::Latias,
+    .ability = Ability::Levitate,
+    .level = 50,
+    .item = Item::NoItem,
+    .types = {PokemonType::Psychic, PokemonType::NoType},
+    .moves = {
+        Move::MistBall,
+        Move::DracoMeteor,
+        Move::Thunderbolt,
+        Move::Surf
+    },
+    .stats = {152, 87, 107, 173, 147, 158},
+    .pounds = 88.2
+};
+
+const CustomPokemon LatiasWhiteHerb{
+    .name = Pokemon::Latias,
+    .ability = Ability::Levitate,
+    .level = 50,
+    .item = Item::WhiteHerb,
+    .types = {PokemonType::Psychic, PokemonType::NoType},
+    .moves = {
+        Move::MistBall,
+        Move::DracoMeteor,
+        Move::Thunderbolt,
+        Move::Surf
+    },
+    .stats = {152, 87, 107, 173, 147, 158},
+    .pounds = 88.2
+};
+
+
 struct LowDamageRandomFactorPolicy :
     DamageRandomFactorPolicy<LowDamageRandomFactorPolicy> {
     static uint8_t roll_random(const Who) {

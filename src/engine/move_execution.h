@@ -11,6 +11,9 @@
 // Get Pickachu confused, test hit danage with and without Light Ball
 // Get Cubone/Marowak coinfused, test hit damage with and without Thick Club
 
+// TODO Flash fire does not work when frozen
+//      A frozen Sky Forme Shaymin will revert to its Land Forme.
+
 inline std::array<int16_t, LEVEL + 1> DAMAGE_CACHE = [] {
     std::array<int16_t, LEVEL + 1> array{};
     array.fill(-1.0);
@@ -301,8 +304,20 @@ void roll_freeze(
     }
 }
 
+template <typename... Policies>
+void roll_paralysis(
+    const PolicyContainer<Policies...>& policy_container,
+    PokemonState& defender,
+    const int8_t chance
+) {
+    if (defender.get_current_ability() != Ability::MagicGuard &&
+        policy_container.roll_for_paralysis(chance)
+    ) {
+        defender.try_set_status(StatusCondition::Paralysis);
+    }
+}
 
-inline bool move_will_work(
+inline bool move_does_nothing(
     const BattleState& battle_state,
     const MoveInfo* move,
     const Who who_attacker_is
@@ -480,10 +495,6 @@ uint16_t execute_move(
     const Who who_attacker_is,
     const MoveInfo* move
 ) {
-    if (!move_will_work(battle_state, move, who_attacker_is)) {
-        return 0;
-    }
-
     const bool is_player_attacker = who_attacker_is == Who::Player;
     PokemonState& attacker = is_player_attacker
                                  ? battle_state.player
@@ -491,6 +502,8 @@ uint16_t execute_move(
     PokemonState& defender = is_player_attacker
                                  ? battle_state.opponent
                                  : battle_state.player;
+
+
 
     if (attacker.get_current_status_condition() ==
         StatusCondition::Freeze
@@ -502,6 +515,14 @@ uint16_t execute_move(
         ) [[unlikely]] {
             attacker.clear_status_condition();
         } else {
+            return 0;
+        }
+    }
+
+    if (attacker.get_current_status_condition() ==
+        StatusCondition::Paralysis
+        )[[unlikely]] {
+        if (!policy_container.can_move_while_paralyzed(25)) [[unlikely]] {
             return 0;
         }
     }
@@ -525,6 +546,11 @@ uint16_t execute_move(
 
     // Moves should only be considered "executed" past this point!
     // =========================================================================
+
+    if (!move_does_nothing(battle_state, move, who_attacker_is)) {
+        attacker.decrement_power_point(move->move);
+        return 0;
+    }
 
     if (move->move == Move::Struggle) {
         return execute_struggle(
@@ -568,6 +594,10 @@ uint16_t execute_move(
         roll_freeze(policy_container, weather, defender, 10);
     }
 
+    if (move_has_flag(move->move, MoveFlag::PARALYZES_DEFENDER_10)) [[unlikely]] {
+        roll_paralysis(policy_container, defender, 10);
+    }
+
     if (move_has_flag(
         move->move,
         MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK_ONE_STAGE_50)) [[unlikely]] {
@@ -603,7 +633,6 @@ uint16_t execute_move(
     }
 
     attacker.decrement_power_point(move->move);
-
     return damage;
 }
 

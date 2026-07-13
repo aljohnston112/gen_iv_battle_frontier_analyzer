@@ -24,7 +24,8 @@ TEST(MoveExecution, LeftoversHealsTheCorrectAmountOfHPAtTurnEnd) {
         OpponentOptimizedRandomFactorPolicy,
         NeverFreezeRNGPolicy,
         OpponentOptimizedStatChangePolicy,
-        OpponentOptimizedSpeedAdvantagePolicy
+        OpponentOptimizedSpeedAdvantagePolicy,
+        NeverParalyzeRNGPolicy
     > policy_container{};
 
     EXPECT_EQ(

@@ -123,7 +123,7 @@ struct FreezeRNGPolicy {
     }
 
     bool roll_for_thaw(const uint8_t percent) const {
-        return static_cast<const T*>(this)->roll_for_freeze(percent);
+        return static_cast<const T*>(this)->roll_for_thaw(percent);
     }
 };
 
@@ -170,6 +170,45 @@ struct OpponentOptimizedKnowledgePolicy :
     OpponentKnowledgePolicy<OpponentOptimizedKnowledgePolicy> {
     static bool opponent_knows_player_move() {
         return true;
+    }
+};
+
+// Paralysis
+// =============================================================================
+template <typename T>
+struct ParalysisRNGPolicy {
+    bool roll_for_paralysis(const uint8_t percent) const {
+        return static_cast<const T*>(this)->roll_for_paralysis(percent);
+    }
+
+    bool can_move_while_paralyzed(const uint8_t percent) const {
+        return static_cast<const T*>(this)->can_move_while_paralyzed(percent);
+    }
+};
+
+template <typename T>
+concept IsParalysisRNGPolicy =
+    std::derived_from<T, ParalysisRNGPolicy<T>>;
+
+struct NeverParalyzeRNGPolicy :
+    ParalysisRNGPolicy<NeverParalyzeRNGPolicy> {
+    static bool roll_for_paralysis(const int8_t) {
+        return false;
+    }
+
+    static bool can_move_while_paralyzed(const int8_t) {
+        return true;
+    }
+};
+
+struct AlwaysParalyzeRNGPolicy :
+    ParalysisRNGPolicy<AlwaysParalyzeRNGPolicy> {
+    static bool roll_for_paralysis(const int8_t) {
+        return true;
+    }
+
+    static bool can_move_while_paralyzed(const int8_t) {
+        return false;
     }
 };
 
@@ -265,6 +304,16 @@ concept IsAllowedPolicy =
     (derives_from_template<OpponentKnowledgePolicy, T> &&
         requires(const T& t) {
             { t.opponent_knows_player_move() } -> std::same_as<bool>;
+        }) ||
+
+    (derives_from_template<ParalysisRNGPolicy, T> &&
+        requires(const T& t) {
+            {
+                t.roll_for_paralysis(static_cast<uint8_t>(0))
+            } -> std::same_as<bool>;
+            {
+                t.can_move_while_paralyzed(static_cast<uint8_t>(0))
+            } -> std::same_as<bool>;
         }) ||
     (derives_from_template<SpeedAdvantagePolicy, T> &&
         requires(const T& t, const BattleState& state) {

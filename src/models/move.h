@@ -1046,7 +1046,8 @@ enum class MoveFlag {
     MAKES_DEFENDER_SLEEP,
     BYPASSES_ACCURACY,
     OMNI_BOOSTS_ATTACKER,
-    PARALYZES_DEFENDER,
+    PARALYZES_DEFENDER, // TODO remove
+    PARALYZES_DEFENDER_10,
     POISONS_DEFENDER,
     RAISES_DEFENDER_ATTACK,
     RAISES_DEFENDER_SPECIAL_ATTACK,
@@ -1878,7 +1879,7 @@ inline constexpr std::array<
     flags[to_int(Move::StunSpore)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::Thundershock)][to_int(MoveFlag::PARALYZES_DEFENDER)] =
         true;
-    flags[to_int(Move::Thunderbolt)][to_int(MoveFlag::PARALYZES_DEFENDER)] =
+    flags[to_int(Move::Thunderbolt)][to_int(MoveFlag::PARALYZES_DEFENDER_10)] =
         true;
     flags[to_int(Move::ThunderWave)][to_int(MoveFlag::PARALYZES_DEFENDER)] =
         true;
@@ -2766,6 +2767,8 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::Psychic)] = true;
     implemented_moves[to_int(Move::IceBeam)] = true;
     implemented_moves[to_int(Move::MistBall)] = true;
+    implemented_moves[to_int(Move::Thunderbolt)] = true;
+    implemented_moves[to_int(Move::Surf)] = true;
     return implemented_moves;
 }();
 
