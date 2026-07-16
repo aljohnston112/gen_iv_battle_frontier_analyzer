@@ -134,11 +134,9 @@ public:
         }
 
         power_points.fill(0);
-        const auto& all_move_infos =
-            get_all_moves();
         for (const auto& move : pokemon->moves) {
             power_points[to_int(move)] =
-                static_cast<uint8_t>(all_move_infos[to_int(move)].power_points);
+                static_cast<uint8_t>(get_move_info(move)->power_points);
         }
     }
 

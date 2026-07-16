@@ -73,5 +73,6 @@ std::unordered_map<
 
 std::vector<CustomPokemon> construct_all_pokemon_forms(Who who);
 
+const MoveInfo* get_move_info(Move move);
 
 #endif //SEREBII_POKEMON_DATA_SOURCE_H

@@ -224,8 +224,8 @@ std::vector<CustomPokemon> construct_all_custom_batle_factory_pokemon(
         if (isPlayer) {
             moves = {};
             for (const auto move : p.moves) {
-                if (const auto& moveInfo = all_move_infos[to_int(move)];
-                    moveInfo.accuracy == 100
+                if (const auto moveInfo = get_move_info(move);
+                    moveInfo->accuracy == 100
                 ) {
                     moves.emplace_back(move);
                 }

@@ -441,7 +441,8 @@ get_serebii_pokemon_map() {
     std::call_once(flag, [] {
         std::ifstream input_stream("./data/fresh/all_pokemon.json");
         if (!input_stream) {
-            throw std::runtime_error("Failed to open data/fresh/all_pokemon.json");
+            throw std::runtime_error(
+                "Failed to open data/fresh/all_pokemon.json");
         }
         std::string line;
         // Leading {
@@ -461,6 +462,11 @@ get_serebii_pokemon_map() {
 const std::array<MoveInfo, to_int(Move::MoveCount)>& get_all_moves() {
     get_serebii_pokemon_map();
     return MOVE_INFO_MAP;
+}
+
+const MoveInfo* get_move_info(const Move move) {
+    get_serebii_pokemon_map();
+    return &MOVE_INFO_MAP[to_int(move)];
 }
 
 const std::unordered_map<std::string, SerebiiPokemon>&
@@ -830,7 +836,6 @@ std::vector<CustomPokemon> construct_all_pokemon_forms(const Who who) {
     std::vector<CustomPokemon> pokemon_forms{};
     const auto& all_serebii_pokemon =
         get_all_serebii_pokemon();
-    const auto& all_move_infos = get_all_moves();
     for (const auto& serebii_pokemon : all_serebii_pokemon |
          std::views::values
     ) {
@@ -848,8 +853,9 @@ std::vector<CustomPokemon> construct_all_pokemon_forms(const Who who) {
                 if (isPlayer) {
                     std::vector<Move> moves;
                     for (const auto move : pokemon.moves) {
-                        if (const auto& moveInfo = all_move_infos[to_int(move)];
-                            moveInfo.accuracy == 100
+                        if (const auto& moveInfo =
+                                get_move_info(move);
+                            moveInfo->accuracy == 100
                         ) {
                             moves.emplace_back(move);
                         }
