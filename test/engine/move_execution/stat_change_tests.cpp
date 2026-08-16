@@ -162,6 +162,29 @@ TEST(MoveExecution, MistBallDoesNotDropSpecialAttackOnFalseRoll) {
     );
 }
 
+TEST(MoveExecution, DracoMeteorDropsSpecialAtttack) {
+    BattleState battle_state{
+        PokemonState{&Latias},
+        PokemonState{&Latias}
+    };
+    constexpr PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        OpponentOptimizedRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        OpponentOptimizedStatChangePolicy,
+        NeverParalyzeRNGPolicy
+    > policy_container{};
+    execute_move(
+        policy_container,
+        battle_state,
+        Who::Player,
+        get_move_info(Move::DracoMeteor)
+    );
+    EXPECT_EQ(battle_state.player.get_stat_stage(Stat::SpecialAttack), -2);
+}
+
 TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {
     const auto& all_move_infos =
         get_all_moves();

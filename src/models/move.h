@@ -1029,7 +1029,8 @@ enum class MoveFlag {
     HITS_DEFENDER_UNDER_WATER,
     LOWERS_ATTACKERS_ATTACK,
     LOWERS_ATTACKERS_DEFENSE,
-    LOWERS_ATTACKERS_SPECIAL_ATTACK,
+    LOWERS_ATTACKERS_SPECIAL_ATTACK, // TODO replace
+    LOWERS_ATTACKERS_SPECIAL_ATTACK_TWO_STAGES,
     LOWERS_ATTACKERS_SPECIAL_DEFENSE,
     LOWERS_ATTACKERS_SPEED,
     LOWERS_DEFENDER_ACCURACY,
@@ -1418,7 +1419,7 @@ inline constexpr std::array<
     flags[to_int(Move::PsychoBoost)][to_int(
         MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK)] = true;
     flags[to_int(Move::DracoMeteor)][to_int(
-        MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK)] = true;
+        MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK_TWO_STAGES)] = true;
     flags[to_int(Move::LeafStorm)][to_int(
         MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK)] = true;
 
@@ -2769,6 +2770,7 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::MistBall)] = true;
     implemented_moves[to_int(Move::Thunderbolt)] = true;
     implemented_moves[to_int(Move::Surf)] = true;
+    implemented_moves[to_int(Move::DracoMeteor)] = true;
     return implemented_moves;
 }();
 

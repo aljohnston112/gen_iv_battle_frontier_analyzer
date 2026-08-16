@@ -1,0 +1,19 @@
+Cresselia (F)
+Ability: Levitate
+Level: 50
+EVs: 170 HP / 170 Def / 170 SpD
+Modest Nature
+IVs: 24 HP / 24 Atk / 24 Def / 24 SpA / 24 SpD / 24 Spe
+- Ice Beam
+- Signal Beam
+
+Latias (F)
+Ability: Levitate
+Level: 50
+EVs: 252 SpA / 252 Spe
+Modest Nature
+IVs: 24 HP / 24 Atk / 24 Def / 24 SpA / 24 SpD / 24 Spe
+- Thunderbolt
+- Surf
+- Draco Meteor
+- Mist Ball

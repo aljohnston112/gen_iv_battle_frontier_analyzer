@@ -458,7 +458,6 @@ get_serebii_pokemon_map() {
     return SEREBII_PLAYER_POKEMON_MAP;
 }
 
-// TODO make a helper that gets a MoveInfo* from a Move
 const std::array<MoveInfo, to_int(Move::MoveCount)>& get_all_moves() {
     get_serebii_pokemon_map();
     return MOVE_INFO_MAP;

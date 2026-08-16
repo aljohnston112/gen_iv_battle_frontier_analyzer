@@ -231,7 +231,7 @@ uint16_t calculate_confused_hit_damage(
     if (attacker_item == Item::ChoiceBand) {
         attacker_attack = static_cast<uint16_t>(attacker_attack * 3u / 2u);
     }
-    // TODO Attack possibly boosted Thick Club or Light Ball; but do they?
+    // TODO Attack possibly boosted by Thick Club or Light Ball; but do they?
 
     const uint16_t defender_defense = attacker.get_current_stat(Stat::Defense);
     damage = damage * power * attacker_attack / defender_defense;
@@ -596,6 +596,15 @@ uint16_t execute_move(
 
     if (move_has_flag(move->move, MoveFlag::PARALYZES_DEFENDER_10)) [[unlikely]] {
         roll_paralysis(policy_container, defender, 10);
+    }
+
+    if (move_has_flag(
+        move->move,
+        MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK_TWO_STAGES
+        )) [[unlikely]] {
+        if (who_attacker_is == Who::Player) {
+            battle_state.player.decrease_stat_stage(Stat::SpecialAttack, 2);
+        }
     }
 
     if (move_has_flag(

@@ -16,19 +16,27 @@ struct BestMoveResults {
 };
 
 template <typename... Policies>
-BestMoveResults choose_move_against_defender(
-    PolicyContainer<Policies...> policy_container,
+BestMoveResults get_best_power_move_result(
+    const PolicyContainer<Policies...>& policy_container,
     const BattleState& battle_state,
     const PokemonState& attacker,
-    const std::vector<Move>& attacker_moves,
     const PokemonState& defender,
-    Who who_attacker_is,
+    const std::vector<Move>& moves,
+    const Who who_attacker_is,
     std::optional<BestMoveResult> attacker_move_results,
     std::optional<BestMoveResult> defender_move_results
 );
 
+inline int64_t get_hit_diff_of_move_results(
+    const BestMoveResult& attacker_results,
+    const BestMoveResult& defender_results
+) {
+    const uint16_t defender_hits = defender_results.number_of_hits_to_ko;
+    return defender_hits - attacker_results.number_of_hits_to_ko;
+}
+
 template <typename... Policies>
-BestMoveResults get_best_power_move(
+BestMoveResults get_best_power_move_result(
     const PolicyContainer<Policies...>& policy_container,
     const BattleState& battle_state,
     const PokemonState& attacker,
@@ -74,6 +82,7 @@ BestMoveResults get_best_power_move(
             ).attacker_results;
     }
     BestMoveResult best_defender_move = *defender_move_results;
+    // -2 * UINT16_MAX is the minimum possible diff
     int64_t diff = best_defender_move.number_of_hits_to_ko - UINT16_MAX -
         UINT16_MAX;
 
@@ -81,6 +90,7 @@ BestMoveResults get_best_power_move(
     for (const auto move : moves) {
         const auto& move_info = &all_move_infos[to_int(move)];
         if (move_info->category == category) {
+            // Get the predicted damage and hits to KO
             uint16_t damage = get_damage_of_power_move(
                 policy_container,
                 battle_state,
@@ -100,6 +110,7 @@ BestMoveResults get_best_power_move(
                 .total_damage = total_damage
             };
 
+            // Recalculate if opponent is predicted to KO player faster
             if (who_attacker_is == Who::Opponent) {
                 if (move_has_flag(
                         move,
@@ -132,6 +143,10 @@ BestMoveResults get_best_power_move(
                     .total_damage = total_damage
                 };
             }
+
+            // Attacker and defender are swapped
+            // in order to get the move the defender will use
+            // in response to this move
             BestMoveResults temp_best_defender_move_results =
                 choose_move_against_defender(
                     policy_container,
@@ -139,22 +154,19 @@ BestMoveResults get_best_power_move(
                     defender,
                     defender.get_moves(),
                     attacker,
-                    Who::Player,
+                    who_defender_is,
                     defender_move_results,
                     current_move_result
                 );
-            const auto temp_best_defender_move =
-                temp_best_defender_move_results.attacker_results;
-            uint16_t defender_hits =
-                temp_best_defender_move.number_of_hits_to_ko;
-            const auto temp_best_attacker_move_result =
-                temp_best_defender_move_results.defender_results;
-            const int64_t new_diff = defender_hits -
-                temp_best_attacker_move_result.number_of_hits_to_ko;
+            const int64_t new_diff = get_hit_diff_of_move_results(
+                temp_best_defender_move_results.defender_results,
+                temp_best_defender_move_results.attacker_results
+            );
             if (new_diff > diff) {
-                best = temp_best_attacker_move_result;
+                best = temp_best_defender_move_results.defender_results;
                 diff = new_diff;
-                best_defender_move = temp_best_defender_move;
+                best_defender_move =
+                    temp_best_defender_move_results.attacker_results;
             }
         }
     }
@@ -165,7 +177,7 @@ BestMoveResults get_best_power_move(
 }
 
 template <typename... Policies>
-BestMoveResults get_best_power_move(
+BestMoveResults get_best_power_move_result(
     const PolicyContainer<Policies...>& policy_container,
     const BattleState& battle_state,
     const PokemonState& attacker,
@@ -226,7 +238,7 @@ BestMoveResults get_best_power_move(
     }
 
     const BestMoveResults best_physical =
-        get_best_power_move(
+        get_best_power_move_result(
             policy_container,
             battle_state,
             attacker,
@@ -238,7 +250,7 @@ BestMoveResults get_best_power_move(
             defender_move_results
         );
     const BestMoveResults best_special =
-        get_best_power_move(
+        get_best_power_move_result(
             policy_container,
             battle_state,
             attacker,
@@ -265,6 +277,66 @@ BestMoveResults get_best_power_move(
     return best_special;
 }
 
+// TODO this can be used for any self-inflicted attack drops
+template <typename... Policies>
+BestMoveResults
+get_move_results_for_when_attacker_lowers_own_special_attack_by_two(
+    const PolicyContainer<Policies...>& policy_container,
+    const BattleState& battle_state,
+    const Who who_attacker_is,
+    const BestMoveResults& best_power_move
+) {
+    BattleState temp_battle_state = battle_state;
+    const bool attacker_is_player = who_attacker_is == Who::Player;
+    PokemonState& temp_attacker =
+        attacker_is_player
+            ? temp_battle_state.player
+            : temp_battle_state.opponent;
+    PokemonState& temp_defender =
+        attacker_is_player
+            ? temp_battle_state.opponent
+            : temp_battle_state.player;
+    const uint16_t damage = execute_move(
+        policy_container,
+        temp_battle_state,
+        who_attacker_is,
+        get_move_info(best_power_move.attacker_results.move)
+    );
+
+    BestMoveResults best_move_results = {};
+    best_move_results.attacker_results.move =
+        best_power_move.attacker_results.move;
+    best_move_results.attacker_results.damage = damage;
+    best_move_results.attacker_results.total_damage = damage;
+    best_move_results.attacker_results.number_of_hits_to_ko = 1;
+
+    while (temp_defender.get_current_stat(Stat::Health) > 0) {
+        best_power_move = get_best_power_move_result(
+            policy_container,
+            temp_battle_state,
+            temp_attacker,
+            temp_defender,
+            temp_attacker.get_moves(),
+            who_attacker_is,
+            std::nullopt,
+            std::nullopt
+        );
+        execute_move(
+            policy_container,
+            temp_battle_state,
+            who_attacker_is,
+            get_move_info(best_power_move.attacker_results.move)
+        );
+        best_move_results.attacker_results.move =
+            best_power_move.attacker_results.move;
+        best_move_results.attacker_results.total_damage +=
+            best_power_move.attacker_results.damage;
+        best_move_results.attacker_results.number_of_hits_to_ko++;
+    }
+    best_move_results.defender_results = best_power_move.defender_results;
+    return best_move_results;
+}
+
 template <typename... Policies>
 BestMoveResults get_move_results_for_when_defender_lowers_special_attack(
     const PolicyContainer<Policies...>& policy_container,
@@ -288,7 +360,7 @@ BestMoveResults get_move_results_for_when_defender_lowers_special_attack(
         temp_attacker.decrease_stat_stage(Stat::SpecialAttack, 1);
         attack_dropped = true;
     }
-    BestMoveResults temp_best_power_move = get_best_power_move(
+    BestMoveResults temp_best_power_move = get_best_power_move_result(
         policy_container,
         temp_battle_state,
         temp_attacker,
@@ -331,7 +403,7 @@ BestMoveResults get_move_results_for_when_defender_lowers_special_attack(
             temp_attacker.decrease_stat_stage(Stat::SpecialAttack, 1);
             attack_dropped = true;
         }
-        temp_best_power_move = get_best_power_move(
+        temp_best_power_move = get_best_power_move_result(
             policy_container,
             temp_battle_state,
             temp_attacker,
@@ -367,6 +439,88 @@ BestMoveResults get_move_results_for_when_defender_lowers_special_attack(
 }
 
 template <typename... Policies>
+BestMoveResults choose_move_against_defender_helper(
+    const PolicyContainer<Policies...>& policy_container,
+    const BattleState& battle_state,
+    const Who who_attacker_is,
+    BestMoveResults& best_power_move
+) {
+    const bool attacker_is_player = who_attacker_is == Who::Player;
+    const PokemonState& attacker =
+        attacker_is_player
+            ? battle_state.player
+            : battle_state.opponent;
+    const PokemonState& defender =
+        attacker_is_player
+            ? battle_state.opponent
+            : battle_state.player;
+
+    const std::vector<Move> attacker_moves = attacker.get_moves();
+
+    if (move_has_flag(
+            best_power_move.attacker_results.move,
+            MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK_TWO_STAGES)
+    ) {
+        best_power_move =
+            get_move_results_for_when_attacker_lowers_own_special_attack_by_two(
+                policy_container,
+                battle_state,
+                who_attacker_is,
+                best_power_move
+            );
+        std::vector<Move> temp_attacker_moves = attacker_moves;
+        temp_attacker_moves.erase(
+            std::ranges::find(
+                temp_attacker_moves,
+                best_power_move.attacker_results.move
+            )
+        );
+        const BestMoveResults temp_best_power_move =
+            get_best_power_move_result(
+                policy_container,
+                battle_state,
+                attacker,
+                defender,
+                temp_attacker_moves,
+                who_attacker_is,
+                std::nullopt,
+                best_power_move.defender_results
+            );
+
+        const int64_t best_hit_diff = get_hit_diff_of_move_results(
+            best_power_move.attacker_results,
+            best_power_move.defender_results
+        );
+        const int64_t temp_hit_diff = get_hit_diff_of_move_results(
+            temp_best_power_move.attacker_results,
+            temp_best_power_move.defender_results
+        );
+        if (temp_hit_diff > best_hit_diff) {
+            best_power_move = temp_best_power_move;
+        }
+    }
+
+    // TODO If defender uses a move that lowers the attacker's attack,
+    // expected total damage is lower
+
+    if (who_attacker_is == Who::Player &&
+        move_has_flag(
+            best_power_move.defender_results.move,
+            MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK_ONE_STAGE_50) &&
+        get_move_info(best_power_move.attacker_results.move)->category ==
+        Category::SPECIAL
+    )[[unlikely]] {
+        best_power_move =
+            get_move_results_for_when_defender_lowers_special_attack(
+                policy_container,
+                battle_state,
+                who_attacker_is
+            );
+    }
+    return best_power_move;
+}
+
+template <typename... Policies>
 BestMoveResults choose_move_against_defender(
     const PolicyContainer<Policies...>& policy_container,
     const BattleState& battle_state,
@@ -385,7 +539,7 @@ BestMoveResults choose_move_against_defender(
             .defender_results = *defender_move_results
         };
     }
-    BestMoveResults best_power_move = get_best_power_move(
+    BestMoveResults best_power_move = get_best_power_move_result(
         policy_container,
         battle_state,
         attacker,
@@ -395,27 +549,13 @@ BestMoveResults choose_move_against_defender(
         attacker_move_results,
         defender_move_results
     );
-    if (!defender_move_results.has_value()) {
-        defender_move_results = best_power_move.defender_results;
-    }
-    // TODO If defender uses a move that lowers the attacker's attack,
-    // expected total damage is lower
 
-    if (who_attacker_is == Who::Player &&
-        move_has_flag(
-            defender_move_results->move,
-            MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK_ONE_STAGE_50) &&
-        get_move_info(best_power_move.attacker_results.move)->category ==
-        Category::SPECIAL
-    )[[unlikely]] {
-        best_power_move =
-            get_move_results_for_when_defender_lowers_special_attack(
-                policy_container,
-                battle_state,
-                who_attacker_is
-            );
-    }
-    return best_power_move;
+    return choose_move_against_defender_helper(
+        policy_container,
+        battle_state,
+        who_attacker_is,
+        best_power_move
+    );
 }
 
 #endif //GEN_IV_BATTLE_FRONTIER_ANALYZER_MOVE_HEURISTIC_H
