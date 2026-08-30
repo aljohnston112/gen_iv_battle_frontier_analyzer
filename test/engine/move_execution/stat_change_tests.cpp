@@ -122,8 +122,8 @@ void move_does_not_drop_targets_stat_on_false_roll(
 // =============================================================================
 TEST(MoveExecution, MistBallDropsSpecialAttackOnTrueRoll) {
     BattleState battle_state{
-        PokemonState{&Latias},
-        PokemonState{&Latias}
+        PokemonState{&LatiasNoItem},
+        PokemonState{&LatiasNoItem}
     };
 
     move_drops_targets_stat_on_true_roll(
@@ -136,8 +136,8 @@ TEST(MoveExecution, MistBallDropsSpecialAttackOnTrueRoll) {
 
 TEST(MoveExecution, MistBallSpecialAttackDropDoesNotGoBelowNegativeSix) {
     BattleState battle_state{
-        PokemonState{&Latias},
-        PokemonState{&Latias}
+        PokemonState{&LatiasNoItem},
+        PokemonState{&LatiasNoItem}
     };
 
     move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
@@ -151,8 +151,8 @@ TEST(MoveExecution, MistBallSpecialAttackDropDoesNotGoBelowNegativeSix) {
 
 TEST(MoveExecution, MistBallDoesNotDropSpecialAttackOnFalseRoll) {
     BattleState battle_state{
-        PokemonState{&LatiasWhiteHerb},
-        PokemonState{&LatiasWhiteHerb}
+        PokemonState{&Latias_7_4},
+        PokemonState{&Latias_7_4}
     };
 
     move_does_not_drop_targets_stat_on_false_roll(
@@ -164,8 +164,8 @@ TEST(MoveExecution, MistBallDoesNotDropSpecialAttackOnFalseRoll) {
 
 TEST(MoveExecution, DracoMeteorDropsSpecialAtttack) {
     BattleState battle_state{
-        PokemonState{&Latias},
-        PokemonState{&Latias}
+        PokemonState{&LatiasNoItem},
+        PokemonState{&LatiasNoItem}
     };
     constexpr PolicyContainer<
         OpponentOptimizedConfusionStatusPolicy,
@@ -182,7 +182,14 @@ TEST(MoveExecution, DracoMeteorDropsSpecialAtttack) {
         Who::Player,
         get_move_info(Move::DracoMeteor)
     );
+    execute_move(
+        policy_container,
+        battle_state,
+        Who::Opponent,
+        get_move_info(Move::DracoMeteor)
+    );
     EXPECT_EQ(battle_state.player.get_stat_stage(Stat::SpecialAttack), -2);
+    EXPECT_EQ(battle_state.opponent.get_stat_stage(Stat::SpecialAttack), -2);
 }
 
 TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {
@@ -190,8 +197,8 @@ TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&LatiasWhiteHerb}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Latias_7_4}
     };
 
     constexpr std::array expected_low_rolls{18, 12, 9, 7, 6, 5, 4};
@@ -283,8 +290,8 @@ TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {
 
 TEST(MoveExecution, PsychicDropsSpecialDefenseOnTrueRoll) {
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     move_drops_targets_stat_on_true_roll(
@@ -297,8 +304,8 @@ TEST(MoveExecution, PsychicDropsSpecialDefenseOnTrueRoll) {
 
 TEST(MoveExecution, PsychicSpecialDefenseDropDoesNotGoBelowNegativeSix) {
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
@@ -311,8 +318,8 @@ TEST(MoveExecution, PsychicSpecialDefenseDropDoesNotGoBelowNegativeSix) {
 
 TEST(MoveExecution, PsychicDoesNotDropSpecialDefenseOnFalseRoll) {
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     move_does_not_drop_targets_stat_on_false_roll(
@@ -327,8 +334,8 @@ TEST(MoveExecution, SpecialDefenseDropsCauseSpecialAttacksToDoMoreDamage) {
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     constexpr std::array expected_low_rolls{15, 23, 30, 38, 46, 54, 61};

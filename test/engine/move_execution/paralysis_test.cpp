@@ -9,8 +9,8 @@ TEST(MoveExecution, ThunderBoltParalyzesOnTrueRoll) {
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&Latias},
-        PokemonState{&Latias}
+        PokemonState{&LatiasNoItem},
+        PokemonState{&LatiasNoItem}
     };
 
     constexpr PolicyContainer<
@@ -41,8 +41,8 @@ TEST(MoveExecution, ThunderBoltDoesNotParalyzOnFalseRoll) {
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&Latias},
-        PokemonState{&Latias}
+        PokemonState{&LatiasNoItem},
+        PokemonState{&LatiasNoItem}
     };
 
     constexpr PolicyContainer<
@@ -73,8 +73,8 @@ TEST(MoveExecution, ParalysisPreventsAttackOnTrueRoll) {
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     constexpr PolicyContainer<
@@ -122,8 +122,8 @@ TEST(MoveExecution, ParalysisDoesNotPreventMoveOnFalseRoll) {
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     constexpr PolicyContainer<
@@ -167,7 +167,7 @@ TEST(MoveExecution, ParalysisDoesNotPreventMoveOnFalseRoll) {
 }
 
 TEST(MoveExecution, ParalysisDropsSpeed) {
-    PokemonState state{&CresseliaLeftovers};
+    PokemonState state{&Cresselia_7_4};
 
     const uint16_t initial_speed = state.get_current_stat(Stat::Speed);
     constexpr PolicyContainer<

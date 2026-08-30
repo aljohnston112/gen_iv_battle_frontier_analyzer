@@ -118,6 +118,17 @@ class PokemonState {
         current_stats[to_int(stat)] = new_stat;
     }
 
+    void set_stat_based_on_current_stage(const Stat stat) {
+        set_stat(
+            stat,
+            calculate_stat_based_on_stage(
+                pokemon->get_stat(stat),
+                get_stat_stage(stat),
+                current_status_condition
+            )
+        );
+    }
+
 public:
     const uint8_t level;
 
@@ -238,14 +249,7 @@ public:
     void increase_stat_stage(const Stat stat, const int n) {
         stat_stages[to_int(stat)] =
             static_cast<int8_t>(std::min(6, get_stat_stage(stat) + n));
-        set_stat(
-            stat,
-            calculate_stat_based_on_stage(
-                pokemon->get_stat(stat),
-                get_stat_stage(stat),
-                current_status_condition
-            )
-        );
+        set_stat_based_on_current_stage(stat);
     }
 
     void decrease_stat_stage(const Stat stat, const int n) {
@@ -254,17 +258,11 @@ public:
         }
         stat_stages[to_int(stat)] =
             static_cast<int8_t>(std::max(-6, get_stat_stage(stat) - n));
-        set_stat(
-            stat,
-            calculate_stat_based_on_stage(
-                pokemon->get_stat(stat),
-                get_stat_stage(stat),
-                current_status_condition
-            )
-        );
+        set_stat_based_on_current_stage(stat);
         if (current_item == Item::WhiteHerb && stat_stages[to_int(stat)] < 0) {
             stat_stages[to_int(stat)] = 0;
             clear_current_item();
+            set_stat_based_on_current_stage(stat);
         }
     }
 
@@ -276,14 +274,8 @@ public:
         if (current_status_condition == StatusCondition::NoCondition) {
             current_status_condition = status_condition;
             if (status_condition == StatusCondition::Paralysis) {
-                set_stat(
-                    Stat::Speed,
-                    calculate_stat_based_on_stage(
-                        pokemon->get_stat(Stat::Speed),
-                        get_stat_stage(Stat::Speed),
-                        current_status_condition
-                    )
-                );
+                // TODO test this if paralysis is ever added
+                set_stat_based_on_current_stage(Stat::Speed);
             }
         }
     }
@@ -293,14 +285,8 @@ public:
             current_status_condition == StatusCondition::Paralysis;
         current_status_condition = StatusCondition::NoCondition;
         if (was_paralysis) {
-            set_stat(
-                    Stat::Speed,
-                    calculate_stat_based_on_stage(
-                        pokemon->get_stat(Stat::Speed),
-                        get_stat_stage(Stat::Speed),
-                        current_status_condition
-                    )
-                );
+            // TODO test this if paralysis is ever added
+            set_stat_based_on_current_stage(Stat::Speed);
         }
     }
 

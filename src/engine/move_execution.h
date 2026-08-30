@@ -495,6 +495,10 @@ uint16_t execute_move(
     const Who who_attacker_is,
     const MoveInfo* move
 ) {
+    if (move->move == Move::MoveCount) [[unlikely]] {
+        throw std::runtime_error("Unable to execute no move");
+    }
+
     const bool is_player_attacker = who_attacker_is == Who::Player;
     PokemonState& attacker = is_player_attacker
                                  ? battle_state.player
@@ -602,9 +606,7 @@ uint16_t execute_move(
         move->move,
         MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK_TWO_STAGES
         )) [[unlikely]] {
-        if (who_attacker_is == Who::Player) {
-            battle_state.player.decrease_stat_stage(Stat::SpecialAttack, 2);
-        }
+            attacker.decrease_stat_stage(Stat::SpecialAttack, 2);
     }
 
     if (move_has_flag(

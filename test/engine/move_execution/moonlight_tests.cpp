@@ -7,8 +7,8 @@ void moonlight_heals_the_correct_amount(
     const Weather weather
 ) {
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     const uint32_t max_hp = battle_state.player.get_original_stat(Stat::Health);
@@ -69,8 +69,8 @@ TEST(MoveExecution, MoonlightHealsTheRightAmountInFog) {
 
 TEST(MoveExecution, MoonlightDoesNotOverheal) {
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     const uint16_t max_hp = battle_state.player.get_original_stat(Stat::Health);

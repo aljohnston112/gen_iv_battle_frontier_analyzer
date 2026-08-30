@@ -3,18 +3,20 @@
 #include "pokemon.h"
 #include "policies.h"
 
-const CustomPokemon CresseliaLeftovers{
+const CustomPokemon Cresselia_7_4{
+    .unique_id = "Cresselia_7_4",
     .name = Pokemon::Cresselia,
     .ability = Ability::Levitate,
     .level = 50,
     .item = Item::Leftovers,
     .types = {PokemonType::Psychic, PokemonType::NoType},
-    .moves = {Move::Psychic, Move::IceBeam, Move::SignalBeam, Move::Moonlight},
+    .moves = {Move::Moonlight, Move::SignalBeam, Move::Psychic, Move::IceBeam},
     .stats = {213, 78, 158, 101, 168, 102},
     .pounds = 188.7
 };
 
 const CustomPokemon CresseliaNoItem{
+    .unique_id = "Cresselia_7_4_NO_ITEM",
     .name = Pokemon::Cresselia,
     .ability = Ability::Levitate,
     .level = 50,
@@ -25,28 +27,13 @@ const CustomPokemon CresseliaNoItem{
     .pounds = 188.7
 };
 
-const CustomPokemon Latias{
-    .name = Pokemon::Latias,
-    .ability = Ability::Levitate,
-    .level = 50,
-    .item = Item::NoItem,
-    .types = {PokemonType::Psychic, PokemonType::NoType},
-    .moves = {
-        Move::MistBall,
-        Move::DracoMeteor,
-        Move::Thunderbolt,
-        Move::Surf
-    },
-    .stats = {152, 87, 107, 173, 147, 158},
-    .pounds = 88.2
-};
-
-const CustomPokemon LatiasWhiteHerb{
+const CustomPokemon Latias_7_4{
+    .unique_id = "Latias_7_4",
     .name = Pokemon::Latias,
     .ability = Ability::Levitate,
     .level = 50,
     .item = Item::WhiteHerb,
-    .types = {PokemonType::Psychic, PokemonType::NoType},
+    .types = {PokemonType::Psychic, PokemonType::Dragon},
     .moves = {
         Move::MistBall,
         Move::DracoMeteor,
@@ -57,6 +44,50 @@ const CustomPokemon LatiasWhiteHerb{
     .pounds = 88.2
 };
 
+const CustomPokemon LatiasNoItem{
+    .unique_id = "Latias_7_4_NO_ITEM",
+    .name = Pokemon::Latias,
+    .ability = Ability::Levitate,
+    .level = 50,
+    .item = Item::NoItem,
+    .types = {PokemonType::Psychic, PokemonType::Dragon},
+    .moves = {
+        Move::MistBall,
+        Move::DracoMeteor,
+        Move::Thunderbolt,
+        Move::Surf
+    },
+    .stats = {152, 87, 107, 173, 147, 158},
+    .pounds = 88.2
+};
+
+constexpr auto DEFAULT_POLICY =
+    PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        OpponentOptimizedRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        NeverParalyzeRNGPolicy,
+        OpponentOptimizedKnowledgePolicy,
+        OpponentOptimizedSpeedAdvantagePolicy,
+        OpponentOptimizedStatChangePolicy,
+        NoLogging
+    >{};
+
+constexpr auto DEFAULT_POLICY_WITH_LOGGING =
+    PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        OpponentOptimizedRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        NeverParalyzeRNGPolicy,
+        OpponentOptimizedKnowledgePolicy,
+        OpponentOptimizedSpeedAdvantagePolicy,
+        OpponentOptimizedStatChangePolicy,
+        DebugLogging
+    >{};
 
 struct LowDamageRandomFactorPolicy :
     DamageRandomFactorPolicy<LowDamageRandomFactorPolicy> {
@@ -75,7 +106,8 @@ struct HighDamageRandomFactorPolicy :
 template <typename T>
 concept IsDamageTestCase = requires {
     requires IsCritRNGPolicy<typename T::CritRNGPolicyType>;
-    requires IsDamageRandomFactorPolicy<typename T::DamageRandomFactorPolicyType>;
+    requires IsDamageRandomFactorPolicy<typename
+        T::DamageRandomFactorPolicyType>;
     { +T::ExpectedValue } -> std::same_as<int32_t>;
 };
 

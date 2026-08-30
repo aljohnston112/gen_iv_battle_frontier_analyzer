@@ -12,8 +12,8 @@ TEST(MoveExecution, LeftoversHealsTheCorrectAmountOfHPAtTurnEnd) {
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
     constexpr auto expected_damage = 34;
 
@@ -65,5 +65,32 @@ TEST(MoveExecution, LeftoversHealsTheCorrectAmountOfHPAtTurnEnd) {
     );
 }
 
+TEST(MoveExecution, DracoMeteorActivatesWhiteHerb) {
+    BattleState battle_state{
+        PokemonState{&Latias_7_4},
+        PokemonState{&LatiasNoItem}
+    };
+    const uint16_t expected_special_attack =
+        battle_state.player.get_current_stat(Stat::SpecialAttack);
 
-
+    constexpr PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        OpponentOptimizedRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        OpponentOptimizedStatChangePolicy,
+        NeverParalyzeRNGPolicy
+    > policy_container{};
+    execute_move(
+        policy_container,
+        battle_state,
+        Who::Player,
+        get_move_info(Move::DracoMeteor)
+    );
+    EXPECT_EQ(battle_state.player.get_stat_stage(Stat::SpecialAttack), 0);
+    EXPECT_EQ(
+        battle_state.player.get_current_stat(Stat::SpecialAttack),
+        expected_special_attack
+    );
+}

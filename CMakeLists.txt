@@ -124,6 +124,7 @@ add_custom_target(
         battle_engine_test
         battle_state_test
         move_execution_test
+        move_heuristic_test
 )
 
 add_custom_target(run_tests DEPENDS build_all_tests

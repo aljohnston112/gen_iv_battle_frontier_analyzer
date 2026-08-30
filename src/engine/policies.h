@@ -1,6 +1,8 @@
 #ifndef GEN_IV_BATTLE_FRONTIER_ANALYZER_POLICIES_H
 #define GEN_IV_BATTLE_FRONTIER_ANALYZER_POLICIES_H
 
+#include <iostream>
+
 #include "battle_state.h"
 
 // Crit
@@ -256,10 +258,42 @@ struct OpponentOptimizedStatChangePolicy :
     }
 };
 
+// Logging
+//==============================================================================
+#define FORMAT_LAMBDA(...) \
+[&] { return std::format(__VA_ARGS__); }
 
-template <template <typename> typename TemplateBase, typename T>
+template <typename... Loggers>
+struct LoggingPolicy : Loggers... {
+    template <typename Func>
+    static void log(Func&& func) {
+        (Loggers::log(std::forward<Func>(func)), ...);
+    }
+};
+
+template <>
+struct LoggingPolicy<> {
+    template <typename Func>
+    static void log(Func&&) {}
+};
+
+template <typename T>
+concept IsLoggingPolicy = std::derived_from<T, LoggingPolicy<T>>;
+
+
+struct HeuristicLogger {
+    template <typename Func>
+    static void log(Func&& func) {
+        std::cout << func() << std::endl;
+    }
+};
+
+using NoLogging = LoggingPolicy<>;
+using DebugLogging = LoggingPolicy<HeuristicLogger>;
+
+template <template <typename...> typename TemplateBase, typename T>
 concept derives_from_template = requires(T t) {
-    []<typename U>(const TemplateBase<U>&) {}(t);
+    []<typename... U>(const TemplateBase<U...>&) {}(t);
 };
 
 template <template <typename> typename BaseTemplate, typename... Ts>
@@ -272,6 +306,17 @@ constexpr bool contains_at_most_one =
 
 template <typename T>
 concept IsAllowedPolicy =
+    (derives_from_template<LoggingPolicy, T> &&
+        requires(const T& t) {
+            {
+                T::log(
+                    [] {
+                        return std::string{};
+                    }
+                )
+            } -> std::same_as<void>;
+        }
+    ) ||
     (derives_from_template<CritRNGPolicy, T> &&
         requires(const T& t) {
             { t.roll_for_crit(static_cast<double>(0.0)) } -> std::same_as<bool>;
@@ -329,6 +374,7 @@ concept IsAllowedPolicy =
 template <typename... Policies>
     requires
     (IsAllowedPolicy<Policies> && ...) &&
+    contains_at_most_one<LoggingPolicy, Policies...> &&
     contains_at_most_one<CritRNGPolicy, Policies...> &&
     contains_at_most_one<ConfusionStatusPolicy, Policies...> &&
     contains_at_most_one<ConfusionStatusRNGPolicy, Policies...> &&

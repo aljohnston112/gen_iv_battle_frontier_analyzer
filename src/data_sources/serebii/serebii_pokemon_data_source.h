@@ -49,7 +49,7 @@ struct SerebiiPokemon {
     > form_to_move_tutor_moves;
 };
 
-const std::array<MoveInfo, to_int(Move::MoveCount)>& get_all_moves();
+const std::array<MoveInfo, to_int(Move::MoveCount) + 1>& get_all_moves();
 
 inline void loads_all_moves() {
     get_all_moves();

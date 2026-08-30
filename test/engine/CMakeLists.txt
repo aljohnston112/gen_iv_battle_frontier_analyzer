@@ -1,3 +1,4 @@
 add_subdirectory(battle_engine)
 add_subdirectory(battle_state)
 add_subdirectory(move_execution)
+add_subdirectory(move_heuristic)

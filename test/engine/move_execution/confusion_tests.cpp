@@ -28,7 +28,7 @@ public:
 };
 
 TEST(MoveExecution, FalseRollDoesNotConfuse) {
-    auto defender = PokemonState{&CresseliaLeftovers};
+    auto defender = PokemonState{&Cresselia_7_4};
 
     constexpr PolicyContainer<
         HighRandomConfusionEffectPolicy,
@@ -45,7 +45,7 @@ TEST(MoveExecution, FalseRollDoesNotConfuse) {
 }
 
 TEST(MoveExecution, TrueRollDoesConfuse) {
-    auto defender = PokemonState{&CresseliaLeftovers};
+    auto defender = PokemonState{&Cresselia_7_4};
 
     constexpr PolicyContainer<
         HighRandomConfusionEffectPolicy,
@@ -66,8 +66,8 @@ TEST(MoveExecution, SignalBeamConfusesOnTrueRoll) {
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     constexpr PolicyContainer<
@@ -97,8 +97,8 @@ TEST(MoveExecution, SignalBeamDoesNotConfuseOnFalseRoll) {
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     constexpr PolicyContainer<
@@ -128,8 +128,8 @@ TEST(MoveExecution, BeingConfusedPreventsAttackingOnTrueRoll) {
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     constexpr PolicyContainer<
@@ -238,7 +238,7 @@ TEST(MoveExecution, RandomConfusionDamageIsCorrect) {
 
 template <IsConfusionStatusPolicy T>
 void confused_damage_is_correct_on_true_roll(
-    const std::array<MoveInfo, to_int(Move::MoveCount)>& all_move_infos,
+    const std::array<MoveInfo, to_int(Move::MoveCount) + 1>& all_move_infos,
     BattleState&& battle_state
 ) {
     constexpr PolicyContainer<
@@ -292,7 +292,7 @@ void confused_damage_is_correct_on_true_roll() {
             all_move_infos,
             {
                 PokemonState{&CresseliaNoItem},
-                PokemonState{&CresseliaLeftovers}
+                PokemonState{&Cresselia_7_4}
             }
         ),
         ...
@@ -311,8 +311,8 @@ TEST(MoveExecution, BeingConfusedDoesNotPreventAttackOnFalseRoll) {
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     constexpr PolicyContainer<
@@ -356,8 +356,8 @@ TEST(MoveExecution, ConfusionEndsOnCorrectTurn) {
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     constexpr PolicyContainer<

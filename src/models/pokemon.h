@@ -1536,6 +1536,7 @@ POKEMON_TO_ABILITY_MAP = {
 };
 
 struct CustomPokemon {
+    std::string unique_id;
     Pokemon name;
     Ability ability;
     uint8_t level;

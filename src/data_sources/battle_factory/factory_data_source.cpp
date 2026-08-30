@@ -245,6 +245,7 @@ std::vector<CustomPokemon> construct_all_custom_batle_factory_pokemon(
         for (const auto& ability : abilities) {
             custom_battle_factory_pokemon.emplace_back(
                 CustomPokemon{
+                    .unique_id = p.unique_id,
                     .name = STRING_TO_POKEMON_MAP.at(name),
                     .ability = ability,
                     .level = LEVEL,

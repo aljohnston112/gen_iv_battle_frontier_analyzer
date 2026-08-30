@@ -37,7 +37,7 @@ int main() {
     const auto rr_start =
     std::chrono::high_resolution_clock::now();
 
-    constexpr size_t n = 2;
+    constexpr size_t n = 1;
     const auto pokemon_to_battle_result_entries =
         do_round_robin(
             std::span(

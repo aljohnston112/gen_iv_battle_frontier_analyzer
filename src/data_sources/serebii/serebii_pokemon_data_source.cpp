@@ -13,7 +13,7 @@
 
 inline std::array<
     MoveInfo,
-    to_int(Move::MoveCount)
+    to_int(Move::MoveCount) + 1
 > MOVE_INFO_MAP{};
 
 std::string extract_left_string(const std::string& line) {
@@ -454,11 +454,21 @@ get_serebii_pokemon_map() {
                 SEREBII_PLAYER_POKEMON_MAP[pokemon.name] = std::move(pokemon);
             }
         }
+        MOVE_INFO_MAP[to_int(Move::MoveCount)] = MoveInfo{
+            .name = "MoveCount",
+            .move = Move::MoveCount,
+            .type = PokemonType::NoType,
+            .category = Category::NO_CATEGORY,
+            .power = 0,
+            .accuracy = 0,
+            .power_points = 0,
+            .effect_percent = 0
+        };
     });
     return SEREBII_PLAYER_POKEMON_MAP;
 }
 
-const std::array<MoveInfo, to_int(Move::MoveCount)>& get_all_moves() {
+const std::array<MoveInfo, to_int(Move::MoveCount) + 1>& get_all_moves() {
     get_serebii_pokemon_map();
     return MOVE_INFO_MAP;
 }
@@ -815,6 +825,8 @@ std::unordered_map<
         for (const auto& ability : abilities) {
             pokemon.emplace_back(
                 CustomPokemon{
+                    .unique_id =
+                    serebii_pokemon.name + " " + serebii_pokemon.ability,
                     .name = name_enum,
                     .ability = ability,
                     .level = LEVEL,

@@ -125,7 +125,8 @@ inline BattleResultEntry single_battle(
                 NeverParalyzeRNGPolicy,
                 OpponentOptimizedKnowledgePolicy,
                 OpponentOptimizedSpeedAdvantagePolicy,
-                OpponentOptimizedStatChangePolicy
+                OpponentOptimizedStatChangePolicy,
+                DebugLogging
             >{}
         ),
     };

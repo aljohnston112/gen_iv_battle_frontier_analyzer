@@ -5,21 +5,10 @@
 
 #include "gtest/gtest.h"
 
-const CustomPokemon Cresselia{
-    .name = Pokemon::Cresselia,
-    .ability = Ability::Levitate,
-    .level = 50,
-    .item = Item::WhiteHerb,
-    .types = {PokemonType::Psychic, PokemonType::NoType},
-    .moves = {Move::Psychic, Move::IceBeam, Move::SignalBeam, Move::Moonlight},
-    .stats = {213, 78, 158, 101, 168, 102},
-    .pounds = 188.7
-};
-
 TEST(BattleEngine, PPLossTriggersStruggle) {
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     const auto player_moves = battle_state.player.get_moves();
@@ -39,7 +28,7 @@ TEST(BattleEngine, PPLossTriggersStruggle) {
 }
 
 TEST(BattleState, WhiteHerbClearsNegativeStatus) {
-    auto state = PokemonState{&Cresselia};
+    auto state = PokemonState{&Latias_7_4};
     state.decrease_stat_stage(Stat::Attack, 1);
     EXPECT_EQ(
         0,

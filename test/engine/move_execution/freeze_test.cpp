@@ -4,7 +4,7 @@
 #include "gtest/gtest.h"
 
 TEST(MoveExecution, FalseRollDoesNotFreeze) {
-    auto defender = PokemonState{&CresseliaLeftovers};
+    auto defender = PokemonState{&Cresselia_7_4};
 
     constexpr PolicyContainer<
         NeverFreezeRNGPolicy
@@ -25,7 +25,7 @@ TEST(MoveExecution, FalseRollDoesNotFreeze) {
 }
 
 TEST(MoveExecution, TrueRollFreezes) {
-    auto defender = PokemonState{&CresseliaLeftovers};
+    auto defender = PokemonState{&Cresselia_7_4};
 
     constexpr PolicyContainer<
         AlwaysFreezeRNGPolicy
@@ -48,7 +48,7 @@ TEST(MoveExecution, TrueRollFreezes) {
 }
 
 TEST(MoveExecution, TrueRollDoesNotFreezeInSun) {
-    auto defender = PokemonState{&CresseliaLeftovers};
+    auto defender = PokemonState{&Cresselia_7_4};
 
     constexpr PolicyContainer<
         AlwaysFreezeRNGPolicy
@@ -71,8 +71,8 @@ TEST(MoveExecution, ThawsOnTrueRoll) {
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     constexpr PolicyContainer<
@@ -121,8 +121,8 @@ TEST(MoveExecution, DoesNotMoveWhenFrozen) {
         get_all_moves();
 
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     constexpr PolicyContainer<

@@ -2,7 +2,6 @@
 #include "move_execution.h"
 #include "gtest/gtest.h"
 
-
 template <IsDamageTestCase Case>
 void random_does_correct_damage_for_struggle_case() {
     constexpr PolicyContainer<
@@ -13,8 +12,8 @@ void random_does_correct_damage_for_struggle_case() {
     static constexpr int32_t expected_damage = Case::ExpectedValue;
 
     const BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
     EXPECT_EQ(
         expected_damage,
@@ -43,8 +42,8 @@ TEST(MoveExecution, RandomDoesCorrectDamageForStruggle) {
 
 TEST(MoveExecution, StruggleDoesTheRightAmountOfRecoil) {
     BattleState battle_state{
-        PokemonState{&CresseliaLeftovers},
-        PokemonState{&CresseliaLeftovers}
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
     };
 
     constexpr PolicyContainer<

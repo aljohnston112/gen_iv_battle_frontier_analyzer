@@ -5,7 +5,8 @@
 enum class Category {
     PHYSICAL,
     SPECIAL,
-    STATUS
+    STATUS,
+    NO_CATEGORY
 };
 
 inline const std::unordered_map<std::string, Category> STRING_TO_CATEGORY_MAP{
