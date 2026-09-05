@@ -221,7 +221,7 @@ template <IsConfusionTestCase... Cases>
 void confusion_damage_is_correct() {
     (
         confusion_damage_is_correct<Cases>(
-            PokemonState{&CresseliaNoItem}
+            PokemonState{&Cresselia_7_4_NoItem}
         ),
         ...
     );
@@ -291,7 +291,7 @@ void confused_damage_is_correct_on_true_roll() {
         confused_damage_is_correct_on_true_roll<Policies>(
             all_move_infos,
             {
-                PokemonState{&CresseliaNoItem},
+                PokemonState{&Cresselia_7_4_NoItem},
                 PokemonState{&Cresselia_7_4}
             }
         ),

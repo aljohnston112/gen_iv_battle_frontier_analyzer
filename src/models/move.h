@@ -1003,6 +1003,7 @@ enum class MoveFlag {
     BOOSTS_ATTACKERS_DEFENSE,
     BOOSTS_ATTACKERS_EVASION,
     BOOSTS_ATTACKERS_SPECIAL_ATTACK,
+    BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_70,
     BOOSTS_ATTACKERS_SPECIAL_DEFENSE,
     BOOSTS_ATTACKERS_SPEED,
     BREAKS_PROTECT,
@@ -1041,6 +1042,7 @@ enum class MoveFlag {
     LOWERS_DEFENDER_SPECIAL_ATTACK_ONE_STAGE_50,
     LOWERS_DEFENDER_SPECIAL_DEFENSE, // TODO replace
     LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10,
+    LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_20,
     LOWERS_DEFENDER_SPEED,
     MAKES_ATTACKER_FAINT,
     MAKES_CONTACT,
@@ -1432,7 +1434,7 @@ inline constexpr std::array<
     flags[to_int(Move::NastyPlot)][to_int(
         MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK)] = true;
     flags[to_int(Move::ChargeBeam)][to_int(
-        MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK)] = true;
+        MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_70)] = true;
 
     flags[to_int(Move::Amnesia)][to_int(
         MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE)] = true;
@@ -1514,7 +1516,7 @@ inline constexpr std::array<
     flags[to_int(Move::Psychic)][to_int(
         MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
     flags[to_int(Move::ShadowBall)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
+        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_20)] = true;
     flags[to_int(Move::LusterPurge)][to_int(
         MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
     flags[to_int(Move::FakeTears)][to_int(
@@ -1526,7 +1528,7 @@ inline constexpr std::array<
     flags[to_int(Move::FocusBlast)][to_int(
         MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
     flags[to_int(Move::EnergyBall)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
+        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
     flags[to_int(Move::EarthPower)][to_int(
         MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
     flags[to_int(Move::FlashCannon)][to_int(
@@ -2774,6 +2776,9 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::Ancientpower)] = true;
     implemented_moves[to_int(Move::EarthPower)] = true;
     implemented_moves[to_int(Move::FocusBlast)] = true;
+    implemented_moves[to_int(Move::ShadowBall)] = true;
+    implemented_moves[to_int(Move::EnergyBall)] = true;
+    implemented_moves[to_int(Move::ChargeBeam)] = true;
 
     return implemented_moves;
 }();

@@ -3,6 +3,18 @@
 #include "pokemon.h"
 #include "policies.h"
 
+const CustomPokemon Cresselia_7_3{
+    .unique_id = "Cresselia_7_3",
+    .name = Pokemon::Cresselia,
+    .ability = Ability::Levitate,
+    .level = 50,
+    .item = Item::WiseGlasses,
+    .types = {PokemonType::Psychic, PokemonType::NoType},
+    .moves = {Move::Psychic, Move::ShadowBall, Move::EnergyBall, Move::ChargeBeam},
+    .stats = {233, 78, 137, 135, 147, 102},
+    .pounds = 188.7
+};
+
 const CustomPokemon Cresselia_7_4{
     .unique_id = "Cresselia_7_4",
     .name = Pokemon::Cresselia,
@@ -15,7 +27,7 @@ const CustomPokemon Cresselia_7_4{
     .pounds = 188.7
 };
 
-const CustomPokemon CresseliaNoItem{
+const CustomPokemon Cresselia_7_4_NoItem{
     .unique_id = "Cresselia_7_4_NO_ITEM",
     .name = Pokemon::Cresselia,
     .ability = Ability::Levitate,

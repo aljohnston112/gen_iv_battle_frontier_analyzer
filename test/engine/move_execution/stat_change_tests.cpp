@@ -12,16 +12,101 @@ struct NeverDropStatPolicy :
 
 struct NeverChangeStatPolicy :
     StatChangePolicy<NeverChangeStatPolicy> {
-        static bool roll_stat_drop(const uint8_t, const Who who) {
+        static bool roll_stat_drop(const uint8_t, const Who) {
             return false;
         }
 
-        static bool roll_stat_increase(const uint8_t, const Who who) {
+        static bool roll_stat_increase(const uint8_t, const Who) {
             return false;
         }
 };
 
-void move_drops_targets_stat_on_true_roll(
+template<bool ALWAYS_DROP_STAT>
+struct AlwaysBoostStatPolicy :
+    StatChangePolicy<AlwaysBoostStatPolicy<ALWAYS_DROP_STAT>> {
+
+    static bool roll_stat_drop(const uint8_t, const Who) {
+        return ALWAYS_DROP_STAT;
+    }
+
+    static bool roll_stat_increase(const uint8_t, const Who) {
+        return true;
+    }
+};
+
+static void move_does_not_boost_attackers_stat_past_six_on_true_roll(
+    BattleState& battle_state,
+    const Move move,
+    const Stat stat,
+    const uint8_t n
+) {
+    const auto& all_move_infos =
+        get_all_moves();
+
+    constexpr PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        OpponentOptimizedRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        AlwaysBoostStatPolicy<false>,
+        NeverParalyzeRNGPolicy
+    > policy_container{};
+
+    const uint8_t m = 10u / n;
+    for (uint8_t i = 0; i < m; i++) {
+        execute_move(
+            policy_container,
+            battle_state,
+            Who::Player,
+            &all_move_infos[to_int(move)]
+        );
+
+        EXPECT_EQ(
+            battle_state.player.get_stat_stage(stat),
+            std::min(6, (i * n) + n)
+        );
+
+        battle_state.opponent.increment_power_point(move, 1);
+    }
+}
+
+static void move_does_not_boost_attackers_stat_on_false_roll(
+    BattleState& battle_state,
+    const Move move,
+    const Stat stat
+) {
+    const auto& all_move_infos =
+        get_all_moves();
+
+    constexpr PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        OpponentOptimizedRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        NeverChangeStatPolicy,
+        NeverParalyzeRNGPolicy
+    > policy_container{};
+
+    for (uint8_t i = 0; i < 6; i++) {
+        execute_move(
+            policy_container,
+            battle_state,
+            Who::Player,
+            &all_move_infos[to_int(move)]
+        );
+
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(stat),
+            0
+        );
+        battle_state.player.increment_power_point(move, 6);
+    }
+}
+
+
+static void move_drops_targets_stat_on_true_roll(
     BattleState& battle_state,
     const Move move,
     const Stat stat,
@@ -58,7 +143,7 @@ void move_drops_targets_stat_on_true_roll(
     }
 }
 
-void move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
+static void move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
     BattleState& battle_state,
     const Move move,
     const Stat stat,
@@ -95,7 +180,7 @@ void move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
     }
 }
 
-void move_does_not_drop_targets_stat_on_false_roll(
+static void move_does_not_drop_targets_stat_on_false_roll(
     BattleState& battle_state,
     const Move move,
     const Stat stat
@@ -233,8 +318,37 @@ TEST(MoveExecution, AncientPowerDoesNotIncreaseAnyStatsOnFalseRoll) {
     }
 }
 
+// Special Attack Boost
+// =============================================================================
+TEST(MoveExecution, ChargeBeamSpecialAttackBoostDoesNotGoPastSix) {
+    BattleState battle_state{
+        PokemonState{&Cresselia_7_3},
+        PokemonState{&Cresselia_7_3}
+    };
 
-// Special Attack
+    move_does_not_boost_attackers_stat_past_six_on_true_roll(
+        battle_state,
+        Move::ChargeBeam,
+        Stat::SpecialAttack,
+        1
+    );
+}
+
+TEST(MoveExecution, ChargeBeamDoesNotBoostSpecialAttackOnFalseRoll) {
+    BattleState battle_state{
+        PokemonState{&Cresselia_7_3},
+        PokemonState{&Cresselia_7_3}
+    };
+
+    move_does_not_boost_attackers_stat_on_false_roll(
+        battle_state,
+        Move::ChargeBeam,
+        Stat::SpecialAttack
+    );
+}
+
+
+// Special Attack Drop
 // =============================================================================
 TEST(MoveExecution, MistBallDropsSpecialAttackOnTrueRoll) {
     BattleState battle_state{
@@ -263,7 +377,6 @@ TEST(MoveExecution, MistBallSpecialAttackDropDoesNotGoBelowNegativeSix) {
         1
     );
 }
-
 
 TEST(MoveExecution, MistBallDoesNotDropSpecialAttackOnFalseRoll) {
     BattleState battle_state{
@@ -468,6 +581,60 @@ TEST(MoveExecution, EarthPowerDoesNotDropSpecialDefenseOnFalseRoll) {
     move_does_not_drop_targets_stat_on_false_roll(
         battle_state,
         Move::EarthPower,
+        Stat::SpecialDefense
+    );
+}
+
+TEST(MoveExecution, ShadowBallMakesSpecialDefenseStageOfOpponentDropByOne) {
+    BattleState battle_state{
+        PokemonState{&Cresselia_7_3},
+        PokemonState{&Cresselia_7_3}
+    };
+
+    move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
+        battle_state,
+        Move::ShadowBall,
+        Stat::SpecialDefense,
+        1
+    );
+}
+
+TEST(MoveExecution, ShadowBallDoesNotDropSpecialDefenseOnFalseRoll) {
+    BattleState battle_state{
+        PokemonState{&Cresselia_7_3},
+        PokemonState{&Cresselia_7_3}
+    };
+
+    move_does_not_drop_targets_stat_on_false_roll(
+        battle_state,
+        Move::ShadowBall,
+        Stat::SpecialDefense
+    );
+}
+
+TEST(MoveExecution, EnergyBallMakesSpecialDefenseStageOfOpponentDropByOne) {
+    BattleState battle_state{
+        PokemonState{&Cresselia_7_3},
+        PokemonState{&Cresselia_7_3}
+    };
+
+    move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
+        battle_state,
+        Move::EnergyBall,
+        Stat::SpecialDefense,
+        1
+    );
+}
+
+TEST(MoveExecution, EnergyBallDoesNotDropSpecialDefenseOnFalseRoll) {
+    BattleState battle_state{
+        PokemonState{&Cresselia_7_3},
+        PokemonState{&Cresselia_7_3}
+    };
+
+    move_does_not_drop_targets_stat_on_false_roll(
+        battle_state,
+        Move::EnergyBall,
         Stat::SpecialDefense
     );
 }

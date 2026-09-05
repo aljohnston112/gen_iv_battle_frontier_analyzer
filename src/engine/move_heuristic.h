@@ -508,7 +508,16 @@ BestMoveResults get_best_power_move_result(
             if (who_attacker_is == Who::Opponent) {
                 if (move_has_flag(
                         move,
-                        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)
+                        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10
+                    ) ||
+                    move_has_flag(
+                        move,
+                        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_20
+                    ) ||
+                    move_has_flag(
+                        move,
+                        MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_70
+                    )
                 ) [[unlikely]] {
                     BattleState temp_battle_state = battle_state;
                     PokemonState& temp_attacker = temp_battle_state.opponent;

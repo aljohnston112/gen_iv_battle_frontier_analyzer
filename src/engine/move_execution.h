@@ -623,6 +623,15 @@ uint16_t execute_move(
 
     if (move_has_flag(
             move->move,
+            MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_70)
+    )[[unlikely]] {
+        if (policy_container.roll_stat_increase(70, who_attacker_is)) {
+            attacker.increase_stat_stage(Stat::SpecialAttack, 1);
+        }
+    }
+
+    if (move_has_flag(
+            move->move,
             MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK_TWO_STAGES)
     ) [[unlikely]] {
         attacker.decrease_stat_stage(Stat::SpecialAttack, 2);
@@ -652,6 +661,20 @@ uint16_t execute_move(
             Stat::SpecialDefense,
             1,
             10
+        );
+    }
+
+    if (move_has_flag(
+            move->move,
+            MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_20)
+    ) [[unlikely]] {
+        roll_stat_drop(
+            policy_container,
+            defender,
+            who_defender_is,
+            Stat::SpecialDefense,
+            1,
+            20
         );
     }
 
