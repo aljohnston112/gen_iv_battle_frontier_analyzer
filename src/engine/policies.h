@@ -246,6 +246,10 @@ struct StatChangePolicy {
     bool roll_stat_drop(const uint8_t percent, const Who who) {
         return static_cast<const T*>(this)->roll_stat_drop(percent, who);
     }
+
+    bool roll_stat_increase(const uint8_t percent, const Who who) const {
+        return static_cast<const T*>(this)->roll_stat_increase(percent, who);
+    }
 };
 
 template <typename T>
@@ -255,6 +259,10 @@ struct OpponentOptimizedStatChangePolicy :
     StatChangePolicy<OpponentOptimizedStatChangePolicy> {
     static bool roll_stat_drop(const uint8_t, const Who who) {
         return who == Who::Player;
+    }
+
+    static bool roll_stat_increase(const uint8_t, const Who who) {
+        return who == Who::Opponent;
     }
 };
 

@@ -124,6 +124,9 @@ void apply_end_of_turn(
 
     apply_end_of_turn_10(first_state);
     apply_end_of_turn_10(second_state);
+
+    first_state.apply_end_of_turn();
+    second_state.apply_end_of_turn();
 }
 
 #endif //GEN_IV_BATTLE_FRONTIER_ANALYZER_END_OF_TURN_EFFECTS_H

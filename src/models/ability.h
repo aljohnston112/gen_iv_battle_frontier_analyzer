@@ -272,6 +272,7 @@ inline const std::unordered_map<Ability, std::string> ABILITY_TO_STRING_MAP = {
 constexpr auto IMPLEMENTED_ABILITIES = [] {
     std::array<bool, to_int(Ability::Disabled)> implemented_abilities{};
     implemented_abilities[to_int(Ability::Levitate)] = true;
+    implemented_abilities[to_int(Ability::SlowStart)] = true;
     // Any attack increasing abilities need to be applied to hit_from_confusion!
     return implemented_abilities;
 }();

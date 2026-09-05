@@ -1,6 +1,7 @@
 add_executable(
         battle_state_test
 
+        ability_tests.cpp
         battle_state_tests.cpp
 )
 

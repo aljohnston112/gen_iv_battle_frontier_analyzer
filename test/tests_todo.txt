@@ -1,10 +1,13 @@
 TODO
-
-    Not effective damage
-
-    Damage calcs for pysical attacks
+    Damage calcs for physical attacks
 
     These moves clear freeze
         FlameWheel
         FlareBlitz
         SacredFire
+
+    Mist Ball is chosen when it lowers the other side from KOing in 2 or more turns
+    Psychic is chosen when it increases the hits to ko by 2 or more turns
+    Draco Meteor is chosen when the special attack drop does not make it take less damage or more turns to KO than every other move
+    Ancientpower is chosen when its boost causes a more powerful move to cause a KO in 2 less turns
+

@@ -10,6 +10,17 @@ struct NeverDropStatPolicy :
     }
 };
 
+struct NeverChangeStatPolicy :
+    StatChangePolicy<NeverChangeStatPolicy> {
+        static bool roll_stat_drop(const uint8_t, const Who who) {
+            return false;
+        }
+
+        static bool roll_stat_increase(const uint8_t, const Who who) {
+            return false;
+        }
+};
+
 void move_drops_targets_stat_on_true_roll(
     BattleState& battle_state,
     const Move move,
@@ -43,7 +54,7 @@ void move_drops_targets_stat_on_true_roll(
             -(i * n) - n
         );
 
-        battle_state.opponent.increment_power_point(move, n);
+        battle_state.opponent.increment_power_point(move, 1);
     }
 }
 
@@ -80,7 +91,7 @@ void move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
             std::max(-6, -(i * n) - n)
         );
 
-        battle_state.opponent.increment_power_point(move, n);
+        battle_state.opponent.increment_power_point(move, 1);
     }
 }
 
@@ -117,6 +128,111 @@ void move_does_not_drop_targets_stat_on_false_roll(
         battle_state.player.increment_power_point(move, 6);
     }
 }
+
+TEST(MoveExecution, AncientPowerIncreasesAllStatsByOneStage) {
+    BattleState battle_state{
+        PokemonState{&Regigias_7_3},
+        PokemonState{&Regigias_7_3}
+    };
+
+    const auto& all_move_infos =
+        get_all_moves();
+
+    constexpr PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        OpponentOptimizedRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        OpponentOptimizedStatChangePolicy,
+        NeverParalyzeRNGPolicy
+    > policy_container{};
+
+    for (uint8_t i = 0; i < 7; i++) {
+        execute_move(
+            policy_container,
+            battle_state,
+            Who::Opponent,
+            &all_move_infos[to_int(Move::Ancientpower)]
+        );
+
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::Attack),
+            std::min(6, i + 1)
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::Defense),
+            std::min(6, i + 1)
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::SpecialAttack),
+            std::min(6, i + 1)
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::SpecialDefense),
+            std::min(6, i + 1)
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::Speed),
+            std::min(6, i + 1)
+        );
+
+        battle_state.opponent.increment_power_point(Move::Ancientpower, 1);
+    }
+}
+
+TEST(MoveExecution, AncientPowerDoesNotIncreaseAnyStatsOnFalseRoll) {
+    BattleState battle_state{
+        PokemonState{&Regigias_7_3},
+        PokemonState{&Regigias_7_3}
+    };
+
+    const auto& all_move_infos =
+        get_all_moves();
+
+    constexpr PolicyContainer<
+        OpponentOptimizedConfusionStatusPolicy,
+        NeverConfuseRNGPolicy,
+        NeverCritRNGPolicy,
+        OpponentOptimizedRandomFactorPolicy,
+        NeverFreezeRNGPolicy,
+        NeverChangeStatPolicy,
+        NeverParalyzeRNGPolicy
+    > policy_container{};
+
+    for (uint8_t i = 0; i < 7; i++) {
+        execute_move(
+            policy_container,
+            battle_state,
+            Who::Opponent,
+            &all_move_infos[to_int(Move::Ancientpower)]
+        );
+
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::Attack),
+            0
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::Defense),
+            0
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::SpecialAttack),
+            0
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::SpecialDefense),
+            0
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::Speed),
+            0
+        );
+
+        battle_state.opponent.increment_power_point(Move::Ancientpower, 1);
+    }
+}
+
 
 // Special Attack
 // =============================================================================
@@ -325,6 +441,60 @@ TEST(MoveExecution, PsychicDoesNotDropSpecialDefenseOnFalseRoll) {
     move_does_not_drop_targets_stat_on_false_roll(
         battle_state,
         Move::Psychic,
+        Stat::SpecialDefense
+    );
+}
+
+TEST(MoveExecution, EarthPowerMakesSpecialDefenseStageOfOpponentDropByOne) {
+    BattleState battle_state{
+        PokemonState{&Regigias_7_3},
+        PokemonState{&Regigias_7_3}
+    };
+
+    move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
+        battle_state,
+        Move::EarthPower,
+        Stat::SpecialDefense,
+        1
+    );
+}
+
+TEST(MoveExecution, EarthPowerDoesNotDropSpecialDefenseOnFalseRoll) {
+    BattleState battle_state{
+        PokemonState{&Regigias_7_3},
+        PokemonState{&Regigias_7_3}
+    };
+
+    move_does_not_drop_targets_stat_on_false_roll(
+        battle_state,
+        Move::EarthPower,
+        Stat::SpecialDefense
+    );
+}
+
+TEST(MoveExecution, FocusBlastMakesSpecialDefenseStageOfOpponentDropByOne) {
+    BattleState battle_state{
+        PokemonState{&Regigias_7_3},
+        PokemonState{&Regigias_7_3}
+    };
+
+    move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
+        battle_state,
+        Move::FocusBlast,
+        Stat::SpecialDefense,
+        1
+    );
+}
+
+TEST(MoveExecution, FocusBlastDoesNotDropSpecialDefenseOnFalseRoll) {
+    BattleState battle_state{
+        PokemonState{&Regigias_7_3},
+        PokemonState{&Regigias_7_3}
+    };
+
+    move_does_not_drop_targets_stat_on_false_roll(
+        battle_state,
+        Move::FocusBlast,
         Stat::SpecialDefense
     );
 }

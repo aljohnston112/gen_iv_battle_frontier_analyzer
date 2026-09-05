@@ -1,7 +1,6 @@
 #include "../mocks.h"
 #include "battle_state.h"
-#include "move_heuristic.h"
-#include "policies.h"
+
 
 #include "gtest/gtest.h"
 

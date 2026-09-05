@@ -18,3 +18,14 @@ IVs: 24 HP / 24 Atk / 24 Def / 24 SpA / 24 SpD / 24 Spe
 - Surf
 - Draco Meteor
 - Mist Ball
+
+Regigigas (F) @ Wise Glasses
+Ability: Slow Start
+Level: 50
+EVs: 252 HP / 252 SpA
+Modest Nature
+IVs: 24 HP / 24 Atk / 24 Def / 24 SpA / 24 SpD / 24 Spe
+- Earth Power
+- Focus Blast
+- Thunderbolt
+- Ancient Power

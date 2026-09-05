@@ -61,6 +61,22 @@ const CustomPokemon LatiasNoItem{
     .pounds = 88.2
 };
 
+const CustomPokemon Regigias_7_3{
+    .unique_id = "Regigias_7_3",
+    .name = Pokemon::Regigigas,
+    .ability = Ability::SlowStart,
+    .level = 50,
+    .item = Item::WiseGlasses,
+    .types = {PokemonType::Normal, PokemonType::NoType},
+    .moves = {
+        Move::EarthPower, Move::FocusBlast, Move::Thunderbolt,
+        Move::Ancientpower
+    },
+    .stats = {213, 159, 127, 140, 127, 117},
+    .pounds = 925.9
+};
+
+
 constexpr auto DEFAULT_POLICY =
     PolicyContainer<
         OpponentOptimizedConfusionStatusPolicy,

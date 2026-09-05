@@ -35,9 +35,9 @@ int main() {
         construct_all_custom_batle_factory_pokemon(Who::Opponent);
 
     const auto rr_start =
-    std::chrono::high_resolution_clock::now();
+        std::chrono::high_resolution_clock::now();
 
-    constexpr size_t n = 1;
+    constexpr size_t n = 3;
     const auto pokemon_to_battle_result_entries =
         do_round_robin(
             std::span(

@@ -1524,11 +1524,11 @@ inline constexpr std::array<
     flags[to_int(Move::BugBuzz)][to_int(
         MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
     flags[to_int(Move::FocusBlast)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
+        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
     flags[to_int(Move::EnergyBall)][to_int(
         MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
     flags[to_int(Move::EarthPower)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
+        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
     flags[to_int(Move::FlashCannon)][to_int(
         MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
     flags[to_int(Move::SeedFlare)][to_int(
@@ -2771,6 +2771,10 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::Thunderbolt)] = true;
     implemented_moves[to_int(Move::Surf)] = true;
     implemented_moves[to_int(Move::DracoMeteor)] = true;
+    implemented_moves[to_int(Move::Ancientpower)] = true;
+    implemented_moves[to_int(Move::EarthPower)] = true;
+    implemented_moves[to_int(Move::FocusBlast)] = true;
+
     return implemented_moves;
 }();
 

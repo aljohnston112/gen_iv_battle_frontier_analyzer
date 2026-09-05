@@ -35,12 +35,18 @@ uint16_t get_damage_of_power_move(
 
     const uint8_t attacker_level = attacker.level;
     int32_t damage = DAMAGE_CACHE[attacker_level];
-    if (damage < 0) {
+    if (damage < 0) [[unlikely]] {
         damage = 2 * attacker_level / 5 + 2;
         DAMAGE_CACHE[attacker_level] = static_cast<int16_t>(damage);
     }
 
-    const uint16_t power = move->power;
+    uint16_t power = move->power;
+    if (attacker.get_current_item_for_effect() == Item::WiseGlasses &&
+        move->category == Category::SPECIAL) [[unlikely]
+    ] {
+        power = power + (power / 10);
+    }
+
     const bool is_special = move->category == Category::SPECIAL;
     const Stat attack_category =
         is_special ? Stat::SpecialAttack : Stat::Attack;
@@ -335,10 +341,10 @@ inline bool move_does_nothing(
     if (ability == Ability::Levitate &&
         move_type == PokemonType::Ground
     ) [[unlikely]] {
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 template <typename... Policies>
@@ -508,7 +514,6 @@ uint16_t execute_move(
                                  : battle_state.player;
 
 
-
     if (attacker.get_current_status_condition() ==
         StatusCondition::Freeze
     ) [[unlikely]] {
@@ -525,7 +530,7 @@ uint16_t execute_move(
 
     if (attacker.get_current_status_condition() ==
         StatusCondition::Paralysis
-        )[[unlikely]] {
+    )[[unlikely]] {
         if (!policy_container.can_move_while_paralyzed(25)) [[unlikely]] {
             return 0;
         }
@@ -551,7 +556,7 @@ uint16_t execute_move(
     // Moves should only be considered "executed" past this point!
     // =========================================================================
 
-    if (!move_does_nothing(battle_state, move, who_attacker_is)) {
+    if (move_does_nothing(battle_state, move, who_attacker_is)) {
         attacker.decrement_power_point(move->move);
         return 0;
     }
@@ -598,15 +603,29 @@ uint16_t execute_move(
         roll_freeze(policy_container, weather, defender, 10);
     }
 
-    if (move_has_flag(move->move, MoveFlag::PARALYZES_DEFENDER_10)) [[unlikely]] {
+    if (move_has_flag(move->move, MoveFlag::PARALYZES_DEFENDER_10)) [[unlikely]
+    ] {
         roll_paralysis(policy_container, defender, 10);
     }
 
     if (move_has_flag(
-        move->move,
-        MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK_TWO_STAGES
-        )) [[unlikely]] {
-            attacker.decrease_stat_stage(Stat::SpecialAttack, 2);
+            move->move,
+            MoveFlag::OMNI_BOOSTS_ATTACKER)
+    )[[unlikely]] {
+        if (policy_container.roll_stat_increase(10, who_attacker_is)) {
+            attacker.increase_stat_stage(Stat::Attack, 1);
+            attacker.increase_stat_stage(Stat::Defense, 1);
+            attacker.increase_stat_stage(Stat::SpecialAttack, 1);
+            attacker.increase_stat_stage(Stat::SpecialDefense, 1);
+            attacker.increase_stat_stage(Stat::Speed, 1);
+        }
+    }
+
+    if (move_has_flag(
+            move->move,
+            MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK_TWO_STAGES)
+    ) [[unlikely]] {
+        attacker.decrease_stat_stage(Stat::SpecialAttack, 2);
     }
 
     if (move_has_flag(

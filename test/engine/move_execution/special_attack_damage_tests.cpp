@@ -1,3 +1,4 @@
+#include "end_of_turn_effects.h"
 #include "../mocks.h"
 #include "move_execution.h"
 #include "gtest/gtest.h"
@@ -41,7 +42,18 @@ void random_does_correct_damage_for_special_attack(
     );
 }
 
-// TODO use regular effectiveness
+TEST(MoveExecution, NormalEffectivenessDoesCorrectDamageForSpecialAttack) {
+    const BattleState battle_state{
+        PokemonState{&Regigias_7_3},
+        PokemonState{&Cresselia_7_4}
+    };
+    random_does_correct_damage_for_special_attack<
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 34>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 40>
+    >(battle_state, Move::Thunderbolt);
+}
+
+
 TEST(MoveExecution, STABDoesCorrectDamageForSpecialAttack) {
     const BattleState battle_state{
         PokemonState{&Cresselia_7_4},
@@ -53,8 +65,7 @@ TEST(MoveExecution, STABDoesCorrectDamageForSpecialAttack) {
     >(battle_state, Move::Psychic);
 }
 
-// TODO use non-STAB
-TEST(MoveExecution, NotVeryEffectiveDoesCorrectDamageForSpecialAttack) {
+TEST(MoveExecution, NotVeryEffectiveSTABDoesCorrectDamageForSpecialAttack) {
     const BattleState battle_state{
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
@@ -63,6 +74,17 @@ TEST(MoveExecution, NotVeryEffectiveDoesCorrectDamageForSpecialAttack) {
         DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 15>,
         DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 18>
     >(battle_state, Move::Psychic);
+}
+
+TEST(MoveExecution, NotVeryEffectiveDoesCorrectDamageForSpecialAttack) {
+    const BattleState battle_state{
+        PokemonState{&Regigias_7_3},
+        PokemonState{&Cresselia_7_4}
+    };
+    random_does_correct_damage_for_special_attack<
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 21>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 25>
+    >(battle_state, Move::FocusBlast);
 }
 
 TEST(MoveExecution, RandomDoesCorrectDamageForSpecialAttack) {
@@ -99,7 +121,7 @@ TEST(MoveExecution, CriticalHitDoesTheCorrectDamageForSpecialAttack) {
 }
 
 TEST(
-    Engine,
+    MoveExecution,
     CriticalHitWithSpecialAttackBoostDoesTheCorrectDamageForSpecialAttack
 ) {
     BattleState battle_state{
@@ -114,7 +136,7 @@ TEST(
 }
 
 TEST(
-    Engine,
+    MoveExecution,
     CriticalHitWithSpecialDefenseLossDoesTheCorrectDamageForSpecialAttack
 ) {
     BattleState battle_state{
@@ -129,7 +151,7 @@ TEST(
 }
 
 TEST(
-    Engine,
+    MoveExecution,
     CriticalHitWithSpecialAttackLossDoesTheCorrectDamageForSpecialAttack
 ) {
     BattleState battle_state{
@@ -144,7 +166,7 @@ TEST(
 }
 
 TEST(
-    Engine,
+    MoveExecution,
     CriticalHitWithSpecialDefenseBoostDoesTheCorrectDamageForSpecialAttack
 ) {
     BattleState battle_state{
@@ -172,8 +194,10 @@ private:
     mutable uint8_t current_random = 85;
 };
 
-TEST(MoveExecution,
-     DamageMonotonicallyIncreasesWithIncreasingRandomForSpecialAttacks) {
+TEST(
+    MoveExecution,
+    DamageMonotonicallyIncreasesWithIncreasingRandomForSpecialAttacks
+) {
     BattleState battle_state{
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
@@ -229,4 +253,18 @@ TEST(MoveExecution,
         EXPECT_TRUE(current_damage >= last_damage);
         last_damage = current_damage;
     }
+}
+
+TEST(
+    MoveExecution,
+    WiseGlassesIncreasesSpecialAttackPowerBy10Percent
+) {
+    const BattleState battle_state{
+        PokemonState{&Regigias_7_3},
+        PokemonState{&Regigias_7_3}
+    };
+    random_does_correct_damage_for_special_attack<
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 112>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 132>
+    >(battle_state, Move::FocusBlast);
 }

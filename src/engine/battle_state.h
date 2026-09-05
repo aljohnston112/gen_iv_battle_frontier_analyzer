@@ -40,6 +40,7 @@ enum class Status {
 };
 
 enum class StatusWithStage {
+    SlowStarting,
     Charging,
     Recharging,
     ElectricBoosted,
@@ -114,18 +115,32 @@ class PokemonState {
     //     current_stats[to_int(stat)] = value;
     // }
 
+    void set_status_with_stage(
+        const StatusWithStage status_with_stage,
+        const int8_t value
+    ) {
+        statuses_with_stage[to_int(status_with_stage)] = true;
+        status_stages[to_int(status_with_stage)] = value;
+    }
+
     void set_stat(const Stat stat, const uint16_t new_stat) {
         current_stats[to_int(stat)] = new_stat;
     }
 
-    void set_stat_based_on_current_stage(const Stat stat) {
+    void set_stat_based_on_current_state(const Stat stat) {
+        uint16_t new_stat = calculate_stat_based_on_stage(
+            pokemon->get_stat(stat),
+            get_stat_stage(stat),
+            current_status_condition
+        );
+        if (has_status(StatusWithStage::SlowStarting) &&
+            (stat == Stat::Attack || stat == Stat::Speed)
+            ) {
+            new_stat /= 2;
+        }
         set_stat(
             stat,
-            calculate_stat_based_on_stage(
-                pokemon->get_stat(stat),
-                get_stat_stage(stat),
-                current_status_condition
-            )
+            new_stat
         );
     }
 
@@ -148,6 +163,12 @@ public:
         for (const auto& move : pokemon->moves) {
             power_points[to_int(move)] =
                 static_cast<uint8_t>(get_move_info(move)->power_points);
+        }
+
+        if (pokemon_in->ability == Ability::SlowStart) [[unlikely]] {
+            set_status_with_stage(StatusWithStage::SlowStarting, 5);
+            current_stats[to_int(Stat::Attack)] /= 2;
+            current_stats[to_int(Stat::Speed)] /= 2;
         }
     }
 
@@ -217,6 +238,10 @@ public:
             );
         if (status_stages[to_int(status)] == 0) {
             statuses_with_stage[to_int(status)] = false;
+            if (status == StatusWithStage::SlowStarting) [[unlikely]] {
+                set_stat_based_on_current_state(Stat::Attack);
+                set_stat_based_on_current_state(Stat::Speed);
+            }
         }
     }
 
@@ -233,8 +258,7 @@ public:
     }
 
     void set_confused(const uint8_t n) {
-        statuses_with_stage[to_int(StatusWithStage::Confused)] = true;
-        status_stages[to_int(StatusWithStage::Confused)] = n;
+        set_status_with_stage(StatusWithStage::Confused, n);
     }
 
     [[nodiscard]] uint16_t get_original_stat(const Stat stat) const {
@@ -249,7 +273,7 @@ public:
     void increase_stat_stage(const Stat stat, const int n) {
         stat_stages[to_int(stat)] =
             static_cast<int8_t>(std::min(6, get_stat_stage(stat) + n));
-        set_stat_based_on_current_stage(stat);
+        set_stat_based_on_current_state(stat);
     }
 
     void decrease_stat_stage(const Stat stat, const int n) {
@@ -258,11 +282,11 @@ public:
         }
         stat_stages[to_int(stat)] =
             static_cast<int8_t>(std::max(-6, get_stat_stage(stat) - n));
-        set_stat_based_on_current_stage(stat);
+        set_stat_based_on_current_state(stat);
         if (current_item == Item::WhiteHerb && stat_stages[to_int(stat)] < 0) {
             stat_stages[to_int(stat)] = 0;
             clear_current_item();
-            set_stat_based_on_current_stage(stat);
+            set_stat_based_on_current_state(stat);
         }
     }
 
@@ -275,7 +299,7 @@ public:
             current_status_condition = status_condition;
             if (status_condition == StatusCondition::Paralysis) {
                 // TODO test this if paralysis is ever added
-                set_stat_based_on_current_stage(Stat::Speed);
+                set_stat_based_on_current_state(Stat::Speed);
             }
         }
     }
@@ -286,7 +310,7 @@ public:
         current_status_condition = StatusCondition::NoCondition;
         if (was_paralysis) {
             // TODO test this if paralysis is ever added
-            set_stat_based_on_current_stage(Stat::Speed);
+            set_stat_based_on_current_state(Stat::Speed);
         }
     }
 
@@ -345,6 +369,12 @@ public:
         std::erase(current_moves, move);
         if (current_moves.empty()) [[unlikely]] {
             current_moves.emplace_back(Move::Struggle);
+        }
+    }
+
+    void apply_end_of_turn() {
+        if (has_status(StatusWithStage::SlowStarting)) [[unlikely]] {
+            decrement_status_value(StatusWithStage::SlowStarting);
         }
     }
 };

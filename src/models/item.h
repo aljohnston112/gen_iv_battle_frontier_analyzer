@@ -269,6 +269,8 @@ constexpr auto IMPLEMENTED_ITEMS = [] {
     std::array<bool, to_int(Item::NoItem)> implemented_items{};
     implemented_items[to_int(Item::Leftovers)] = true;
     implemented_items[to_int(Item::WhiteHerb)] = true;
+    implemented_items[to_int(Item::WiseGlasses)] = true;
+
     // Any damage modifiers may also need to be applied to hit_from_confusion
     // Items removed or switched may necessitate modifying state
     return implemented_items;
