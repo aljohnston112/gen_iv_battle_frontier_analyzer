@@ -1,9 +1,12 @@
 #include "../mocks.h"
+#include "../test_policies.h"
+
 #include "move_execution.h"
+
 #include "gtest/gtest.h"
 
 template <IsDamageTestCase Case>
-void random_does_correct_damage_for_struggle_case() {
+static void random_does_correct_damage_for_struggle_case() {
     constexpr PolicyContainer<
         typename Case::CritRNGPolicyType,
         typename Case::DamageRandomFactorPolicyType
@@ -27,7 +30,7 @@ void random_does_correct_damage_for_struggle_case() {
 }
 
 template <IsDamageTestCase... Cases>
-void random_does_correct_damage_for_struggle() {
+static void random_does_correct_damage_for_struggle() {
     (random_does_correct_damage_for_struggle_case<Cases>(),
         ...
     );

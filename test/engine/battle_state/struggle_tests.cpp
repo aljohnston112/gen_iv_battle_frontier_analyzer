@@ -4,7 +4,7 @@
 
 #include "gtest/gtest.h"
 
-TEST(BattleEngine, PPLossTriggersStruggle) {
+TEST(BattleState, PPLossTriggersStruggle) {
     BattleState battle_state{
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
@@ -23,18 +23,5 @@ TEST(BattleEngine, PPLossTriggersStruggle) {
     EXPECT_EQ(
         Move::Struggle,
         moves[0]
-    );
-}
-
-TEST(BattleState, WhiteHerbClearsNegativeStatus) {
-    auto state = PokemonState{&Latias_7_4};
-    state.decrease_stat_stage(Stat::Attack, 1);
-    EXPECT_EQ(
-        0,
-        state.get_stat_stage(Stat::Attack)
-    );
-    EXPECT_EQ(
-        Item::NoItem,
-        state.get_current_item_for_effect()
     );
 }

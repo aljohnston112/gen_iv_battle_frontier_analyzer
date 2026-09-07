@@ -1,6 +1,8 @@
+#include "../mocks.h"
+#include "../test_policies.h"
+
 #include "battle_state.h"
 #include "end_of_turn_effects.h"
-#include "../mocks.h"
 #include "pokemon.h"
 
 #include "gtest/gtest.h"
@@ -35,7 +37,7 @@ TEST(BattleState, AttackAndSpeedAreRestoredAfter5TurnsOfSlowStart) {
     );
 
     for (size_t i = 0; i < 5; i++) {
-        apply_end_of_turn(DEFAULT_POLICY, battle_state);
+        apply_end_of_turn(DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING, battle_state);
     }
 
     EXPECT_EQ(
@@ -48,8 +50,10 @@ TEST(BattleState, AttackAndSpeedAreRestoredAfter5TurnsOfSlowStart) {
     );
 }
 
-TEST(BattleState,
-     AttackAndSpeedAreRestoredWithModifiersAfter5TurnsOfSlowStart) {
+TEST(
+    BattleState,
+    AttackAndSpeedAreRestoredWithModifiersAfter5TurnsOfSlowStart
+) {
     BattleState battle_state{
         PokemonState{&Regigias_7_3},
         PokemonState{&Regigias_7_3}
@@ -62,15 +66,15 @@ TEST(BattleState,
         (Regigias_7_3.get_stat(Stat::Speed) / 2),
         battle_state.player.get_current_stat(Stat::Speed)
     );
-    battle_state.player.decrease_stat_stage(Stat::Attack, 1);
-    battle_state.player.decrease_stat_stage(Stat::Speed, 2);
+    battle_state.player.decrease_stat_stage<Stat::Attack>(1);
+    battle_state.player.decrease_stat_stage<Stat::Speed>(2);
 
     for (size_t i = 0; i < 5; i++) {
-        apply_end_of_turn(DEFAULT_POLICY, battle_state);
+        apply_end_of_turn(DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING, battle_state);
     }
 
     EXPECT_EQ(
-        calculate_stat_based_on_stage(
+        calculate_stat_based_on_stage<Stat::Attack>(
             Regigias_7_3.get_stat(Stat::Attack),
             -1,
             StatusCondition::NoCondition
@@ -78,7 +82,7 @@ TEST(BattleState,
         battle_state.player.get_current_stat(Stat::Attack)
     );
     EXPECT_EQ(
-        calculate_stat_based_on_stage(
+        calculate_stat_based_on_stage<Stat::Speed>(
             Regigias_7_3.get_stat(Stat::Speed),
             -2,
             StatusCondition::NoCondition

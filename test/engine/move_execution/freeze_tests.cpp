@@ -1,6 +1,9 @@
 #include "../mocks.h"
+#include "../test_policies.h"
+
 #include "battle_state.h"
 #include "move_execution.h"
+
 #include "gtest/gtest.h"
 
 TEST(MoveExecution, FalseRollDoesNotFreeze) {
@@ -43,6 +46,51 @@ TEST(MoveExecution, TrueRollFreezes) {
                 StatusCondition::Freeze,
                 defender.get_current_status_condition()
             );
+            defender.clear_status_condition();
+        }
+    }
+}
+
+TEST(MoveExecution, FalseRollDoesNotFreezeWhenIceBeamIsUsed) {
+    BattleState battle_state{
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
+    };
+
+    for (uint i = 0; i < to_int(Weather::Clear) + 1; i++) {
+        execute_move(
+            NEVER_FREEZE_POLICY_CONTAINER,
+            battle_state,
+            Who::Player,
+            Move::IceBeam
+        );
+        EXPECT_NE(
+            StatusCondition::Freeze,
+            battle_state.opponent.get_current_status_condition()
+        );
+        battle_state.opponent.clear_status_condition();
+    }
+}
+
+TEST(MoveExecution, TrueRollFreezesWhenIceBeamIsUsed) {
+    BattleState battle_state{
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Cresselia_7_4}
+    };
+
+    for (uint i = 0; i < to_int(Weather::Clear) + 1; i++) {
+        if (static_cast<Weather>(i) != Weather::Sun) {
+            execute_move(
+                ALWAYS_FREEZE_POLICY_CONTAINER,
+                battle_state,
+                Who::Player,
+                Move::IceBeam
+            );
+
+            EXPECT_EQ(
+                StatusCondition::Freeze,
+                battle_state.opponent.get_current_status_condition()
+            );
         }
     }
 }
@@ -67,9 +115,6 @@ TEST(MoveExecution, TrueRollDoesNotFreezeInSun) {
 }
 
 TEST(MoveExecution, ThawsOnTrueRoll) {
-    const auto& all_move_infos =
-        get_all_moves();
-
     BattleState battle_state{
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
@@ -90,23 +135,13 @@ TEST(MoveExecution, ThawsOnTrueRoll) {
         battle_state.player.get_current_status_condition()
     );
 
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > never_freeze_policy_container{};
-
     EXPECT_NE(
         0,
         execute_move(
-            never_freeze_policy_container,
+            NEVER_FREEZE_POLICY_CONTAINER,
             battle_state,
             Who::Player,
-            &all_move_infos[to_int(Move::Psychic)]
+            Move::Psychic
         )
     );
 
@@ -117,9 +152,6 @@ TEST(MoveExecution, ThawsOnTrueRoll) {
 }
 
 TEST(MoveExecution, DoesNotMoveWhenFrozen) {
-    const auto& all_move_infos =
-        get_all_moves();
-
     BattleState battle_state{
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
@@ -140,23 +172,13 @@ TEST(MoveExecution, DoesNotMoveWhenFrozen) {
         battle_state.player.get_current_status_condition()
     );
 
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        AlwaysFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > never_freeze_policy_container{};
-
     EXPECT_EQ(
         0,
         execute_move(
-            never_freeze_policy_container,
+            ALWAYS_FREEZE_POLICY_CONTAINER,
             battle_state,
             Who::Player,
-            &all_move_infos[to_int(Move::Psychic)]
+            Move::Psychic
         )
     );
 
@@ -168,7 +190,25 @@ TEST(MoveExecution, DoesNotMoveWhenFrozen) {
 
 
 TEST(MoveExecution, FireMoveFromOpponentThaws) {
-    // TODO once a fire move is implemented
+    BattleState battle_state{
+        PokemonState{&Heatran_7_3},
+        PokemonState{&Cresselia_7_3}
+    };
+    battle_state.opponent.try_set_status_condition(StatusCondition::Freeze);
+    EXPECT_TRUE(
+        battle_state.opponent.has_status_condition(StatusCondition::Freeze)
+        );
+
+    execute_move(
+        DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+        battle_state,
+        Who::Player,
+        Move::Flamethrower
+    );
+
+    EXPECT_TRUE(
+        battle_state.opponent.has_status_condition(StatusCondition::NoCondition)
+    );
 }
 
 // TODO once these moves are implemented

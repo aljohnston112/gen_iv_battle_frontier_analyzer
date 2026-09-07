@@ -1,31 +1,9 @@
 #include "../mocks.h"
+#include "../test_policies.h"
+
 #include "move_execution.h"
 #include "policies.h"
 #include "gtest/gtest.h"
-
-class HighRandomConfusionEffectPolicy :
-    public ConfusionStatusPolicy<HighRandomConfusionEffectPolicy> {
-public:
-    static uint8_t roll_turns_confused(const Who) {
-        return 2;
-    }
-
-    static uint8_t roll_random_confusion(const Who) {
-        return 100;
-    }
-};
-
-class LowRandomConfusionEffectPolicy :
-    public ConfusionStatusPolicy<LowRandomConfusionEffectPolicy> {
-public:
-    static uint8_t roll_turns_confused(const Who) {
-        return 2;
-    }
-
-    static uint8_t roll_random_confusion(const Who) {
-        return 85;
-    }
-};
 
 TEST(MoveExecution, FalseRollDoesNotConfuse) {
     auto defender = PokemonState{&Cresselia_7_4};
@@ -41,7 +19,7 @@ TEST(MoveExecution, FalseRollDoesNotConfuse) {
         Who::Player,
         100
     );
-    EXPECT_FALSE(defender.has_status(StatusWithStage::Confused));
+    EXPECT_FALSE(defender.has_status_with_stage(StatusWithStage::Confused));
 }
 
 TEST(MoveExecution, TrueRollDoesConfuse) {
@@ -58,112 +36,73 @@ TEST(MoveExecution, TrueRollDoesConfuse) {
         Who::Player,
         0
     );
-    EXPECT_TRUE(defender.has_status(StatusWithStage::Confused));
+    EXPECT_TRUE(defender.has_status_with_stage(StatusWithStage::Confused));
 }
 
 TEST(MoveExecution, SignalBeamConfusesOnTrueRoll) {
-    const auto& all_move_infos =
-        get_all_moves();
-
     BattleState battle_state{
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
     };
 
-    constexpr PolicyContainer<
-        HighRandomConfusionEffectPolicy,
-        AlwaysConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > policy_container{};
-
     execute_move(
-        policy_container,
+        ALWAYS_CONFUSE_HIGH_RANDOM_CONFUSION_POLICY_CONTAINER,
         battle_state,
         Who::Player,
-        &all_move_infos[to_int(Move::SignalBeam)]
+        Move::SignalBeam
     );
 
     EXPECT_TRUE(
-        battle_state.opponent.has_status(StatusWithStage::Confused)
+        battle_state.opponent.has_status_with_stage(StatusWithStage::Confused)
     );
 }
 
 TEST(MoveExecution, SignalBeamDoesNotConfuseOnFalseRoll) {
-    const auto& all_move_infos =
-        get_all_moves();
-
     BattleState battle_state{
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
     };
 
-    constexpr PolicyContainer<
-        HighRandomConfusionEffectPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > policy_container{};
-
     execute_move(
-        policy_container,
+        NEVER_CONFUSE_POLICY_CONTAINER,
         battle_state,
         Who::Player,
-        &all_move_infos[to_int(Move::SignalBeam)]
+        Move::SignalBeam
     );
 
     EXPECT_FALSE(
-        battle_state.opponent.has_status(StatusWithStage::Confused)
+        battle_state.opponent.has_status_with_stage(StatusWithStage::Confused)
     );
 }
 
 TEST(MoveExecution, BeingConfusedPreventsAttackingOnTrueRoll) {
-    const auto& all_move_infos =
-        get_all_moves();
-
     BattleState battle_state{
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
     };
 
-    constexpr PolicyContainer<
-        HighRandomConfusionEffectPolicy,
-        AlwaysConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > policy_container{};
-
     roll_confusion(
-        policy_container,
+        ALWAYS_CONFUSE_HIGH_RANDOM_CONFUSION_POLICY_CONTAINER,
         battle_state.player,
         Who::Player,
         0
     );
     EXPECT_TRUE(
-        battle_state.player.has_status(StatusWithStage::Confused)
+        battle_state.player.has_status_with_stage(StatusWithStage::Confused)
     );
 
     EXPECT_EQ(
         0,
         execute_move(
-            policy_container,
+            ALWAYS_CONFUSE_HIGH_RANDOM_CONFUSION_POLICY_CONTAINER,
             battle_state,
             Who::Player,
-            &all_move_infos[to_int(Move::Psychic)]
+            Move::Psychic
         )
     );
 
     EXPECT_TRUE(
-        battle_state.player.has_status(StatusWithStage::Confused)
+        battle_state.player.has_status_with_stage(StatusWithStage::Confused)
     );
 }
 
@@ -175,19 +114,21 @@ concept IsConfusionTestCase = requires {
     { +T::ExpectedValue } -> std::same_as<int32_t>;
 };
 
-template <
-    IsConfusionStatusPolicy ConfusionStatusPolicy,
-    IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
-    int32_t Value
->
-struct ConfusionTestCase {
-    using ConfusionStatusPolicyType = ConfusionStatusPolicy;
-    using ConfusionStatusRNGPolicyType = ConfusionStatusRNGPolicy;
-    static constexpr int32_t ExpectedValue = Value;
-};
+namespace {
+    template <
+        IsConfusionStatusPolicy ConfusionStatusPolicy,
+        IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
+        int32_t Value
+    >
+    struct ConfusionTestCase {
+        using ConfusionStatusPolicyType = ConfusionStatusPolicy;
+        using ConfusionStatusRNGPolicyType = ConfusionStatusRNGPolicy;
+        static constexpr int32_t ExpectedValue = Value;
+    };
+}
 
 template <IsConfusionTestCase Case>
-void confusion_damage_is_correct(
+static void confusion_damage_is_correct(
     PokemonState&& player
 ) {
     constexpr PolicyContainer<
@@ -204,7 +145,7 @@ void confusion_damage_is_correct(
         0
     );
     EXPECT_TRUE(
-        player.has_status(StatusWithStage::Confused)
+        player.has_status_with_stage(StatusWithStage::Confused)
     );
 
     EXPECT_EQ(
@@ -237,31 +178,22 @@ TEST(MoveExecution, RandomConfusionDamageIsCorrect) {
 }
 
 template <IsConfusionStatusPolicy T>
-void confused_damage_is_correct_on_true_roll(
-    const std::array<MoveInfo, to_int(Move::MoveCount) + 1>& all_move_infos,
+static void confused_damage_is_correct_on_true_roll(
     BattleState&& battle_state
 ) {
-    constexpr PolicyContainer<
-        T,
-        AlwaysConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > policy_container{};
-
     roll_confusion(
-        policy_container,
+        ALWAYS_CONFUSE_POLICY_CONTAINER<T>,
         battle_state.player,
         Who::Player,
         0
     );
-    EXPECT_TRUE(battle_state.player.has_status(StatusWithStage::Confused));
+    EXPECT_TRUE(
+        battle_state.player.has_status_with_stage(StatusWithStage::Confused)
+    );
 
     const int32_t expected_damage =
         calculate_confused_hit_damage(
-            policy_container,
+            ALWAYS_CONFUSE_POLICY_CONTAINER<T>,
             battle_state.player,
             Who::Player
         );
@@ -269,10 +201,10 @@ void confused_damage_is_correct_on_true_roll(
     EXPECT_EQ(
         0,
         execute_move(
-            policy_container,
+            ALWAYS_CONFUSE_POLICY_CONTAINER<T>,
             battle_state,
             Who::Player,
-            &all_move_infos[to_int(Move::Psychic)]
+           Move::Psychic
         )
     );
 
@@ -284,12 +216,10 @@ void confused_damage_is_correct_on_true_roll(
 }
 
 template <IsConfusionStatusPolicy... Policies>
-void confused_damage_is_correct_on_true_roll() {
-    const auto& all_move_infos =
-        get_all_moves();
+static void confused_damage_is_correct_on_true_roll() {
+
     (
         confused_damage_is_correct_on_true_roll<Policies>(
-            all_move_infos,
             {
                 PokemonState{&Cresselia_7_4_NoItem},
                 PokemonState{&Cresselia_7_4}
@@ -307,9 +237,6 @@ TEST(MoveExecution, BeingConfusedDamageIsCorrectOnFalseRoll) {
 }
 
 TEST(MoveExecution, BeingConfusedDoesNotPreventAttackOnFalseRoll) {
-    const auto& all_move_infos =
-        get_all_moves();
-
     BattleState battle_state{
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
@@ -326,89 +253,76 @@ TEST(MoveExecution, BeingConfusedDoesNotPreventAttackOnFalseRoll) {
         Who::Player,
         0
     );
-    EXPECT_TRUE(battle_state.player.has_status(StatusWithStage::Confused));
-
-    constexpr PolicyContainer<
-        LowRandomConfusionEffectPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > never_confuse_policy_container{};
+    EXPECT_TRUE(
+        battle_state.player.has_status_with_stage(StatusWithStage::Confused)
+    );
 
     EXPECT_NE(
         0,
         execute_move(
-            never_confuse_policy_container,
+            NEVER_CONFUSE_POLICY_CONTAINER,
             battle_state,
             Who::Player,
-            &all_move_infos[to_int(Move::Psychic)]
+            Move::Psychic
         )
     );
 
-    EXPECT_TRUE(battle_state.player.has_status(StatusWithStage::Confused));
+    EXPECT_TRUE(
+        battle_state.player.has_status_with_stage(StatusWithStage::Confused)
+    );
 }
 
 TEST(MoveExecution, ConfusionEndsOnCorrectTurn) {
-    const auto& all_move_infos =
-        get_all_moves();
-
     BattleState battle_state{
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
     };
 
-    constexpr PolicyContainer<
-        LowRandomConfusionEffectPolicy,
-        AlwaysConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > policy_container{};
-
     roll_confusion(
-        policy_container,
+        ALWAYS_CONFUSE_LOW_RANDOM_CONFUSION_POLICY_CONTAINER,
         battle_state.player,
         Who::Player,
         0
     );
-    EXPECT_TRUE(battle_state.player.has_status(StatusWithStage::Confused));
+    EXPECT_TRUE(
+        battle_state.player.has_status_with_stage(StatusWithStage::Confused)
+    );
 
     EXPECT_EQ(
         0,
         execute_move(
-            policy_container,
+            ALWAYS_CONFUSE_LOW_RANDOM_CONFUSION_POLICY_CONTAINER,
             battle_state,
             Who::Player,
-            &all_move_infos[to_int(Move::Psychic)]
+            Move::Psychic
         )
     );
 
-    EXPECT_TRUE(battle_state.player.has_status(StatusWithStage::Confused));
+    EXPECT_TRUE(
+        battle_state.player.has_status_with_stage(StatusWithStage::Confused)
+    );
 
     EXPECT_EQ(
         0,
         execute_move(
-            policy_container,
+            ALWAYS_CONFUSE_LOW_RANDOM_CONFUSION_POLICY_CONTAINER,
             battle_state,
             Who::Player,
-            &all_move_infos[to_int(Move::Psychic)]
+            Move::Psychic
         )
     );
 
-    EXPECT_FALSE(battle_state.player.has_status(StatusWithStage::Confused));
+    EXPECT_FALSE(
+        battle_state.player.has_status_with_stage(StatusWithStage::Confused)
+    );
 
     EXPECT_NE(
         0,
         execute_move(
-            policy_container,
+            ALWAYS_CONFUSE_LOW_RANDOM_CONFUSION_POLICY_CONTAINER,
             battle_state,
             Who::Player,
-            &all_move_infos[to_int(Move::Psychic)]
+            Move::Psychic
         )
     );
 }

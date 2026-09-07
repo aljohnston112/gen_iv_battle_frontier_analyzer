@@ -1,13 +1,50 @@
 TODO
     Damage calcs for physical attacks
 
-    These moves clear freeze
+    These moves clear freeze when used while frozen
         FlameWheel
         FlareBlitz
         SacredFire
 
-    Mist Ball is chosen when it lowers the other side from KOing in 2 or more turns
-    Psychic is chosen when it increases the hits to ko by 2 or more turns
-    Draco Meteor is chosen when the special attack drop does not make it take less damage or more turns to KO than every other move
-    Ancientpower is chosen when its boost causes a more powerful move to cause a KO in 2 less turns
+    Guts ignores burn modifier to attack
+
+    Mist Ball is chosen when it causes KO in 2 or more turns less
+    Psychic is chosen when it causes KO in 2 or more turns less
+    Energy Ball is chosen when it causes KO in 2 or more turns less
+    Shadow Ball is chosen when it causes KO in 2 or more turns less
+    Earth Power is chosen when it causes KO in 2 or more turns less
+    Focus Blast is chosen when it causes KO in 2 or more turns less
+
+    Draco Meteor is chosen when the special attack drop does not make hits to KO lower
+    
+    Ancient Power is chosen when its boost causes KO in 2 or more turns less
+    Charge Beam is chosen when its boost causes KO in 2 or more turns less
+
+    Flash fire is not activated by a Normal, Flying, Poison, or Steel move
+    Flash fire makes physical fire move use attack stat * 1.5
+    Flash fire makes physical fire move use attack stat * 1.5 with stat stages included
+    Flash fire does not affect any other type move for missing types
+
+    Burn halves physical damage
+    Burn halves physical damage with stat stage
+    Flamethrower does not burn fire types
+    Physical damage returns to normal after burn is cured
+
+    Dark Pulse makes opponent flinch on true roll
+    Dark Pulse does not make opponent flinch on false roll
+
+    Pokémon with a substitute cannot flinch
+    Pokémon with Inner Focus cannot flinch
+    Pokémon with Shield Dust cannot flinch
+    Pokémon with Steadfast get speed stage boosted by one when flinched
+    King's Rock with affected move causes flinch on true roll
+    King's Rock with affected move does not cause flinch on false roll
+    King's Rock with non-affected move does not cause flinch on true roll
+    Razor Fang with affected move causes flinch on true roll
+    Razor Fang with affected move does not cause flinch on false roll
+    Razor Fang with non-affected move does not cause flinch on true roll
+    Each strike of a multistrike move has an independent chance of causing the target to flinch from King's Rock
+    Each strike of a multistrike move has an independent chance of causing the target to flinch from Razor Fang
+
+    Non-ground move can do damage to a defender with Levitate: steel, flying, poison, normal
 

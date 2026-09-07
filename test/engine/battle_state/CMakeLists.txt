@@ -1,8 +1,8 @@
 add_executable(
         battle_state_test
 
-        ability_tests.cpp
-        battle_state_tests.cpp
+        slow_start_tests.cpp
+        struggle_tests.cpp
 )
 
 target_link_libraries(

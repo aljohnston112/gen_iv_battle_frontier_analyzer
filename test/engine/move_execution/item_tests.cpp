@@ -1,49 +1,37 @@
-#include "move_execution.h"
-
-#include <gtest/gtest.h>
-
-#include "end_of_turn_effects.h"
 #include "../mocks.h"
+#include "../test_policies.h"
+
+#include "damage_util.cpp"
+#include "end_of_turn_effects.h"
+#include "move_execution.h"
 #include "pokemon.h"
 #include "policies.h"
 
-TEST(MoveExecution, LeftoversHealsTheCorrectAmountOfHPAtTurnEnd) {
-    const auto& all_move_infos =
-        get_all_moves();
+#include <gtest/gtest.h>
 
+TEST(MoveExecution, LeftoversHealsTheCorrectAmountOfHPAtTurnEnd) {
     BattleState battle_state{
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
     };
     constexpr auto expected_damage = 34;
 
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        OpponentOptimizedSpeedAdvantagePolicy,
-        NeverParalyzeRNGPolicy
-    > policy_container{};
-
     EXPECT_EQ(
         expected_damage,
         execute_move(
-            policy_container,
+            OPPONENT_OPTIMIZED_POLICY_CONTAINER,
             battle_state,
             Who::Player,
-            &all_move_infos[to_int(Move::SignalBeam)]
+            Move::SignalBeam
         )
     );
     EXPECT_EQ(
         expected_damage,
         execute_move(
-            policy_container,
+            OPPONENT_OPTIMIZED_POLICY_CONTAINER,
             battle_state,
             Who::Player,
-            &all_move_infos[to_int(Move::SignalBeam)]
+            Move::SignalBeam
         )
     );
 
@@ -56,7 +44,7 @@ TEST(MoveExecution, LeftoversHealsTheCorrectAmountOfHPAtTurnEnd) {
         original_opponent_health - total_damage
     );
 
-    apply_end_of_turn(policy_container, battle_state);
+    apply_end_of_turn(OPPONENT_OPTIMIZED_POLICY_CONTAINER, battle_state);
 
     EXPECT_EQ(
         battle_state.opponent.get_current_stat(Stat::Health),
@@ -73,24 +61,42 @@ TEST(MoveExecution, DracoMeteorActivatesWhiteHerb) {
     const uint16_t expected_special_attack =
         battle_state.player.get_current_stat(Stat::SpecialAttack);
 
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > policy_container{};
     execute_move(
-        policy_container,
+        OPPONENT_OPTIMIZED_POLICY_CONTAINER,
         battle_state,
         Who::Player,
-        get_move_info(Move::DracoMeteor)
+        Move::DracoMeteor
     );
     EXPECT_EQ(battle_state.player.get_stat_stage(Stat::SpecialAttack), 0);
     EXPECT_EQ(
         battle_state.player.get_current_stat(Stat::SpecialAttack),
         expected_special_attack
     );
+}
+
+TEST(BattleState, WhiteHerbClearsNegativeStatus) {
+    auto state = PokemonState{&Latias_7_4};
+    state.decrease_stat_stage<Stat::Attack>(1);
+    EXPECT_EQ(
+        0,
+        state.get_stat_stage(Stat::Attack)
+    );
+    EXPECT_EQ(
+        Item::NoItem,
+        state.get_current_item_for_effect()
+    );
+}
+
+TEST(
+    MoveExecution,
+    WiseGlassesIncreasesSpecialAttackPowerBy10Percent
+) {
+    const BattleState battle_state{
+        PokemonState{&Regigias_7_3},
+        PokemonState{&Regigias_7_3}
+    };
+    random_does_correct_damage_for_attack<
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 112>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 132>
+    >(battle_state, Move::FocusBlast);
 }

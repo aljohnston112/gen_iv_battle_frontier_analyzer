@@ -1,11 +1,15 @@
 add_executable(
         move_execution_test
 
+        burn_tests.cpp
         confusion_tests.cpp
-        freeze_test.cpp
+        damage_util.cpp
+        flinch_tests.cpp
+        freeze_tests.cpp
+        item_tests.cpp
+        levitate_tests.cpp
         moonlight_tests.cpp
-        move_execution_test.cpp
-        paralysis_test.cpp
+        paralysis_tests.cpp
         special_attack_damage_tests.cpp
         stat_change_tests.cpp
         struggle_tests.cpp

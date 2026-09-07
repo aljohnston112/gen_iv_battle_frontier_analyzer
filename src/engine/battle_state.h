@@ -65,6 +65,8 @@ enum class StatusWithStage {
     ToxicSpiked,
     Perishing,
     LuckyChanted,
+    Accuracy,
+    Evasion,
     StatusWithStageCount
 };
 
@@ -127,15 +129,16 @@ class PokemonState {
         current_stats[to_int(stat)] = new_stat;
     }
 
-    void set_stat_based_on_current_state(const Stat stat) {
-        uint16_t new_stat = calculate_stat_based_on_stage(
+    template <Stat stat>
+    void set_stat_based_on_current_state() {
+        uint16_t new_stat = calculate_stat_based_on_stage<stat>(
             pokemon->get_stat(stat),
             get_stat_stage(stat),
             current_status_condition
         );
-        if (has_status(StatusWithStage::SlowStarting) &&
+        if (has_status_with_stage(StatusWithStage::SlowStarting) &&
             (stat == Stat::Attack || stat == Stat::Speed)
-            ) {
+        ) {
             new_stat /= 2;
         }
         set_stat(
@@ -205,16 +208,27 @@ public:
         return statuses[to_int(status)];
     }
 
-    [[nodiscard]] bool has_status(const StatusWithStage status) const {
+    void set_status(const Status status) {
+        statuses[to_int(status)] = true;
+    }
+
+    void clear_status(const Status status) {
+        statuses[to_int(status)] = false;
+    }
+
+    [[nodiscard]] bool
+    has_status_with_stage(const StatusWithStage status) const {
         return statuses_with_stage[to_int(status)];
     }
 
-    [[nodiscard]] bool has_status(const MoveStatusWithStage status) const {
+    [[nodiscard]] bool has_move_status_with_stage(
+        const MoveStatusWithStage status
+    ) const {
         return move_statuses_with_stage[to_int(status)];
     }
 
-    [[nodiscard]] uint8_t get_status_value(const StatusWithStage status) const {
-        if (!has_status(status)) {
+    [[nodiscard]] uint8_t get_status_stage(const StatusWithStage status) const {
+        if (!has_status_with_stage(status)) {
             return 0;
         }
         return static_cast<uint8_t>(status_stages[to_int(status)]);
@@ -223,7 +237,7 @@ public:
     [[nodiscard]] uint8_t get_status_value(
         const MoveStatusWithStage status
     ) const {
-        if (!has_status(status)) {
+        if (!has_move_status_with_stage(status)) {
             return 0;
         }
         return static_cast<uint8_t>(
@@ -239,14 +253,14 @@ public:
         if (status_stages[to_int(status)] == 0) {
             statuses_with_stage[to_int(status)] = false;
             if (status == StatusWithStage::SlowStarting) [[unlikely]] {
-                set_stat_based_on_current_state(Stat::Attack);
-                set_stat_based_on_current_state(Stat::Speed);
+                set_stat_based_on_current_state<Stat::Attack>();
+                set_stat_based_on_current_state<Stat::Speed>();
             }
         }
     }
 
-    void clear_status_value(const StatusWithStage status) {
-        statuses[to_int(status)] = false;
+    void clear_status_with_stage(const StatusWithStage status) {
+        statuses_with_stage[to_int(status)] = false;
     }
 
     [[nodiscard]] int8_t get_stat_stage(const Stat stat) const {
@@ -270,36 +284,46 @@ public:
         return current_stats[to_int(stat)];
     }
 
-    void increase_stat_stage(const Stat stat, const int n) {
+    template <Stat stat>
+    void increase_stat_stage(const int n) {
         stat_stages[to_int(stat)] =
             static_cast<int8_t>(std::min(6, get_stat_stage(stat) + n));
-        set_stat_based_on_current_state(stat);
+        set_stat_based_on_current_state<stat>();
     }
 
-    void decrease_stat_stage(const Stat stat, const int n) {
+    template <Stat stat>
+    void decrease_stat_stage(const int n) {
         if (stat == Stat::Health) {
             throw std::runtime_error{"Health does not have a state stage"};
         }
         stat_stages[to_int(stat)] =
             static_cast<int8_t>(std::max(-6, get_stat_stage(stat) - n));
-        set_stat_based_on_current_state(stat);
+        set_stat_based_on_current_state<stat>();
         if (current_item == Item::WhiteHerb && stat_stages[to_int(stat)] < 0) {
             stat_stages[to_int(stat)] = 0;
             clear_current_item();
-            set_stat_based_on_current_state(stat);
+            set_stat_based_on_current_state<stat>();
         }
+    }
+
+    [[nodiscard]] bool has_status_condition(
+        const StatusCondition condition
+    ) const {
+        return get_current_status_condition() == condition;
     }
 
     [[nodiscard]] StatusCondition get_current_status_condition() const {
         return current_status_condition;
     }
 
-    void try_set_status(const StatusCondition status_condition) {
-        if (current_status_condition == StatusCondition::NoCondition) {
+    void try_set_status_condition(const StatusCondition status_condition) {
+        if (current_status_condition == StatusCondition::NoCondition &&
+            !(status_condition == StatusCondition::Burn &&
+                has_type(PokemonType::Fire))
+        ) {
             current_status_condition = status_condition;
             if (status_condition == StatusCondition::Paralysis) {
-                // TODO test this if paralysis is ever added
-                set_stat_based_on_current_state(Stat::Speed);
+                set_stat_based_on_current_state<Stat::Speed>();
             }
         }
     }
@@ -309,8 +333,7 @@ public:
             current_status_condition == StatusCondition::Paralysis;
         current_status_condition = StatusCondition::NoCondition;
         if (was_paralysis) {
-            // TODO test this if paralysis is ever added
-            set_stat_based_on_current_state(Stat::Speed);
+            set_stat_based_on_current_state<Stat::Speed>();
         }
     }
 
@@ -373,10 +396,11 @@ public:
     }
 
     void apply_end_of_turn() {
-        if (has_status(StatusWithStage::SlowStarting)) [[unlikely]] {
+        if (has_status_with_stage(StatusWithStage::SlowStarting)) [[unlikely]] {
             decrement_status_value(StatusWithStage::SlowStarting);
         }
     }
+
 };
 
 enum class Weather {

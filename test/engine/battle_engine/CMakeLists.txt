@@ -1,6 +1,7 @@
 add_executable(
         battle_engine_test
-        battle_engine_tests.cpp
+
+        flash_fire_tests.cpp
 )
 
 target_link_libraries(

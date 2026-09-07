@@ -57,39 +57,77 @@ inline u_int16_t calculate_hp_stat(
     );
 }
 
-inline uint16_t calculate_stat_based_on_stage(
-    const uint16_t stat,
+inline uint16_t calculate_accuracy_and_evasion_based_on_stage(
+    const int move_accuracy,
+    const int accuracy_stage,
+    const int evasion_stage
+) {
+    static constexpr std::array<std::pair<uint16_t, uint16_t>, 13>
+        multipliers =
+        {
+            {
+                {33, 100},
+                {36, 100},
+                {43, 100},
+                {50, 100},
+                {60, 100},
+                {75, 100},
+                {100, 100},
+                {133, 100},
+                {166, 100},
+                {200, 100},
+                {233, 100},
+                {266, 100},
+                {300, 100}
+            }
+        };
+    if (accuracy_stage < -6 || accuracy_stage > 6 ||
+        evasion_stage < -6 || evasion_stage > 6
+    ) [[unlikely]] {
+        throw std::runtime_error("Bad stage");
+    }
+    const auto [num, den] =
+        multipliers[(accuracy_stage - evasion_stage) + 6];
+    const uint32_t modified_stat_value = num * move_accuracy / den;
+    return static_cast<uint16_t>(modified_stat_value);
+}
+
+
+template <Stat stat>
+uint16_t calculate_stat_based_on_stage(
+    const int stat_value,
     const int stage,
     const StatusCondition status_condition
 ) {
-    static constexpr std::array<std::pair<uint16_t, uint16_t>, 13> multipliers =
-    {
+    static constexpr std::array<std::pair<uint16_t, uint16_t>, 13>
+        multipliers =
         {
-            {2, 8},
-            {2, 7},
-            {2, 6},
-            {2, 5},
-            {2, 4},
-            {2, 3},
-            {1, 1},
-            {3, 2},
-            {4, 2},
-            {5, 2},
-            {6, 2},
-            {7, 2},
-            {8, 2}
-        }
-    };
+            {
+                {2, 8},
+                {2, 7},
+                {2, 6},
+                {2, 5},
+                {2, 4},
+                {2, 3},
+                {1, 1},
+                {3, 2},
+                {4, 2},
+                {5, 2},
+                {6, 2},
+                {7, 2},
+                {8, 2}
+            }
+        };
     if (stage < -6 || stage > 6) [[unlikely]] {
         throw std::runtime_error("Bad stage");
     }
     const auto [num, den] =
         multipliers[stage + 6];
-    uint32_t damage = num * stat / den;
+    uint32_t modified_stat_value = num * stat_value / den;
     if (status_condition == StatusCondition::Paralysis) [[unlikely]] {
-        damage = damage / 4;
+        modified_stat_value = modified_stat_value / 4;
     }
-    return static_cast<uint16_t>(damage);
+    return static_cast<uint16_t>(modified_stat_value);
 }
 
 inline double calculate_crit_chance_based_on_stage(const uint8_t stage) {

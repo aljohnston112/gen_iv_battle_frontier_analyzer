@@ -59,11 +59,11 @@ BestMoveResult get_move_results_for_when_defender_gets_omni_boost(
         policy_container.is_player_faster(battle_state);
     bool omni_boost_applied = false;
     if (!is_player_faster) {
-        temp_defender.increase_stat_stage(Stat::Attack, 1);
-        temp_defender.increase_stat_stage(Stat::Defense, 1);
-        temp_defender.increase_stat_stage(Stat::SpecialAttack, 1);
-        temp_defender.increase_stat_stage(Stat::SpecialDefense, 1);
-        temp_defender.increase_stat_stage(Stat::Speed, 1);
+        temp_defender.increase_stat_stage<Stat::Attack>(1);
+        temp_defender.increase_stat_stage<Stat::Defense>(1);
+        temp_defender.increase_stat_stage<Stat::SpecialAttack>(1);
+        temp_defender.increase_stat_stage<Stat::SpecialDefense>(1);
+        temp_defender.increase_stat_stage<Stat::Speed>(1);
         omni_boost_applied = true;
     }
     BestMoveResults temp_best_power_move = get_best_power_move_result(
@@ -81,7 +81,7 @@ BestMoveResult get_move_results_for_when_defender_gets_omni_boost(
         policy_container,
         temp_battle_state,
         Who::Player,
-        get_move_info(temp_best_power_move.attacker_results.move)
+        temp_best_power_move.attacker_results.move
     );
 
     BestMoveResult best_move_result = {};
@@ -93,21 +93,21 @@ BestMoveResult get_move_results_for_when_defender_gets_omni_boost(
         temp_best_power_move.attacker_results.damage;
     best_move_result.number_of_hits_to_ko = 1;
     if (!omni_boost_applied) {
-        temp_defender.increase_stat_stage(Stat::Attack, 1);
-        temp_defender.increase_stat_stage(Stat::Defense, 1);
-        temp_defender.increase_stat_stage(Stat::SpecialAttack, 1);
-        temp_defender.increase_stat_stage(Stat::SpecialDefense, 1);
-        temp_defender.increase_stat_stage(Stat::Speed, 1);
+        temp_defender.increase_stat_stage<Stat::Attack>(1);
+        temp_defender.increase_stat_stage<Stat::Defense>(1);
+        temp_defender.increase_stat_stage<Stat::SpecialAttack>(1);
+        temp_defender.increase_stat_stage<Stat::SpecialDefense>(1);
+        temp_defender.increase_stat_stage<Stat::Speed>(1);
     }
 
     while (temp_defender.get_current_stat(Stat::Health) > 0) {
         omni_boost_applied = false;
         if (!is_player_faster) {
-            temp_defender.increase_stat_stage(Stat::Attack, 1);
-            temp_defender.increase_stat_stage(Stat::Defense, 1);
-            temp_defender.increase_stat_stage(Stat::SpecialAttack, 1);
-            temp_defender.increase_stat_stage(Stat::SpecialDefense, 1);
-            temp_defender.increase_stat_stage(Stat::Speed, 1);
+            temp_defender.increase_stat_stage<Stat::Attack>(1);
+            temp_defender.increase_stat_stage<Stat::Defense>(1);
+            temp_defender.increase_stat_stage<Stat::SpecialAttack>(1);
+            temp_defender.increase_stat_stage<Stat::SpecialDefense>(1);
+            temp_defender.increase_stat_stage<Stat::Speed>(1);
             omni_boost_applied = true;
         }
         temp_best_power_move = get_best_power_move_result(
@@ -125,18 +125,18 @@ BestMoveResult get_move_results_for_when_defender_gets_omni_boost(
             policy_container,
             temp_battle_state,
             Who::Player,
-            get_move_info(temp_best_power_move.attacker_results.move)
+            temp_best_power_move.attacker_results.move
         );
         best_move_result.total_damage +=
             temp_best_power_move.attacker_results.damage;
         best_move_result.number_of_hits_to_ko++;
 
         if (!omni_boost_applied) {
-            temp_defender.increase_stat_stage(Stat::Attack, 1);
-            temp_defender.increase_stat_stage(Stat::Defense, 1);
-            temp_defender.increase_stat_stage(Stat::SpecialAttack, 1);
-            temp_defender.increase_stat_stage(Stat::SpecialDefense, 1);
-            temp_defender.increase_stat_stage(Stat::Speed, 1);
+            temp_defender.increase_stat_stage<Stat::Attack>(1);
+            temp_defender.increase_stat_stage<Stat::Defense>(1);
+            temp_defender.increase_stat_stage<Stat::SpecialAttack>(1);
+            temp_defender.increase_stat_stage<Stat::SpecialDefense>(1);
+            temp_defender.increase_stat_stage<Stat::Speed>(1);
         }
     }
     policy_container.log(
@@ -165,11 +165,11 @@ BestMoveResult get_move_results_for_when_attacker_gets_omni_boost(
         policy_container.is_player_faster(battle_state);
     bool omni_boost_applied = false;
     if (!is_player_faster) {
-        temp_attacker.increase_stat_stage(Stat::Attack, 1);
-        temp_attacker.increase_stat_stage(Stat::Defense, 1);
-        temp_attacker.increase_stat_stage(Stat::SpecialAttack, 1);
-        temp_attacker.increase_stat_stage(Stat::SpecialDefense, 1);
-        temp_attacker.increase_stat_stage(Stat::Speed, 1);
+        temp_attacker.increase_stat_stage<Stat::Attack>(1);
+        temp_attacker.increase_stat_stage<Stat::Defense>(1);
+        temp_attacker.increase_stat_stage<Stat::SpecialAttack>(1);
+        temp_attacker.increase_stat_stage<Stat::SpecialDefense>(1);
+        temp_attacker.increase_stat_stage<Stat::Speed>(1);
         omni_boost_applied = true;
     }
     BestMoveResults temp_best_power_move = get_best_power_move_result(
@@ -187,7 +187,7 @@ BestMoveResult get_move_results_for_when_attacker_gets_omni_boost(
         policy_container,
         temp_battle_state,
         Who::Opponent,
-        get_move_info(temp_best_power_move.attacker_results.move)
+        temp_best_power_move.attacker_results.move
     );
 
     BestMoveResult best_move_result = {};
@@ -199,21 +199,21 @@ BestMoveResult get_move_results_for_when_attacker_gets_omni_boost(
         temp_best_power_move.attacker_results.damage;
     best_move_result.number_of_hits_to_ko = 1;
     if (!omni_boost_applied) {
-        temp_attacker.increase_stat_stage(Stat::Attack, 1);
-        temp_attacker.increase_stat_stage(Stat::Defense, 1);
-        temp_attacker.increase_stat_stage(Stat::SpecialAttack, 1);
-        temp_attacker.increase_stat_stage(Stat::SpecialDefense, 1);
-        temp_attacker.increase_stat_stage(Stat::Speed, 1);
+        temp_attacker.increase_stat_stage<Stat::Attack>(1);
+        temp_attacker.increase_stat_stage<Stat::Defense>(1);
+        temp_attacker.increase_stat_stage<Stat::SpecialAttack>(1);
+        temp_attacker.increase_stat_stage<Stat::SpecialDefense>(1);
+        temp_attacker.increase_stat_stage<Stat::Speed>(1);
     }
 
     while (temp_defender.get_current_stat(Stat::Health) > 0) {
         omni_boost_applied = false;
         if (!is_player_faster) {
-            temp_attacker.increase_stat_stage(Stat::Attack, 1);
-            temp_attacker.increase_stat_stage(Stat::Defense, 1);
-            temp_attacker.increase_stat_stage(Stat::SpecialAttack, 1);
-            temp_attacker.increase_stat_stage(Stat::SpecialDefense, 1);
-            temp_attacker.increase_stat_stage(Stat::Speed, 1);
+            temp_attacker.increase_stat_stage<Stat::Attack>(1);
+            temp_attacker.increase_stat_stage<Stat::Defense>(1);
+            temp_attacker.increase_stat_stage<Stat::SpecialAttack>(1);
+            temp_attacker.increase_stat_stage<Stat::SpecialDefense>(1);
+            temp_attacker.increase_stat_stage<Stat::Speed>(1);
             omni_boost_applied = true;
         }
         temp_best_power_move = get_best_power_move_result(
@@ -231,18 +231,18 @@ BestMoveResult get_move_results_for_when_attacker_gets_omni_boost(
             policy_container,
             temp_battle_state,
             Who::Opponent,
-            get_move_info(temp_best_power_move.attacker_results.move)
+            temp_best_power_move.attacker_results.move
         );
         best_move_result.total_damage +=
             temp_best_power_move.attacker_results.damage;
         best_move_result.number_of_hits_to_ko++;
 
         if (!omni_boost_applied) {
-            temp_attacker.increase_stat_stage(Stat::Attack, 1);
-            temp_attacker.increase_stat_stage(Stat::Defense, 1);
-            temp_attacker.increase_stat_stage(Stat::SpecialAttack, 1);
-            temp_attacker.increase_stat_stage(Stat::SpecialDefense, 1);
-            temp_attacker.increase_stat_stage(Stat::Speed, 1);
+            temp_attacker.increase_stat_stage<Stat::Attack>(1);
+            temp_attacker.increase_stat_stage<Stat::Defense>(1);
+            temp_attacker.increase_stat_stage<Stat::SpecialAttack>(1);
+            temp_attacker.increase_stat_stage<Stat::SpecialDefense>(1);
+            temp_attacker.increase_stat_stage<Stat::Speed>(1);
         }
     }
     policy_container.log(
@@ -279,7 +279,7 @@ BestMoveResult get_move_results_for_when_defender_lowers_special_attack_by_one(
         policy_container.is_player_faster(battle_state);
     bool attack_dropped = false;
     if (!(is_player_faster && attacker_is_player)) {
-        temp_attacker.decrease_stat_stage(Stat::SpecialAttack, 1);
+        temp_attacker.decrease_stat_stage<Stat::SpecialAttack>(1);
         attack_dropped = true;
     }
     BestMoveResults temp_best_power_move = get_best_power_move_result(
@@ -297,7 +297,7 @@ BestMoveResult get_move_results_for_when_defender_lowers_special_attack_by_one(
         policy_container,
         temp_battle_state,
         who_attacker_is,
-        get_move_info(temp_best_power_move.attacker_results.move)
+        temp_best_power_move.attacker_results.move
     );
 
     BestMoveResult best_move_result = {};
@@ -309,13 +309,13 @@ BestMoveResult get_move_results_for_when_defender_lowers_special_attack_by_one(
         temp_best_power_move.attacker_results.damage;
     best_move_result.number_of_hits_to_ko = 1;
     if (!attack_dropped) {
-        temp_attacker.decrease_stat_stage(Stat::SpecialAttack, 1);
+        temp_attacker.decrease_stat_stage<Stat::SpecialAttack>(1);
     }
 
     while (temp_defender.get_current_stat(Stat::Health) > 0) {
         attack_dropped = false;
         if (!(is_player_faster && attacker_is_player)) {
-            temp_attacker.decrease_stat_stage(Stat::SpecialAttack, 1);
+            temp_attacker.decrease_stat_stage<Stat::SpecialAttack>(1);
             attack_dropped = true;
         }
         temp_best_power_move = get_best_power_move_result(
@@ -333,14 +333,14 @@ BestMoveResult get_move_results_for_when_defender_lowers_special_attack_by_one(
             policy_container,
             temp_battle_state,
             who_attacker_is,
-            get_move_info(temp_best_power_move.attacker_results.move)
+            temp_best_power_move.attacker_results.move
         );
         best_move_result.total_damage +=
             temp_best_power_move.attacker_results.damage;
         best_move_result.number_of_hits_to_ko++;
 
         if (!attack_dropped) {
-            temp_attacker.decrease_stat_stage(Stat::SpecialAttack, 1);
+            temp_attacker.decrease_stat_stage<Stat::SpecialAttack>(1);
         }
     }
     policy_container.log(
@@ -376,9 +376,6 @@ BestMoveResults get_best_power_move_result(
             .defender_results = *defender_move_results
         };
     }
-
-    const auto& all_move_infos =
-        get_all_moves();
     auto best = BestMoveResult{
         Move::MoveCount,
         0,
@@ -400,8 +397,9 @@ BestMoveResults get_best_power_move_result(
         .total_damage = 0
     };
     for (const auto move : moves) {
-        const auto& move_info = &all_move_infos[to_int(move)];
+        const auto& move_info = get_move_info(move);
         if (move_does_nothing(
+                policy_container,
                 battle_state,
                 move_info,
                 who_attacker_is)
@@ -419,6 +417,12 @@ BestMoveResults get_best_power_move_result(
                 move_info,
                 who_attacker_is
             );
+
+            // TODO Why is this needed to prevent Heatran_7_3 from picking Flamethrower against itself
+            if (damage == 0) {
+                continue;
+            }
+
             uint16_t hits_to_ko = static_cast<uint16_t>(
                 std::ceil(static_cast<double>(defender_hp) / damage)
             );
@@ -482,9 +486,9 @@ BestMoveResults get_best_power_move_result(
                     policy_container,
                     temp_battle_state,
                     who_attacker_is,
-                    move_info
+                    move
                 );
-                temp_attacker.increment_power_point(move_info->move, 1);
+                temp_attacker.increment_power_point(move, 1);
                 damage = total_damage;
                 while (temp_defender.get_current_stat(Stat::Health) > 0) {
                     ++hits_to_ko;
@@ -492,9 +496,9 @@ BestMoveResults get_best_power_move_result(
                         policy_container,
                         temp_battle_state,
                         who_attacker_is,
-                        move_info
+                        move
                     );
-                    temp_attacker.increment_power_point(move_info->move, 1);
+                    temp_attacker.increment_power_point(move, 1);
                 }
                 current_move_result = {
                     .move = move,
@@ -527,9 +531,9 @@ BestMoveResults get_best_power_move_result(
                         policy_container,
                         temp_battle_state,
                         Who::Opponent,
-                        move_info
+                        move
                     );
-                    temp_attacker.increment_power_point(move_info->move, 1);
+                    temp_attacker.increment_power_point(move, 1);
                     damage = total_damage;
                     while (temp_defender.get_current_stat(Stat::Health) > 0) {
                         ++hits_to_ko;
@@ -537,9 +541,9 @@ BestMoveResults get_best_power_move_result(
                             policy_container,
                             temp_battle_state,
                             Who::Opponent,
-                            move_info
+                            move
                         );
-                        temp_attacker.increment_power_point(move_info->move, 1);
+                        temp_attacker.increment_power_point(move, 1);
                     }
                 }
                 current_move_result = {
@@ -574,7 +578,7 @@ BestMoveResults get_best_power_move_result(
                 move_has_flag(
                     best_defender_move.move,
                     MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK_ONE_STAGE_50) &&
-                get_move_info(move)->category == Category::SPECIAL
+                move_info->category == Category::SPECIAL
             )[[unlikely]] {
                 current_move_result =
                     get_move_results_for_when_defender_lowers_special_attack_by_one(

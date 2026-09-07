@@ -1,38 +1,10 @@
 #include "../mocks.h"
+#include "../test_policies.h"
+
 #include "move_execution.h"
 #include "policies.h"
+
 #include "gtest/gtest.h"
-
-struct NeverDropStatPolicy :
-    StatChangePolicy<NeverDropStatPolicy> {
-    static bool roll_stat_drop(const uint8_t, const Who) {
-        return false;
-    }
-};
-
-struct NeverChangeStatPolicy :
-    StatChangePolicy<NeverChangeStatPolicy> {
-        static bool roll_stat_drop(const uint8_t, const Who) {
-            return false;
-        }
-
-        static bool roll_stat_increase(const uint8_t, const Who) {
-            return false;
-        }
-};
-
-template<bool ALWAYS_DROP_STAT>
-struct AlwaysBoostStatPolicy :
-    StatChangePolicy<AlwaysBoostStatPolicy<ALWAYS_DROP_STAT>> {
-
-    static bool roll_stat_drop(const uint8_t, const Who) {
-        return ALWAYS_DROP_STAT;
-    }
-
-    static bool roll_stat_increase(const uint8_t, const Who) {
-        return true;
-    }
-};
 
 static void move_does_not_boost_attackers_stat_past_six_on_true_roll(
     BattleState& battle_state,
@@ -40,26 +12,13 @@ static void move_does_not_boost_attackers_stat_past_six_on_true_roll(
     const Stat stat,
     const uint8_t n
 ) {
-    const auto& all_move_infos =
-        get_all_moves();
-
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        AlwaysBoostStatPolicy<false>,
-        NeverParalyzeRNGPolicy
-    > policy_container{};
-
     const uint8_t m = 10u / n;
     for (uint8_t i = 0; i < m; i++) {
         execute_move(
-            policy_container,
+            ALWAYS_BOOST_STAT_POLICY_CONTAINER,
             battle_state,
             Who::Player,
-            &all_move_infos[to_int(move)]
+            move
         );
 
         EXPECT_EQ(
@@ -76,25 +35,12 @@ static void move_does_not_boost_attackers_stat_on_false_roll(
     const Move move,
     const Stat stat
 ) {
-    const auto& all_move_infos =
-        get_all_moves();
-
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        NeverChangeStatPolicy,
-        NeverParalyzeRNGPolicy
-    > policy_container{};
-
     for (uint8_t i = 0; i < 6; i++) {
         execute_move(
-            policy_container,
+            OPPONENT_OPTIMIZED_POLICY_CONTAINER,
             battle_state,
             Who::Player,
-            &all_move_infos[to_int(move)]
+            move
         );
 
         EXPECT_EQ(
@@ -112,26 +58,13 @@ static void move_drops_targets_stat_on_true_roll(
     const Stat stat,
     const uint8_t n
 ) {
-    const auto& all_move_infos =
-        get_all_moves();
-
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > policy_container{};
-
     const uint8_t m = 6u / n;
     for (uint8_t i = 0; i < m; i++) {
         execute_move(
-            policy_container,
+            OPPONENT_OPTIMIZED_POLICY_CONTAINER,
             battle_state,
             Who::Opponent,
-            &all_move_infos[to_int(move)]
+            move
         );
 
         EXPECT_EQ(
@@ -149,26 +82,13 @@ static void move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
     const Stat stat,
     const uint8_t n
 ) {
-    const auto& all_move_infos =
-        get_all_moves();
-
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > policy_container{};
-
     const uint8_t m = 10u / n;
     for (uint8_t i = 0; i < m; i++) {
         execute_move(
-            policy_container,
+            OPPONENT_OPTIMIZED_POLICY_CONTAINER,
             battle_state,
             Who::Opponent,
-            &all_move_infos[to_int(move)]
+            move
         );
 
         EXPECT_EQ(
@@ -185,25 +105,12 @@ static void move_does_not_drop_targets_stat_on_false_roll(
     const Move move,
     const Stat stat
 ) {
-    const auto& all_move_infos =
-        get_all_moves();
-
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        NeverDropStatPolicy,
-        NeverParalyzeRNGPolicy
-    > policy_container{};
-
     for (uint8_t i = 0; i < 6; i++) {
         execute_move(
-            policy_container,
+            NEVER_DROP_STAT_POLICY_CONTAINER,
             battle_state,
             Who::Player,
-            &all_move_infos[to_int(move)]
+            move
         );
 
         EXPECT_EQ(
@@ -220,25 +127,12 @@ TEST(MoveExecution, AncientPowerIncreasesAllStatsByOneStage) {
         PokemonState{&Regigias_7_3}
     };
 
-    const auto& all_move_infos =
-        get_all_moves();
-
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > policy_container{};
-
     for (uint8_t i = 0; i < 7; i++) {
         execute_move(
-            policy_container,
+            OPPONENT_OPTIMIZED_POLICY_CONTAINER,
             battle_state,
             Who::Opponent,
-            &all_move_infos[to_int(Move::Ancientpower)]
+            Move::Ancientpower
         );
 
         EXPECT_EQ(
@@ -272,25 +166,12 @@ TEST(MoveExecution, AncientPowerDoesNotIncreaseAnyStatsOnFalseRoll) {
         PokemonState{&Regigias_7_3}
     };
 
-    const auto& all_move_infos =
-        get_all_moves();
-
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        NeverChangeStatPolicy,
-        NeverParalyzeRNGPolicy
-    > policy_container{};
-
     for (uint8_t i = 0; i < 7; i++) {
         execute_move(
-            policy_container,
+            NEVER_CHANGE_STAT_POLICY_CONTAINER,
             battle_state,
             Who::Opponent,
-            &all_move_infos[to_int(Move::Ancientpower)]
+            Move::Ancientpower
         );
 
         EXPECT_EQ(
@@ -396,36 +277,25 @@ TEST(MoveExecution, DracoMeteorDropsSpecialAtttack) {
         PokemonState{&LatiasNoItem},
         PokemonState{&LatiasNoItem}
     };
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > policy_container{};
+
     execute_move(
-        policy_container,
+        OPPONENT_OPTIMIZED_POLICY_CONTAINER,
         battle_state,
         Who::Player,
-        get_move_info(Move::DracoMeteor)
+        Move::DracoMeteor
     );
     execute_move(
-        policy_container,
+        OPPONENT_OPTIMIZED_POLICY_CONTAINER,
         battle_state,
         Who::Opponent,
-        get_move_info(Move::DracoMeteor)
+        Move::DracoMeteor
     );
     EXPECT_EQ(battle_state.player.get_stat_stage(Stat::SpecialAttack), -2);
-    EXPECT_EQ(battle_state.opponent.get_stat_stage(Stat::SpecialAttack), -2);
+    EXPECT_EQ(battle_state.opponent.get_stat_stage(Stat::SpecialAttack), 0);
 }
 
 TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {
-    const auto& all_move_infos =
-        get_all_moves();
-
-    BattleState battle_state{
+     BattleState battle_state{
         PokemonState{&Cresselia_7_4},
         PokemonState{&Latias_7_4}
     };
@@ -433,49 +303,29 @@ TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {
     constexpr std::array expected_low_rolls{18, 12, 9, 7, 6, 5, 4};
     constexpr std::array expected_high_rolls{21, 15, 11, 9, 7, 6, 6};
 
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        LowDamageRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > low_random_policy_container{};
-
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        HighDamageRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > high_random_policy_container{};
-
     for (uint8_t i = 0; i < 6; i++) {
         EXPECT_EQ(
             expected_low_rolls[i],
             execute_move(
-                low_random_policy_container,
+                LOW_RANDOM_DAMAGE_FACTOR_POLICY_CONTAINER,
                 battle_state,
                 Who::Player,
-                &all_move_infos[to_int(Move::Psychic)]
+                Move::Psychic
             )
         );
 
         execute_move(
-            low_random_policy_container,
+            LOW_RANDOM_DAMAGE_FACTOR_POLICY_CONTAINER,
             battle_state,
             Who::Opponent,
-            &all_move_infos[to_int(Move::MistBall)]
+            Move::MistBall
         );
 
         EXPECT_EQ(
             battle_state.player.get_stat_stage(Stat::SpecialAttack),
             -i - 1
         );
-        battle_state.player.increase_stat_stage(Stat::SpecialAttack, 1);
+        battle_state.player.increase_stat_stage<Stat::SpecialAttack>(1);
 
         EXPECT_EQ(
             battle_state.player.get_stat_stage(Stat::SpecialAttack),
@@ -484,18 +334,18 @@ TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {
         EXPECT_EQ(
             expected_high_rolls[i],
             execute_move(
-                high_random_policy_container,
+                HIGH_RANDOM_DAMAGE_FACTOR_POLICY_CONTAINER,
                 battle_state,
                 Who::Player,
-                &all_move_infos[to_int(Move::Psychic)]
+                Move::Psychic
             )
         );
 
         execute_move(
-            low_random_policy_container,
+            LOW_RANDOM_DAMAGE_FACTOR_POLICY_CONTAINER,
             battle_state,
             Who::Opponent,
-            &all_move_infos[to_int(Move::MistBall)]
+            Move::MistBall
         );
 
         EXPECT_EQ(
@@ -667,9 +517,6 @@ TEST(MoveExecution, FocusBlastDoesNotDropSpecialDefenseOnFalseRoll) {
 }
 
 TEST(MoveExecution, SpecialDefenseDropsCauseSpecialAttacksToDoMoreDamage) {
-    const auto& all_move_infos =
-        get_all_moves();
-
     BattleState battle_state{
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
@@ -678,41 +525,21 @@ TEST(MoveExecution, SpecialDefenseDropsCauseSpecialAttacksToDoMoreDamage) {
     constexpr std::array expected_low_rolls{15, 23, 30, 38, 46, 54, 61};
     constexpr std::array expected_high_rolls{18, 27, 36, 45, 54, 63, 72};
 
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        LowDamageRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > low_random_policy_container{};
-
-    constexpr PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        HighDamageRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        OpponentOptimizedStatChangePolicy,
-        NeverParalyzeRNGPolicy
-    > high_random_policy_container{};
-
     for (uint8_t i = 0; i < 6; i++) {
         EXPECT_EQ(
             expected_low_rolls[i],
             execute_move(
-                low_random_policy_container,
+                LOW_RANDOM_DAMAGE_FACTOR_POLICY_CONTAINER,
                 battle_state,
                 Who::Opponent,
-                &all_move_infos[to_int(Move::Psychic)]
+                Move::Psychic
             )
         );
         EXPECT_EQ(
             battle_state.player.get_stat_stage(Stat::SpecialDefense),
             -i - 1
         );
-        battle_state.player.increase_stat_stage(Stat::SpecialDefense, 1);
+        battle_state.player.increase_stat_stage<Stat::SpecialDefense>(1);
 
         EXPECT_EQ(
             battle_state.player.get_stat_stage(Stat::SpecialDefense),
@@ -721,10 +548,10 @@ TEST(MoveExecution, SpecialDefenseDropsCauseSpecialAttacksToDoMoreDamage) {
         EXPECT_EQ(
             expected_high_rolls[i],
             execute_move(
-                high_random_policy_container,
+                HIGH_RANDOM_DAMAGE_FACTOR_POLICY_CONTAINER,
                 battle_state,
                 Who::Opponent,
-                &all_move_infos[to_int(Move::Psychic)]
+                Move::Psychic
             )
         );
 

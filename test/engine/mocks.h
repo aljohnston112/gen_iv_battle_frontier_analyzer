@@ -39,6 +39,18 @@ const CustomPokemon Cresselia_7_4_NoItem{
     .pounds = 188.7
 };
 
+const CustomPokemon Heatran_7_3{
+    .unique_id = "Heatran_7_3",
+    .name = Pokemon::Heatran,
+    .ability = Ability::FlashFire,
+    .level = 50,
+    .item = Item::BrightPowder,
+    .types = {PokemonType::Fire, PokemonType::Steel},
+    .moves = {Move::DarkPulse, Move::EarthPower, Move::DragonPulse, Move::Flamethrower},
+    .stats = {194, 96, 123, 195, 123, 94},
+    .pounds = 948
+};
+
 const CustomPokemon Latias_7_4{
     .unique_id = "Latias_7_4",
     .name = Pokemon::Latias,
@@ -86,49 +98,6 @@ const CustomPokemon Regigias_7_3{
     },
     .stats = {213, 159, 127, 140, 127, 117},
     .pounds = 925.9
-};
-
-
-constexpr auto DEFAULT_POLICY =
-    PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        NeverParalyzeRNGPolicy,
-        OpponentOptimizedKnowledgePolicy,
-        OpponentOptimizedSpeedAdvantagePolicy,
-        OpponentOptimizedStatChangePolicy,
-        NoLogging
-    >{};
-
-constexpr auto DEFAULT_POLICY_WITH_LOGGING =
-    PolicyContainer<
-        OpponentOptimizedConfusionStatusPolicy,
-        NeverConfuseRNGPolicy,
-        NeverCritRNGPolicy,
-        OpponentOptimizedRandomFactorPolicy,
-        NeverFreezeRNGPolicy,
-        NeverParalyzeRNGPolicy,
-        OpponentOptimizedKnowledgePolicy,
-        OpponentOptimizedSpeedAdvantagePolicy,
-        OpponentOptimizedStatChangePolicy,
-        DebugLogging
-    >{};
-
-struct LowDamageRandomFactorPolicy :
-    DamageRandomFactorPolicy<LowDamageRandomFactorPolicy> {
-    static uint8_t roll_random(const Who) {
-        return 85;
-    }
-};
-
-struct HighDamageRandomFactorPolicy :
-    DamageRandomFactorPolicy<HighDamageRandomFactorPolicy> {
-    static uint8_t roll_random(const Who) {
-        return 100;
-    }
 };
 
 template <typename T>

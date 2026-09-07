@@ -17,15 +17,15 @@ inline void apply_end_of_turn_2([[maybe_unused]] PokemonState& pokemon_state) {
     // 2.0 Wish: "pokemon's wish came true"
 }
 
-inline void apply_end_of_turn_3([[maybe_unused]]PokemonState& pokemon_state) {
+inline void apply_end_of_turn_3([[maybe_unused]] PokemonState& pokemon_state) {
     // 3.0 Hail, Rain, Sandstorm, or Sun message
 }
 
-inline void apply_end_of_turn_4([[maybe_unused]]PokemonState& pokemon_state) {
+inline void apply_end_of_turn_4([[maybe_unused]] PokemonState& pokemon_state) {
     // 4.0 Dry Skin, Hydration, Ice Body, Rain Dish
 }
 
-inline void apply_end_of_turn_5([[maybe_unused]]PokemonState& pokemon_state) {
+inline void apply_end_of_turn_5([[maybe_unused]] PokemonState& pokemon_state) {
     // 5.0 Gravity
 }
 
@@ -49,6 +49,11 @@ inline void apply_end_of_turn_6(PokemonState& pokemon_state) {
     }
     // 6.4 Leech Seed: "pokémon's health is sapped by leech seed"
     // 6.5 Burn, Nightmare, Poison Heal, Poison: "pokémon is hurt by poison"
+    if (pokemon_state.has_status_condition(StatusCondition::Burn)) {
+        pokemon_state.add_damage(
+            pokemon_state.get_original_stat(Stat::Health) / 8
+        );
+    }
     // 6.6 Flame Orb activation, Toxic Orb activation
     // 6.7 Curse (from a Ghost)
     // 6.8 Bind, Clamp, Fire Spin, Magma Storm, Sand Tomb, Whirlpool, Wrap
@@ -64,19 +69,19 @@ inline void apply_end_of_turn_6(PokemonState& pokemon_state) {
     // 6.18 Sticky Barb
 }
 
-inline void apply_end_of_turn_7([[maybe_unused]]PokemonState& pokemon_state) {
+inline void apply_end_of_turn_7([[maybe_unused]] PokemonState& pokemon_state) {
     // 7.0 Doom Desire, Future Sight
 }
 
-inline void apply_end_of_turn_8([[maybe_unused]]PokemonState& pokemon_state) {
+inline void apply_end_of_turn_8([[maybe_unused]] PokemonState& pokemon_state) {
     // 8.0 Perish Song
 }
 
-inline void apply_end_of_turn_9([[maybe_unused]]PokemonState& pokemon_state) {
+inline void apply_end_of_turn_9([[maybe_unused]] PokemonState& pokemon_state) {
     // 9.0 Trick Room
 }
 
-inline void apply_end_of_turn_10([[maybe_unused]]PokemonState& pokemon_state) {
+inline void apply_end_of_turn_10([[maybe_unused]] PokemonState& pokemon_state) {
     // 10.0 Pokemon is switched in (if previous Pokemon fainted)
     // 10.1 Toxic Spikes
     // 10.2 Spikes
@@ -85,9 +90,9 @@ inline void apply_end_of_turn_10([[maybe_unused]]PokemonState& pokemon_state) {
 
 template <typename... Policies>
 void apply_end_of_turn(
-    const PolicyContainer< Policies...>& policy_container,
+    const PolicyContainer<Policies...>& policy_container,
     BattleState& battle_state
-    ) {
+) {
     auto& player = battle_state.player;
     auto& opponent = battle_state.opponent;
     const bool player_faster =

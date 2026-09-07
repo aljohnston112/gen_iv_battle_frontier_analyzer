@@ -25,8 +25,8 @@ template <typename... Policies>
 Who who_goes_first(
     const PolicyContainer<Policies...>& policy_container,
     const BattleState& battle_state,
-    [[maybe_unused]] const MoveInfo* player_move,
-    [[maybe_unused]] const MoveInfo* opponent_move
+    [[maybe_unused]] const Move player_move,
+    [[maybe_unused]] const Move opponent_move
 ) {
     const bool player_faster =
         policy_container.is_player_faster(battle_state);
@@ -41,8 +41,8 @@ template <typename... Policies>
 TurnResult execute_turn(
     const PolicyContainer<Policies...>& policy_container,
     BattleState& battle_state,
-    const MoveInfo* player_move,
-    const MoveInfo* opponent_move
+    const Move player_move,
+    const Move opponent_move
 ) {
     const bool player_goes_first =
         who_goes_first(
@@ -53,11 +53,11 @@ TurnResult execute_turn(
         ) == Who::Player;
     const Who first = player_goes_first ? Who::Player : Who::Opponent;
     const Who second = player_goes_first ? Who::Opponent : Who::Player;
-    const MoveInfo* first_move =
+    const Move first_move =
         player_goes_first ? player_move : opponent_move;
-    const MoveInfo* second_move = player_goes_first
-                                      ? opponent_move
-                                      : player_move;
+    const Move second_move = player_goes_first
+                                 ? opponent_move
+                                 : player_move;
 
     const uint16_t first_move_damage =
         execute_move(
@@ -66,6 +66,8 @@ TurnResult execute_turn(
             first,
             first_move
         );
+
+
     const uint16_t second_move_damage =
         execute_move(
             policy_container,
@@ -77,10 +79,10 @@ TurnResult execute_turn(
 
     return TurnResult{
         .battle_state = battle_state,
-        .player_move_used = player_move->move,
+        .player_move_used = player_move,
         .player_move_damage =
         player_goes_first ? first_move_damage : second_move_damage,
-        .opponent_move_used = opponent_move->move,
+        .opponent_move_used = opponent_move,
         .opponent_move_damage =
         player_goes_first ? second_move_damage : first_move_damage,
     };
@@ -117,15 +119,18 @@ inline BattleResultEntry single_battle(
     const BattleEngine battle_engine{
         std::move(
             PolicyContainer<
+                AlwaysHitAccuracyEvasionFactorPolicy,
                 OpponentOptimizedConfusionStatusPolicy,
                 NeverConfuseRNGPolicy,
                 NeverCritRNGPolicy,
                 OpponentOptimizedRandomFactorPolicy,
+                NeverFlinchRNGPolicy,
                 NeverFreezeRNGPolicy,
                 NeverParalyzeRNGPolicy,
                 OpponentOptimizedKnowledgePolicy,
                 OpponentOptimizedSpeedAdvantagePolicy,
                 OpponentOptimizedStatChangePolicy,
+                OpponentOptimizedBurnRNGPolicy,
                 DebugLogging
             >{}
         ),
@@ -146,9 +151,6 @@ inline BattleResultEntry single_battle(
         }
     );
 
-    const auto& all_move_infos =
-        get_all_moves();
-
     auto* battle_state = &path.back().battle_state;
     while (!is_battle_over(*battle_state)) {
         const BestMoveResults player_move_results =
@@ -164,7 +166,7 @@ inline BattleResultEntry single_battle(
             );
         const BestMoveResults opponent_move_results =
             choose_move_against_defender(
-            battle_engine.policy_container,
+                battle_engine.policy_container,
                 *battle_state,
                 battle_state->opponent,
                 battle_state->opponent.get_moves(),
@@ -177,15 +179,15 @@ inline BattleResultEntry single_battle(
             execute_turn(
                 battle_engine.policy_container,
                 *battle_state,
-                &all_move_infos[
-                    to_int(player_move_results.attacker_results.move)
-                ],
-                &all_move_infos[
-                    to_int(opponent_move_results.attacker_results.move)
-                ]
+                player_move_results.attacker_results.move,
+                opponent_move_results.attacker_results.move
             );
         path.emplace_back(std::move(turn_result));
         battle_state = &path.back().battle_state;
+    }
+
+    if (battle_state->player.get_current_stat(Stat::Health) > 0) {
+        won = true;
     }
 
     return BattleResultEntry{

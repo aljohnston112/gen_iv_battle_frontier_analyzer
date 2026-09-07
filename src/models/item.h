@@ -270,6 +270,7 @@ constexpr auto IMPLEMENTED_ITEMS = [] {
     implemented_items[to_int(Item::Leftovers)] = true;
     implemented_items[to_int(Item::WhiteHerb)] = true;
     implemented_items[to_int(Item::WiseGlasses)] = true;
+    implemented_items[to_int(Item::BrightPowder)] = true;
 
     // Any damage modifiers may also need to be applied to hit_from_confusion
     // Items removed or switched may necessitate modifying state

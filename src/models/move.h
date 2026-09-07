@@ -1007,7 +1007,8 @@ enum class MoveFlag {
     BOOSTS_ATTACKERS_SPECIAL_DEFENSE,
     BOOSTS_ATTACKERS_SPEED,
     BREAKS_PROTECT,
-    BURNS_DEFENDER,
+    BURNS_DEFENDER, // TODO replace
+    BURNS_DEFENDER_10,
     BYPASSES_PROTECT,
     CAN_BE_REFLECTED_BY_MIRROR_MOVE,
     CAN_BE_SNATCHED,
@@ -1016,7 +1017,8 @@ enum class MoveFlag {
     CONFUSES_DEFENDER, // TODO replace
     CONTINUES,
     DEALS_DOUBLE_AFTER_MINIMIZE,
-    FLINCHES_DEFENDER,
+    FLINCHES_DEFENDER, // TODO replace
+    FLINCHES_DEFENDER_20,
     FORCES_USER_OUT,
     FREEZES_DEFENDER, // TODO replace
     FREEZES_DEFENDER_10,
@@ -1049,7 +1051,7 @@ enum class MoveFlag {
     MAKES_DEFENDER_SLEEP,
     BYPASSES_ACCURACY,
     OMNI_BOOSTS_ATTACKER,
-    PARALYZES_DEFENDER, // TODO remove
+    PARALYZES_DEFENDER, // TODO replace
     PARALYZES_DEFENDER_10,
     POISONS_DEFENDER,
     RAISES_DEFENDER_ATTACK,
@@ -1859,7 +1861,7 @@ inline constexpr std::array<
 
     flags[to_int(Move::FirePunch)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::Ember)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
-    flags[to_int(Move::Flamethrower)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
+    flags[to_int(Move::Flamethrower)][to_int(MoveFlag::BURNS_DEFENDER_10)] = true;
     flags[to_int(Move::FireBlast)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::FlameWheel)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::SacredFire)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
@@ -1961,7 +1963,7 @@ inline constexpr std::array<
     flags[to_int(Move::Astonish)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::Extrasensory)][to_int(MoveFlag::FLINCHES_DEFENDER)] =
         true;
-    flags[to_int(Move::DarkPulse)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
+    flags[to_int(Move::DarkPulse)][to_int(MoveFlag::FLINCHES_DEFENDER_20)] = true;
     flags[to_int(Move::AirSlash)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::DragonRush)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::ThunderFang)][to_int(MoveFlag::FLINCHES_DEFENDER)] =
@@ -2779,6 +2781,9 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::ShadowBall)] = true;
     implemented_moves[to_int(Move::EnergyBall)] = true;
     implemented_moves[to_int(Move::ChargeBeam)] = true;
+    implemented_moves[to_int(Move::DragonPulse)] = true;
+    implemented_moves[to_int(Move::DarkPulse)] = true;
+    implemented_moves[to_int(Move::Flamethrower)] = true;
 
     return implemented_moves;
 }();
