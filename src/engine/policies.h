@@ -43,21 +43,11 @@ struct RealAccuracyEvasionFactorPolicy :
     explicit RealAccuracyEvasionFactorPolicy(std::mt19937 generator) :
         m_generator(std::move(generator)) {}
 
-    bool does_move_miss_due_to_accuracy_and_evasion_impl(
-        const BattleState& battle_state,
-        const MoveInfo* move,
-        const Who who_attacker_is
+    static uint16_t get_accuracy_evasion_value(
+        const PokemonState& attacker_state,
+        const PokemonState& defender_state,
+        const MoveInfo* move
     ) {
-        const bool is_player_attacker = who_attacker_is == Who::Player;
-        const PokemonState& attacker_state =
-            is_player_attacker
-                ? battle_state.player
-                : battle_state.opponent;
-        const PokemonState& defender_state =
-            is_player_attacker
-                ? battle_state.opponent
-                : battle_state.player;
-
         uint16_t accuracy_evasion_value =
             calculate_accuracy_and_evasion_based_on_stage(
                 move->accuracy,
@@ -74,6 +64,30 @@ struct RealAccuracyEvasionFactorPolicy :
             accuracy_evasion_value =
                 static_cast<uint16_t>(accuracy_evasion_value * 9 / 10);
         }
+        return accuracy_evasion_value;
+    }
+
+    bool does_move_miss_due_to_accuracy_and_evasion_impl(
+        const BattleState& battle_state,
+        const MoveInfo* move_info,
+        const Who who_attacker_is
+    ) {
+        const bool is_player_attacker = who_attacker_is == Who::Player;
+        const PokemonState& attacker_state =
+            is_player_attacker
+                ? battle_state.player
+                : battle_state.opponent;
+        const PokemonState& defender_state =
+            is_player_attacker
+                ? battle_state.opponent
+                : battle_state.player;
+
+        const uint16_t accuracy_evasion_value =
+            get_accuracy_evasion_value(
+                attacker_state,
+                defender_state,
+                move_info
+            );
         return roll_accuracy_threshold(who_attacker_is) >=
             accuracy_evasion_value;
     }
@@ -362,6 +376,65 @@ struct AlwaysParalyzeRNGPolicy :
     }
 };
 
+// Sleep
+// =============================================================================
+template <typename T>
+struct SleepStatusRNGPolicy {
+    bool roll_for_sleep(const int8_t percent) const {
+        return static_cast<const T*>(this)->
+            roll_for_sleep_impl(percent);
+    }
+
+    bool roll_for_awakening(const int8_t percent) const {
+        return static_cast<const T*>(this)->roll_for_awakening_impl(percent);
+    }
+};
+
+template <typename T>
+concept IsSleepStatusRNGPolicy =
+    std::derived_from<T, SleepStatusRNGPolicy<T>>;
+
+struct NeverSleepRNGPolicy :
+    SleepStatusRNGPolicy<NeverSleepRNGPolicy> {
+    static bool roll_for_sleep_impl(const int8_t) {
+        return false;
+    }
+
+    static bool roll_for_awakening_impl(const int8_t) {
+        return false;
+    }
+};
+
+struct AlwaysSleepRNGPolicy :
+    SleepStatusRNGPolicy<AlwaysSleepRNGPolicy> {
+    static bool roll_for_sleep_impl(const int8_t) {
+        return true;
+    }
+
+    static bool roll_for_awakening_impl(const int8_t) {
+        return true;
+    }
+};
+
+template <typename T>
+struct SleepStatusPolicy {
+    uint8_t roll_turns_asleep(const Who who) const {
+        return static_cast<const T*>(this)->roll_turns_asleep_impl(who);
+    }
+};
+
+template <typename T>
+concept IsSleepStatusPolicy =
+    std::derived_from<T, SleepStatusPolicy<T>>;
+
+struct OpponentOptimizedSleepStatusPolicy :
+    SleepStatusPolicy<OpponentOptimizedSleepStatusPolicy> {
+    static uint8_t roll_turns_asleep_impl(const Who who) {
+        return who == Who::Player ? 4 : 1;
+    }
+};
+
+
 // Speed
 // =============================================================================
 template <typename T>
@@ -563,6 +636,24 @@ concept IsAllowedPolicy =
             { t.is_player_faster_impl(state) } -> std::same_as<bool>;
         })
     ||
+    (derives_from_template<SleepStatusPolicy, T> &&
+        requires(const T& t) {
+            {
+                t.roll_turns_asleep_impl(Who::Player)
+            } -> std::same_as<uint8_t>;
+            {
+                t.roll_random_sleep_impl(Who::Player)
+            } -> std::same_as<uint8_t>;
+        }) ||
+    (derives_from_template<SleepStatusRNGPolicy, T> &&
+        requires(const T& t) {
+            {
+                t.roll_for_sleep_impl(static_cast<double>(0.0))
+            } -> std::same_as<bool>;
+            {
+                t.roll_for_awakening_impl(static_cast<double>(0.0))
+            } -> std::same_as<bool>;
+        }) ||
     (derives_from_template<StatChangePolicy, T> && requires(const T& t) {
         {
             t.roll_stat_drop_impl(static_cast<uint8_t>(0), Who::Player)
@@ -582,6 +673,8 @@ template <typename... Policies>
     contains_at_most_one<FreezeRNGPolicy, Policies...> &&
     contains_at_most_one<LoggingPolicy, Policies...> &&
     contains_at_most_one<OpponentKnowledgePolicy, Policies...> &&
+    contains_at_most_one<SleepStatusPolicy, Policies...> &&
+    contains_at_most_one<SleepStatusRNGPolicy, Policies...> &&
     contains_at_most_one<SpeedAdvantagePolicy, Policies...> &&
     contains_at_most_one<StatChangePolicy, Policies...>
 struct PolicyContainer : Policies... {

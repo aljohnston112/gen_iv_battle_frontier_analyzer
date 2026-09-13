@@ -85,6 +85,36 @@ const CustomPokemon LatiasNoItem{
     .pounds = 88.2
 };
 
+const CustomPokemon Regirock_7_3{
+    .unique_id = "Regirock_7_3",
+    .name = Pokemon::Regirock,
+    .ability = Ability::ClearBody,
+    .level = 50,
+    .item = Item::ChestoBerry,
+    .types = {PokemonType::Rock, PokemonType::NoType},
+    .moves = {
+        Move::StoneEdge, Move::HammerArm, Move::Rest,
+        Move::Curse
+    },
+    .stats = {183, 117, 217, 60, 162, 67},
+    .pounds = 507.1
+};
+
+const CustomPokemon Regirock_7_3_NoItem{
+    .unique_id = "Regirock_7_3",
+    .name = Pokemon::Regirock,
+    .ability = Ability::ClearBody,
+    .level = 50,
+    .item = Item::NoItem,
+    .types = {PokemonType::Rock, PokemonType::NoType},
+    .moves = {
+        Move::StoneEdge, Move::HammerArm, Move::Rest,
+        Move::Curse
+    },
+    .stats = {183, 117, 217, 60, 162, 67},
+    .pounds = 507.1
+};
+
 const CustomPokemon Regigias_7_3{
     .unique_id = "Regigias_7_3",
     .name = Pokemon::Regigigas,

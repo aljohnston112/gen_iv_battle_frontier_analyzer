@@ -1549,5 +1549,4 @@ struct CustomPokemon {
     uint16_t get_stat(const Stat stat) const {
         return stats[to_int(stat)];
     }
-
 };

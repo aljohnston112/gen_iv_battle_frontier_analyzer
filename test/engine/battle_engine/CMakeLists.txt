@@ -2,6 +2,8 @@ add_executable(
         battle_engine_test
 
         flash_fire_tests.cpp
+        sleep_tests.cpp
+        curse_tests.cpp
 )
 
 target_link_libraries(
@@ -11,4 +13,8 @@ target_link_libraries(
         GTest::gtest_main
 )
 
-gtest_discover_tests(battle_engine_test WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+add_test(
+        NAME battle_engine_test
+        COMMAND battle_engine_test
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+)

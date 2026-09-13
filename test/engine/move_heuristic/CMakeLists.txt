@@ -11,4 +11,8 @@ target_link_libraries(
         GTest::gtest_main
 )
 
-gtest_discover_tests(move_heuristic_test WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+add_test(
+        NAME move_heuristic_test
+        COMMAND move_heuristic_test
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+)

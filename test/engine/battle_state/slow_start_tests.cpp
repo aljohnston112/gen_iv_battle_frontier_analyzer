@@ -66,8 +66,8 @@ TEST(
         (Regigias_7_3.get_stat(Stat::Speed) / 2),
         battle_state.player.get_current_stat(Stat::Speed)
     );
-    battle_state.player.decrease_stat_stage<Stat::Attack>(1);
-    battle_state.player.decrease_stat_stage<Stat::Speed>(2);
+    battle_state.player.decrease_stat_stage<Stat::Attack>(1, StatDropSource::StatDropSourceCount);
+    battle_state.player.decrease_stat_stage<Stat::Speed>(2, StatDropSource::StatDropSourceCount);
 
     for (size_t i = 0; i < 5; i++) {
         apply_end_of_turn(DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING, battle_state);

@@ -1,6 +1,7 @@
 add_executable(
         battle_state_test
 
+        clear_body_tests.cpp
         slow_start_tests.cpp
         struggle_tests.cpp
 )
@@ -12,4 +13,8 @@ target_link_libraries(
         GTest::gtest_main
 )
 
-gtest_discover_tests(battle_state_test WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+add_test(
+        NAME battle_state_test
+        COMMAND battle_state_test
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+)

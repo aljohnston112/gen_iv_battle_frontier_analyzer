@@ -1035,7 +1035,8 @@ enum class MoveFlag {
     LOWERS_ATTACKERS_SPECIAL_ATTACK, // TODO replace
     LOWERS_ATTACKERS_SPECIAL_ATTACK_TWO_STAGES,
     LOWERS_ATTACKERS_SPECIAL_DEFENSE,
-    LOWERS_ATTACKERS_SPEED,
+    LOWERS_ATTACKERS_SPEED, // TODO replace
+    LOWERS_ATTACKERS_SPEED_ONE_STAGE,
     LOWERS_DEFENDER_ACCURACY,
     LOWERS_DEFENDER_ATTACK,
     LOWERS_DEFENDER_DEFENSE,
@@ -1457,7 +1458,7 @@ inline constexpr std::array<
     flags[to_int(Move::RockPolish)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPEED)] =
         true;
 
-    flags[to_int(Move::HammerArm)][to_int(MoveFlag::LOWERS_ATTACKERS_SPEED)] =
+    flags[to_int(Move::HammerArm)][to_int(MoveFlag::LOWERS_ATTACKERS_SPEED_ONE_STAGE)] =
         true;
 
     flags[to_int(Move::DoubleTeam)][to_int(MoveFlag::BOOSTS_ATTACKERS_EVASION)]
@@ -2784,7 +2785,10 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::DragonPulse)] = true;
     implemented_moves[to_int(Move::DarkPulse)] = true;
     implemented_moves[to_int(Move::Flamethrower)] = true;
-
+    implemented_moves[to_int(Move::Rest)] = true;
+    implemented_moves[to_int(Move::StoneEdge)] = true;
+    implemented_moves[to_int(Move::Curse)] = true;
+    implemented_moves[to_int(Move::HammerArm)] = true;
     return implemented_moves;
 }();
 

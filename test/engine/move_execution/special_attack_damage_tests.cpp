@@ -1,7 +1,7 @@
 #include "../mocks.h"
 #include "../test_policies.h"
 
-#include "damage_util.cpp"
+#include "damage_util.h"
 #include "end_of_turn_effects.h"
 #include "move_execution.h"
 
@@ -109,7 +109,7 @@ TEST(
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.opponent.decrease_stat_stage<Stat::SpecialDefense>(5);
+    battle_state.opponent.decrease_stat_stage<Stat::SpecialDefense>(5, StatDropSource::StatDropSourceCount);
     random_does_correct_damage_for_attack<
         DamageTestCase<AlwaysCritRNGPolicy, LowDamageRandomFactorPolicy, 108>,
         DamageTestCase<AlwaysCritRNGPolicy, HighDamageRandomFactorPolicy, 127>
@@ -124,7 +124,7 @@ TEST(
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.player.decrease_stat_stage<Stat::SpecialAttack>(6);
+    battle_state.player.decrease_stat_stage<Stat::SpecialAttack>(6, StatDropSource::StatDropSourceCount);
     random_does_correct_damage_for_attack<
         DamageTestCase<AlwaysCritRNGPolicy, LowDamageRandomFactorPolicy, 31>,
         DamageTestCase<AlwaysCritRNGPolicy, HighDamageRandomFactorPolicy, 37>
@@ -146,22 +146,6 @@ TEST(
     >(battle_state, Move::Psychic);
 }
 
-namespace {
-    struct IncreasingDamageRandomFactorPolicy :
-        DamageRandomFactorPolicy<IncreasingDamageRandomFactorPolicy> {
-        uint8_t roll_random_impl(const Who) const {
-            return current_random++;
-        }
-
-        uint8_t peek_next_random() const {
-            return current_random;
-        }
-
-    private:
-        mutable uint8_t current_random = 85;
-    };
-}
-
 TEST(
     MoveExecution,
     DamageMonotonicallyIncreasesWithIncreasingRandomForSpecialAttacks
@@ -170,7 +154,7 @@ TEST(
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.opponent.decrease_stat_stage<Stat::SpecialDefense>(5);
+    battle_state.opponent.decrease_stat_stage<Stat::SpecialDefense>(5, StatDropSource::StatDropSourceCount);
 
     constexpr int16_t min_damage = 108;
     constexpr int16_t max_damage = 127;
@@ -197,11 +181,9 @@ TEST(
     const auto move = &all_move_infos[to_int(Move::Psychic)];
 
     int16_t current_damage =
-        get_damage_of_power_move(
+        get_damage_of_move(
             policy_container,
             battle_state,
-            battle_state.player,
-            battle_state.opponent,
             move,
             Who::Player
         );
@@ -210,11 +192,9 @@ TEST(
 
     while (policy_container.peek_next_random() <= 100) {
         current_damage =
-            get_damage_of_power_move(
+            get_damage_of_move(
                 policy_container,
                 battle_state,
-                battle_state.player,
-                battle_state.opponent,
                 move,
                 Who::Player
             );

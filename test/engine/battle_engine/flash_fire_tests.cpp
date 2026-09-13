@@ -276,7 +276,7 @@ TEST(BattleEngine,
     };
 
     battle_state.player.set_status(Status::FlashFired);
-    battle_state.player.decrease_stat_stage<Stat::SpecialAttack>(2);
+    battle_state.player.decrease_stat_stage<Stat::SpecialAttack>(2, StatDropSource::StatDropSourceCount);
 
     EXPECT_EQ(
         52u,

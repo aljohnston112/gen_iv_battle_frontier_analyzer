@@ -8,6 +8,7 @@
 enum class FieldStatus {
     GravityActive,
     TrickRoomActive,
+    UproarActive,
     FieldStatusCount
 };
 
@@ -44,7 +45,7 @@ enum class StatusWithStage {
     Charging,
     Recharging,
     ElectricBoosted,
-    CritChanceModified,
+    CritChanceModifier,
     Rampaging,
     Stockpiling,
     Uproaring,
@@ -54,6 +55,7 @@ enum class StatusWithStage {
     Safeguarding,
     Tailwinded,
     Bounded,
+    Asleep,
     Confused,
     Drowsy,
     Embargoed,
@@ -86,6 +88,29 @@ struct MoveStatusStage {
     Move move;
 };
 
+template <>
+struct std::hash<MoveStatusStage> {
+    size_t operator()(const MoveStatusStage& value) const noexcept {
+        return hash_combine(
+            0,
+            std::hash<int>{}(value.stage),
+            std::hash<int>{}(to_int(value.move))
+        );
+    }
+};
+
+enum class StatDropSource {
+    Burn,
+    Item,
+    GuardSwap,
+    Paralysis,
+    PowerSwap,
+    Self,
+    OtherAbility,
+    OtherMove,
+    StatDropSourceCount
+};
+
 class PokemonState {
     const CustomPokemon* pokemon;
 
@@ -113,17 +138,8 @@ class PokemonState {
     std::array<int8_t, to_int(Move::MoveCount)> power_points;
     std::vector<Move> current_moves;
     std::array<PokemonType, 2> current_types;
-    // void set_stat(const Stat stat, const uint16_t value) {
-    //     current_stats[to_int(stat)] = value;
-    // }
 
-    void set_status_with_stage(
-        const StatusWithStage status_with_stage,
-        const int8_t value
-    ) {
-        statuses_with_stage[to_int(status_with_stage)] = true;
-        status_stages[to_int(status_with_stage)] = value;
-    }
+    // If any fields are added, UPDATE THE HASH
 
     void set_stat(const Stat stat, const uint16_t new_stat) {
         current_stats[to_int(stat)] = new_stat;
@@ -175,6 +191,11 @@ public:
         }
     }
 
+    void set_type(const PokemonType type) {
+        current_types[0] = type;
+        current_types[1] = PokemonType::NoType;
+    }
+
     [[nodiscard]] Ability get_current_ability() const {
         return pokemon->ability;
     }
@@ -221,12 +242,6 @@ public:
         return statuses_with_stage[to_int(status)];
     }
 
-    [[nodiscard]] bool has_move_status_with_stage(
-        const MoveStatusWithStage status
-    ) const {
-        return move_statuses_with_stage[to_int(status)];
-    }
-
     [[nodiscard]] uint8_t get_status_stage(const StatusWithStage status) const {
         if (!has_status_with_stage(status)) {
             return 0;
@@ -234,15 +249,43 @@ public:
         return static_cast<uint8_t>(status_stages[to_int(status)]);
     }
 
-    [[nodiscard]] uint8_t get_status_value(
+    void set_status_with_stage(
+        const StatusWithStage status_with_stage,
+        const int8_t value
+    ) {
+        if (status_with_stage == StatusWithStage::Asleep &&
+            get_current_item_for_effect() == Item::ChestoBerry
+        ) {
+            clear_current_item();
+        } else {
+            statuses_with_stage[to_int(status_with_stage)] = true;
+            status_stages[to_int(status_with_stage)] = value;
+        }
+    }
+
+    [[nodiscard]] bool has_move_status_with_stage(
+        const MoveStatusWithStage status
+    ) const {
+        return move_statuses_with_stage[to_int(status)];
+    }
+
+    [[nodiscard]] uint8_t get_move_status_stage(
         const MoveStatusWithStage status
     ) const {
         if (!has_move_status_with_stage(status)) {
             return 0;
         }
-        return static_cast<uint8_t>(
-            move_status_stages[to_int(status)].stage
-        );
+        return static_cast<uint8_t>(move_status_stages[to_int(status)].stage);
+    }
+
+    void set_move_status_with_stage(
+        const MoveStatusWithStage status_with_stage,
+        const Move move,
+        const int8_t value
+    ) {
+        move_statuses_with_stage[to_int(status_with_stage)] = true;
+        move_status_stages[to_int(status_with_stage)].move = move;
+        move_status_stages[to_int(status_with_stage)].stage = value;
     }
 
     void decrement_status_value(const StatusWithStage status) {
@@ -259,6 +302,21 @@ public:
         }
     }
 
+    bool is_semi_invulnerable() const {
+        return move_statuses_with_stage[
+                to_int(MoveStatusWithStage::Concealed)
+            ] > 0 ||
+            move_statuses_with_stage[
+                to_int(MoveStatusWithStage::SkyHigh)
+            ] > 0 ||
+            move_statuses_with_stage[
+                to_int(MoveStatusWithStage::Submerged)
+            ] > 0 ||
+            move_statuses_with_stage[
+                to_int(MoveStatusWithStage::Underground)
+            ] > 0;
+    }
+
     void clear_status_with_stage(const StatusWithStage status) {
         statuses_with_stage[to_int(status)] = false;
     }
@@ -268,11 +326,15 @@ public:
     }
 
     [[nodiscard]] bool has_type(const PokemonType type) const {
-        return pokemon->types[0] == type || pokemon->types[1] == type;
+        return current_types[0] == type || current_types[1] == type;
     }
 
     void set_confused(const uint8_t n) {
         set_status_with_stage(StatusWithStage::Confused, n);
+    }
+
+    void set_sleep(const uint8_t n) {
+        set_status_with_stage(StatusWithStage::Asleep, n);
     }
 
     [[nodiscard]] uint16_t get_original_stat(const Stat stat) const {
@@ -292,9 +354,15 @@ public:
     }
 
     template <Stat stat>
-    void decrease_stat_stage(const int n) {
+    void decrease_stat_stage(const int n, const StatDropSource source) {
         if (stat == Stat::Health) {
             throw std::runtime_error{"Health does not have a state stage"};
+        }
+        if (get_current_ability() == Ability::ClearBody &&
+            (source == StatDropSource::OtherAbility ||
+                source == StatDropSource::OtherMove)
+        ) {
+            return;
         }
         stat_stages[to_int(stat)] =
             static_cast<int8_t>(std::max(-6, get_stat_stage(stat) - n));
@@ -348,6 +416,10 @@ public:
         current_item = Item::NoItem;
     }
 
+    [[nodiscard]] uint get_power_points(const Move move) const {
+        return power_points[to_int(move)];
+    }
+
     [[nodiscard]] bool has_power_points() const {
         bool result = false;
         for (size_t i = 0; i < current_moves.size(); ++i) {
@@ -399,8 +471,76 @@ public:
         if (has_status_with_stage(StatusWithStage::SlowStarting)) [[unlikely]] {
             decrement_status_value(StatusWithStage::SlowStarting);
         }
+        if (has_status_with_stage(StatusWithStage::Confused)) {
+            decrement_status_value(StatusWithStage::Confused);
+        }
+        if (has_status_with_stage(StatusWithStage::Asleep)) {
+            decrement_status_value(StatusWithStage::Asleep);
+        }
+        if (has_status(Status::Cursed)) {
+            add_damage(get_original_stat(Stat::Health) / 4);
+        }
     }
 
+    friend struct std::hash<PokemonState>;
+};
+
+template <typename T>
+std::size_t hash_vector_of_enums(const std::vector<T>& values) noexcept {
+    std::size_t hash = 0;
+    for (const auto& value : values) {
+        hash = hash_combine(
+            hash,
+            std::hash<int>{}(to_int(value))
+        );
+    }
+
+    return hash;
+}
+
+template <typename T, size_t N>
+size_t hash_array_of_enums(
+    const std::array<T, N>& array
+) noexcept {
+    size_t hash = 0;
+    for (const auto& value : array) {
+        hash = hash_combine(
+            hash,
+            std::hash<int>{}(to_int(value))
+        );
+    }
+    return hash;
+}
+
+template <typename T, size_t N>
+size_t hash_array(const std::array<T, N>& array) {
+    size_t hash = 0;
+    for (const auto& value : array) {
+        hash = hash_combine(hash, std::hash<T>{}(value));
+    }
+    return hash;
+}
+
+template <>
+struct std::hash<PokemonState> {
+    size_t operator()(const PokemonState& state) const noexcept {
+        return hash_combine(
+            0,
+            std::hash<std::string>{}(state.pokemon->unique_id),
+            std::hash<int>{}(to_int(state.current_item)),
+            std::hash<int>{}(to_int(state.current_status_condition)),
+            hash_array(state.current_stats),
+            hash_array(state.statuses),
+            hash_array(state.statuses_with_stage),
+            hash_array(state.status_stages),
+            hash_array(state.move_statuses_with_stage),
+            hash_array(state.move_status_stages),
+            hash_array(state.stat_stages),
+            hash_array(state.power_points),
+            hash_vector_of_enums(state.current_moves),
+            hash_array_of_enums(state.current_types)
+        );
+    }
 };
 
 enum class Weather {
@@ -424,10 +564,37 @@ public:
     PokemonState opponent;
     Weather weather;
 
+    // If any fields are added, UPDATE THE HASH
+
     BattleState(
         PokemonState&& player_in,
         PokemonState&& opponent_in
     ) : player(player_in),
         opponent(opponent_in),
         weather(Weather::Clear) {}
+
+    bool is_battle_over() const {
+        return player.get_current_stat(Stat::Health) == 0 ||
+            opponent.get_current_stat(Stat::Health) == 0;
+    }
+
+    void set_field_status(const FieldStatus field_status) {
+        field_statuses[to_int(field_status)] = true;
+    }
+
+    bool has_field_status(const FieldStatus field_status) const {
+        return field_statuses[to_int(field_status)];
+    }
+};
+
+template <>
+struct std::hash<BattleState> {
+    size_t operator()(const BattleState& state) const noexcept {
+        return hash_combine(
+            0,
+            std::hash<int>{}(to_int(state.weather)),
+            std::hash<PokemonState>{}(state.player),
+            std::hash<PokemonState>{}(state.opponent)
+        );
+    }
 };

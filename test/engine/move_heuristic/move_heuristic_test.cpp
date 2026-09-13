@@ -7,7 +7,7 @@
 
 TEST(
     MoveHeuristic,
-    PlayerCresselia_7_4ChoosesSignalBeamAndOpponentCresselia_7_4ChoosesSignalBeam
+    PlayerCresselia_7_4ChoosesSignalBeamAndOpponentCresselia_7_4ChoosesPsychic
 ) {
     const BattleState battle_state{
         PokemonState{&Cresselia_7_4},
@@ -17,15 +17,13 @@ TEST(
         choose_move_against_defender(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state,
-            battle_state.player,
             battle_state.player.get_moves(),
-            battle_state.opponent,
             Who::Player,
             std::nullopt,
             std::nullopt
         );
     ASSERT_EQ(attacker_results.move, Move::SignalBeam);
-    ASSERT_EQ(defender_results.move, Move::SignalBeam);
+    ASSERT_EQ(defender_results.move, Move::Psychic);
 }
 
 TEST(
@@ -38,11 +36,9 @@ TEST(
     };
     auto [attacker_results, defender_results] =
         choose_move_against_defender(
-            DEFAULT_POLICY_CONTAINER_WITH_LOGGING,
+            DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state,
-            battle_state.player,
             battle_state.player.get_moves(),
-            battle_state.opponent,
             Who::Player,
             std::nullopt,
             std::nullopt
@@ -61,11 +57,9 @@ TEST(
     };
     auto [attacker_results, defender_results] =
         choose_move_against_defender(
-            DEFAULT_POLICY_CONTAINER_WITH_LOGGING,
+            DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state,
-            battle_state.player,
             battle_state.player.get_moves(),
-            battle_state.opponent,
             Who::Player,
             std::nullopt,
             std::nullopt
@@ -74,3 +68,23 @@ TEST(
     ASSERT_EQ(attacker_results.move, Move::EarthPower);
 }
 
+TEST(
+    MoveHeuristic,
+    Cresselia_7_4ChoosesPsychicAndOpponentRegirock_7_3ChoosesCurse
+) {
+    const BattleState battle_state{
+        PokemonState{&Cresselia_7_4},
+        PokemonState{&Regirock_7_3}
+    };
+    auto [attacker_results, defender_results] =
+        choose_move_against_defender(
+            DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+            battle_state,
+            battle_state.opponent.get_moves(),
+            Who::Opponent,
+            std::nullopt,
+            std::nullopt
+        );
+    ASSERT_EQ(defender_results.move, Move::Psychic);
+    ASSERT_EQ(attacker_results.move, Move::Curse);
+}

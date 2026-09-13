@@ -97,6 +97,9 @@ static void move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
         );
 
         battle_state.opponent.increment_power_point(move, 1);
+        battle_state.player.add_hp(
+            battle_state.player.get_original_stat(Stat::Health)
+        );
     }
 }
 
@@ -157,6 +160,9 @@ TEST(MoveExecution, AncientPowerIncreasesAllStatsByOneStage) {
         );
 
         battle_state.opponent.increment_power_point(Move::Ancientpower, 1);
+        battle_state.player.add_hp(
+            battle_state.player.get_original_stat(Stat::Health)
+        );
     }
 }
 
@@ -295,7 +301,7 @@ TEST(MoveExecution, DracoMeteorDropsSpecialAtttack) {
 }
 
 TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {
-     BattleState battle_state{
+    BattleState battle_state{
         PokemonState{&Cresselia_7_4},
         PokemonState{&Latias_7_4}
     };
@@ -565,4 +571,22 @@ TEST(MoveExecution, SpecialDefenseDropsCauseSpecialAttacksToDoMoreDamage) {
         );
         battle_state.opponent.increment_power_point(Move::Psychic, 2);
     }
+}
+
+// Speed
+// =============================================================================
+
+TEST(MoveExecution, HammerArmDropsSpeedOneStage) {
+    BattleState battle_state{
+        PokemonState{&Regirock_7_3},
+        PokemonState{&Regirock_7_3}
+    };
+
+    execute_move(
+        DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+        battle_state,
+        Who::Player,
+        Move::HammerArm
+    );
+    EXPECT_EQ(battle_state.player.get_stat_stage(Stat::Speed), -1);
 }

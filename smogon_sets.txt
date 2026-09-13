@@ -51,3 +51,14 @@ IVs: 24 HP / 24 Atk / 24 Def / 24 SpA / 24 SpD / 24 Spe
 - Focus Blast
 - Thunderbolt
 - Ancient Power
+
+Regirock (F) @ Chesto Berry
+Ability: Clear Body
+Level: 50
+EVs: 252 HP / 252 SpD
+Careful Nature
+IVs: 24 HP / 24 Atk / 24 Def / 24 SpA / 24 SpD / 24 Spe
+- Stone Edge
+- Hammer Arm
+- Rest
+- Curse

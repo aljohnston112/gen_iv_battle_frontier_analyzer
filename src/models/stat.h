@@ -27,7 +27,6 @@ enum class StatusCondition {
     Paralysis,
     PoisonStatus,
     BadlyPoisoned,
-    Sleep,
     NoCondition
 };
 

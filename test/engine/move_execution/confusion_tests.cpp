@@ -297,6 +297,7 @@ TEST(MoveExecution, ConfusionEndsOnCorrectTurn) {
             Move::Psychic
         )
     );
+    battle_state.player.apply_end_of_turn();
 
     EXPECT_TRUE(
         battle_state.player.has_status_with_stage(StatusWithStage::Confused)
@@ -311,6 +312,7 @@ TEST(MoveExecution, ConfusionEndsOnCorrectTurn) {
             Move::Psychic
         )
     );
+    battle_state.player.apply_end_of_turn();
 
     EXPECT_FALSE(
         battle_state.player.has_status_with_stage(StatusWithStage::Confused)

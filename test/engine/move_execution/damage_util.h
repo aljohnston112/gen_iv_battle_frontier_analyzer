@@ -1,9 +1,24 @@
+#pragma once
 #include "../mocks.h"
 
 #include "end_of_turn_effects.h"
 #include "move_execution.h"
 
 #include "gtest/gtest.h"
+
+struct IncreasingDamageRandomFactorPolicy :
+    DamageRandomFactorPolicy<IncreasingDamageRandomFactorPolicy> {
+    uint8_t roll_random_impl(const Who) const {
+        return current_random++;
+    }
+
+    uint8_t peek_next_random() const {
+        return current_random;
+    }
+
+private:
+    mutable uint8_t current_random = 85;
+};
 
 template <IsDamageTestCase Case>
 static void random_does_correct_damage_for_attack(
@@ -18,11 +33,9 @@ static void random_does_correct_damage_for_attack(
 
     EXPECT_EQ(
         expected_damage,
-        get_damage_of_power_move(
+        get_damage_of_move(
             policy_container,
             battle_state,
-            battle_state.player,
-            battle_state.opponent,
             move,
             Who::Player
         )

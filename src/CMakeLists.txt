@@ -15,7 +15,7 @@ function(add_data_copy_post_build target_name)
             TARGET ${target_name} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${CMAKE_SOURCE_DIR}/data"
-            "${CMAKE_BINARY_DIR}/data"
+            "$<TARGET_FILE_DIR:${target_name}>/data"
             COMMENT "Copying data assets"
             VERBATIM
     )

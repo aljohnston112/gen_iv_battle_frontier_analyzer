@@ -44,14 +44,6 @@ TEST(MoveExecution, TrueRollDoesBurn) {
     );
 }
 
-TEST(MoveExecution, BurnHalvesPhysicalDamage) {
-    // TODO
-}
-
-TEST(MoveExecution, BurnHalvesPhysicalDamageWithStatStageChangesIncluded) {
-    // TODO
-}
-
 TEST(MoveExecution, EndOfTurnBurnDamageIsCorrect) {
     auto defender = PokemonState{&Cresselia_7_4};
 

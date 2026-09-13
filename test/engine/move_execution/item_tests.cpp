@@ -1,7 +1,7 @@
 #include "../mocks.h"
 #include "../test_policies.h"
 
-#include "damage_util.cpp"
+#include "damage_util.h"
 #include "end_of_turn_effects.h"
 #include "move_execution.h"
 #include "pokemon.h"
@@ -76,7 +76,10 @@ TEST(MoveExecution, DracoMeteorActivatesWhiteHerb) {
 
 TEST(BattleState, WhiteHerbClearsNegativeStatus) {
     auto state = PokemonState{&Latias_7_4};
-    state.decrease_stat_stage<Stat::Attack>(1);
+    state.decrease_stat_stage<Stat::Attack>(
+        1,
+        StatDropSource::StatDropSourceCount
+    );
     EXPECT_EQ(
         0,
         state.get_stat_stage(Stat::Attack)
@@ -99,4 +102,34 @@ TEST(
         DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 112>,
         DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 132>
     >(battle_state, Move::FocusBlast);
+}
+
+
+TEST(
+    MoveExecution,
+    BrightPowderLowersOthersAccuracyByTenPercent
+) {
+    const BattleState battle_state{
+        PokemonState{&Regigias_7_3},
+        PokemonState{&Heatran_7_3}
+    };
+    const MoveInfo* move_info = get_move_info(Move::Flamethrower);
+    const uint16_t accuracy_evasion_value =
+        calculate_accuracy_and_evasion_based_on_stage(
+            move_info->accuracy,
+            battle_state.player.get_status_stage(
+                StatusWithStage::Accuracy
+            ),
+            battle_state.opponent.get_status_stage(
+                StatusWithStage::Evasion
+            )
+        );
+    EXPECT_EQ(
+        accuracy_evasion_value * 9 / 10,
+        RealAccuracyEvasionFactorPolicy::get_accuracy_evasion_value(
+            battle_state.player,
+            battle_state.opponent,
+            move_info
+        )
+    );
 }

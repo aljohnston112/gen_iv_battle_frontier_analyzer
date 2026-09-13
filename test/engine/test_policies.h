@@ -150,6 +150,69 @@ constexpr auto ALWAYS_PARALYZE_POLICY_CONTAINER =
 constexpr auto NEVER_PARALYZE_POLICY_CONTAINER =
     PARALYSIS_POLICY_CONTAINER<NeverParalyzeRNGPolicy>;
 
+// Sleep
+// =============================================================================
+class HighRandomSleepEffectPolicy :
+    public SleepStatusPolicy<HighRandomSleepEffectPolicy> {
+public:
+    static uint8_t roll_turns_asleep_impl(const Who) {
+        return 2;
+    }
+
+    static uint8_t roll_random_sleep_impl(const Who) {
+        return 100;
+    }
+};
+
+class LowRandomSleepEffectPolicy :
+    public SleepStatusPolicy<LowRandomSleepEffectPolicy> {
+public:
+    static uint8_t roll_turns_asleep_impl(const Who) {
+        return 2;
+    }
+
+    static uint8_t roll_random_sleep_impl(const Who) {
+        return 85;
+    }
+};
+
+constexpr PolicyContainer<
+    AlwaysHitAccuracyEvasionFactorPolicy,
+    NeverConfuseRNGPolicy,
+    LowRandomConfusionEffectPolicy,
+    LowRandomSleepEffectPolicy,
+    NeverSleepRNGPolicy,
+    NeverCritRNGPolicy,
+    OpponentOptimizedRandomFactorPolicy,
+    NeverFlinchRNGPolicy,
+    NeverFreezeRNGPolicy,
+    OpponentOptimizedStatChangePolicy,
+    NeverParalyzeRNGPolicy,
+    NeverBurnRNGPolicy
+> NEVER_SLEEP_POLICY_CONTAINER{};
+
+template <typename T>
+constexpr PolicyContainer<
+    AlwaysHitAccuracyEvasionFactorPolicy,
+    NeverConfuseRNGPolicy,
+    LowRandomConfusionEffectPolicy,
+    T,
+    AlwaysSleepRNGPolicy,
+    NeverCritRNGPolicy,
+    OpponentOptimizedRandomFactorPolicy,
+    NeverFlinchRNGPolicy,
+    NeverFreezeRNGPolicy,
+    OpponentOptimizedStatChangePolicy,
+    NeverParalyzeRNGPolicy,
+    NeverBurnRNGPolicy
+> ALWAYS_SLEEP_POLICY_CONTAINER{};
+
+constexpr auto ALWAYS_SLEEP_HIGH_RANDOM_SLEEP_POLICY_CONTAINER =
+    ALWAYS_SLEEP_POLICY_CONTAINER<HighRandomSleepEffectPolicy>;
+
+constexpr auto ALWAYS_SLEEP_LOW_RANDOM_SLEEP_POLICY_CONTAINER =
+    ALWAYS_SLEEP_POLICY_CONTAINER<LowRandomSleepEffectPolicy>;
+
 // Stat Changes
 // =============================================================================
 template <bool ALWAYS_BOOST_STAT>
