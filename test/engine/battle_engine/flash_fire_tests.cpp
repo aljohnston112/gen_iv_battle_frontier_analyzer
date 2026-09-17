@@ -103,7 +103,7 @@ TEST(BattleEngine, FlashFireIsNotActivatedAfterBeingHitWithNonFireMoves) {
 
     BattleState battle_state4{
         PokemonState{&Heatran_7_3},
-        PokemonState{&Regigias_7_3}
+        PokemonState{&Regigigas_7_3}
     };
 
     EXPECT_FALSE(battle_state4.player.has_status(Status::FlashFired));
@@ -323,7 +323,7 @@ TEST(BattleEngine,
 
     BattleState battle_state1{
         PokemonState{&Heatran_7_3},
-        PokemonState{&Regigias_7_3}
+        PokemonState{&Regigigas_7_3}
     };
 
     battle_state1.player.set_status(Status::FlashFired);

@@ -5,6 +5,15 @@
 #include "pokemon.h"
 #include "serebii_pokemon_data_source.h"
 
+enum class Weather {
+    Sun,
+    Rain,
+    Sandstorm,
+    Hail,
+    Fog,
+    Clear
+};
+
 enum class FieldStatus {
     GravityActive,
     TrickRoomActive,
@@ -137,6 +146,8 @@ class PokemonState {
     std::array<int8_t, to_int(Stat::NoStat)> stat_stages = {0, 0, 0, 0, 0, 0};
     std::array<int8_t, to_int(Move::MoveCount)> power_points;
     std::vector<Move> current_moves;
+    std::vector<Move> current_accurate_moves;
+
     std::array<PokemonType, 2> current_types;
 
     // If any fields are added, UPDATE THE HASH
@@ -161,6 +172,17 @@ class PokemonState {
             stat,
             new_stat
         );
+    }
+
+    void refresh_current_accurate_moves(const Weather current_weather) {
+        current_accurate_moves.clear();
+        for (const auto move : current_moves) {
+            if (get_move_info(move)->accuracy == 100 ||
+                (move == Move::Blizzard && current_weather == Weather::Hail)
+            ) {
+                current_accurate_moves.emplace_back(move);
+            }
+        }
     }
 
 public:
@@ -189,6 +211,8 @@ public:
             current_stats[to_int(Stat::Attack)] /= 2;
             current_stats[to_int(Stat::Speed)] /= 2;
         }
+
+        refresh_current_accurate_moves(Weather::Clear);
     }
 
     void set_type(const PokemonType type) {
@@ -200,7 +224,11 @@ public:
         return pokemon->ability;
     }
 
-    [[nodiscard]] const std::vector<Move>& get_moves() const {
+    [[nodiscard]] const std::vector<Move>& get_moves(
+        const bool can_use_less_accurate) const {
+        if (!can_use_less_accurate && !current_accurate_moves.empty()) {
+            return current_accurate_moves;
+        }
         return current_moves;
     }
 
@@ -253,13 +281,29 @@ public:
         const StatusWithStage status_with_stage,
         const int8_t value
     ) {
-        if (status_with_stage == StatusWithStage::Asleep &&
-            get_current_item_for_effect() == Item::ChestoBerry
+        if ((status_with_stage == StatusWithStage::Asleep ||
+                status_with_stage == StatusWithStage::Confused) &&
+            (get_current_item_for_effect() == Item::ChestoBerry ||
+                get_current_item_for_effect() == Item::LumBerry)
         ) {
             clear_current_item();
         } else {
             statuses_with_stage[to_int(status_with_stage)] = true;
             status_stages[to_int(status_with_stage)] = value;
+        }
+    }
+
+    void decrement_status_with_stage_value(const StatusWithStage status) {
+        status_stages[to_int(status)] =
+            static_cast<int8_t>(
+                std::max(0, status_stages[to_int(status)] - 1)
+            );
+        if (status_stages[to_int(status)] == 0) {
+            statuses_with_stage[to_int(status)] = false;
+            if (status == StatusWithStage::SlowStarting) [[unlikely]] {
+                set_stat_based_on_current_state<Stat::Attack>();
+                set_stat_based_on_current_state<Stat::Speed>();
+            }
         }
     }
 
@@ -286,20 +330,6 @@ public:
         move_statuses_with_stage[to_int(status_with_stage)] = true;
         move_status_stages[to_int(status_with_stage)].move = move;
         move_status_stages[to_int(status_with_stage)].stage = value;
-    }
-
-    void decrement_status_value(const StatusWithStage status) {
-        status_stages[to_int(status)] =
-            static_cast<int8_t>(
-                std::max(0, status_stages[to_int(status)] - 1)
-            );
-        if (status_stages[to_int(status)] == 0) {
-            statuses_with_stage[to_int(status)] = false;
-            if (status == StatusWithStage::SlowStarting) [[unlikely]] {
-                set_stat_based_on_current_state<Stat::Attack>();
-                set_stat_based_on_current_state<Stat::Speed>();
-            }
-        }
     }
 
     bool is_semi_invulnerable() const {
@@ -394,6 +424,10 @@ public:
                 set_stat_based_on_current_state<Stat::Speed>();
             }
         }
+        if (get_current_item_for_effect() == Item::LumBerry) {
+            clear_current_item();
+            clear_status_condition();
+        }
     }
 
     void clear_status_condition() {
@@ -439,7 +473,7 @@ public:
         power_points[to_int(move)] += n;
     }
 
-    void decrement_power_point(const Move move) {
+    void decrement_power_point(const Move move, const bool pressure) {
         if (
             power_points[to_int(move)] < 1 &&
             !(move == Move::Struggle && !has_power_points())
@@ -450,10 +484,20 @@ public:
         }
         if (move != Move::Struggle) [[likely]] {
             power_points[to_int(move)]--;
+            if (pressure && power_points[to_int(move)] > 0) {
+                power_points[to_int(move)]--;
+            }
             if (power_points[to_int(move)] == 0) [[unlikely]] {
                 std::erase(current_moves, move);
+                std::erase(current_accurate_moves, move);
                 if (current_moves.empty()) [[unlikely]] {
                     current_moves.emplace_back(Move::Struggle);
+                    if (!current_accurate_moves.empty()) [[unlikely]] {
+                        throw std::runtime_error{
+                            "Accurate moves out of sync"
+                        };
+                    }
+                    current_accurate_moves.emplace_back(Move::Struggle);
                 }
             }
         }
@@ -462,24 +506,37 @@ public:
     void clear_power_points(const Move move) {
         power_points[to_int(move)] = 0;
         std::erase(current_moves, move);
+        std::erase(current_accurate_moves, move);
         if (current_moves.empty()) [[unlikely]] {
             current_moves.emplace_back(Move::Struggle);
+            if (!current_accurate_moves.empty()) [[unlikely]] {
+                throw std::runtime_error{"Accurate moves out of sync"};
+            }
+            current_accurate_moves.emplace_back(Move::Struggle);
         }
     }
 
     void apply_end_of_turn() {
         if (has_status_with_stage(StatusWithStage::SlowStarting)) [[unlikely]] {
-            decrement_status_value(StatusWithStage::SlowStarting);
+            decrement_status_with_stage_value(StatusWithStage::SlowStarting);
         }
         if (has_status_with_stage(StatusWithStage::Confused)) {
-            decrement_status_value(StatusWithStage::Confused);
+            decrement_status_with_stage_value(StatusWithStage::Confused);
         }
         if (has_status_with_stage(StatusWithStage::Asleep)) {
-            decrement_status_value(StatusWithStage::Asleep);
+            decrement_status_with_stage_value(StatusWithStage::Asleep);
         }
         if (has_status(Status::Cursed)) {
             add_damage(get_original_stat(Stat::Health) / 4);
         }
+    }
+
+    void set_item(const Item item) {
+        current_item = item;
+    }
+
+    void on_new_weather(const Weather weather) {
+        refresh_current_accurate_moves(weather);
     }
 
     friend struct std::hash<PokemonState>;
@@ -543,26 +600,18 @@ struct std::hash<PokemonState> {
     }
 };
 
-enum class Weather {
-    Sun,
-    Rain,
-    Sandstorm,
-    Hail,
-    Fog,
-    Clear
-};
-
 class BattleState {
     std::array<bool, to_int(FieldStatus::FieldStatusCount)> field_statuses{};
     std::array<
         FieldStatusStage,
         to_int(FieldStatus::FieldStatusCount)
     > field_status_stages{};
+    Weather current_weather = Weather::Clear;
+    uint8_t weather_turns_left = 0;
 
 public:
     PokemonState player;
     PokemonState opponent;
-    Weather weather;
 
     // If any fields are added, UPDATE THE HASH
 
@@ -570,8 +619,17 @@ public:
         PokemonState&& player_in,
         PokemonState&& opponent_in
     ) : player(player_in),
-        opponent(opponent_in),
-        weather(Weather::Clear) {}
+        opponent(opponent_in) {}
+
+    [[nodiscard]] Weather get_weather() const {
+        return current_weather;
+    }
+
+    void set_weather(const Weather weather, const uint8_t turns) {
+        this->current_weather = weather;
+        this->weather_turns_left = turns;
+        send_weather_update();
+    }
 
     bool is_battle_over() const {
         return player.get_current_stat(Stat::Health) == 0 ||
@@ -585,6 +643,26 @@ public:
     bool has_field_status(const FieldStatus field_status) const {
         return field_statuses[to_int(field_status)];
     }
+
+    void apply_end_of_turn() {
+        if (weather_turns_left > 0) {
+            weather_turns_left--;
+            if (weather_turns_left == 0) {
+                current_weather = Weather::Clear;
+                send_weather_update();
+            }
+        }
+    }
+
+    [[nodiscard]] bool has_weather(const Weather weather) const {
+        return current_weather == weather;
+    }
+
+private:
+    void send_weather_update() {
+        player.on_new_weather(current_weather);
+        opponent.on_new_weather(current_weather);
+    }
 };
 
 template <>
@@ -592,7 +670,7 @@ struct std::hash<BattleState> {
     size_t operator()(const BattleState& state) const noexcept {
         return hash_combine(
             0,
-            std::hash<int>{}(to_int(state.weather)),
+            std::hash<int>{}(to_int(state.get_weather())),
             std::hash<PokemonState>{}(state.player),
             std::hash<PokemonState>{}(state.opponent)
         );

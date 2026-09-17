@@ -126,8 +126,8 @@ static void move_does_not_drop_targets_stat_on_false_roll(
 
 TEST(MoveExecution, AncientPowerIncreasesAllStatsByOneStage) {
     BattleState battle_state{
-        PokemonState{&Regigias_7_3},
-        PokemonState{&Regigias_7_3}
+        PokemonState{&Regigigas_7_3},
+        PokemonState{&Regigigas_7_3}
     };
 
     for (uint8_t i = 0; i < 7; i++) {
@@ -168,8 +168,8 @@ TEST(MoveExecution, AncientPowerIncreasesAllStatsByOneStage) {
 
 TEST(MoveExecution, AncientPowerDoesNotIncreaseAnyStatsOnFalseRoll) {
     BattleState battle_state{
-        PokemonState{&Regigias_7_3},
-        PokemonState{&Regigias_7_3}
+        PokemonState{&Regigigas_7_3},
+        PokemonState{&Regigigas_7_3}
     };
 
     for (uint8_t i = 0; i < 7; i++) {
@@ -416,8 +416,8 @@ TEST(MoveExecution, PsychicDoesNotDropSpecialDefenseOnFalseRoll) {
 
 TEST(MoveExecution, EarthPowerMakesSpecialDefenseStageOfOpponentDropByOne) {
     BattleState battle_state{
-        PokemonState{&Regigias_7_3},
-        PokemonState{&Regigias_7_3}
+        PokemonState{&Regigigas_7_3},
+        PokemonState{&Regigigas_7_3}
     };
 
     move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
@@ -430,8 +430,8 @@ TEST(MoveExecution, EarthPowerMakesSpecialDefenseStageOfOpponentDropByOne) {
 
 TEST(MoveExecution, EarthPowerDoesNotDropSpecialDefenseOnFalseRoll) {
     BattleState battle_state{
-        PokemonState{&Regigias_7_3},
-        PokemonState{&Regigias_7_3}
+        PokemonState{&Regigigas_7_3},
+        PokemonState{&Regigigas_7_3}
     };
 
     move_does_not_drop_targets_stat_on_false_roll(
@@ -497,8 +497,8 @@ TEST(MoveExecution, EnergyBallDoesNotDropSpecialDefenseOnFalseRoll) {
 
 TEST(MoveExecution, FocusBlastMakesSpecialDefenseStageOfOpponentDropByOne) {
     BattleState battle_state{
-        PokemonState{&Regigias_7_3},
-        PokemonState{&Regigias_7_3}
+        PokemonState{&Regigigas_7_3},
+        PokemonState{&Regigigas_7_3}
     };
 
     move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
@@ -511,8 +511,8 @@ TEST(MoveExecution, FocusBlastMakesSpecialDefenseStageOfOpponentDropByOne) {
 
 TEST(MoveExecution, FocusBlastDoesNotDropSpecialDefenseOnFalseRoll) {
     BattleState battle_state{
-        PokemonState{&Regigias_7_3},
-        PokemonState{&Regigias_7_3}
+        PokemonState{&Regigigas_7_3},
+        PokemonState{&Regigigas_7_3}
     };
 
     move_does_not_drop_targets_stat_on_false_roll(
@@ -589,4 +589,24 @@ TEST(MoveExecution, HammerArmDropsSpeedOneStage) {
         Move::HammerArm
     );
     EXPECT_EQ(battle_state.player.get_stat_stage(Stat::Speed), -1);
+}
+
+// Other tests
+// =============================================================================
+TEST(MoveExecution, ShadowBallDoesNotApplyStatDropToNormalTypes) {
+    BattleState battle_state{
+        PokemonState{&Regigigas_7_3},
+        PokemonState{&Suicune_7_3}
+    };
+
+    EXPECT_EQ(
+        0,
+        execute_move(
+            OPPONENT_OPTIMIZED_POLICY_CONTAINER,
+            battle_state,
+            Who::Opponent,
+            Move::ShadowBall
+        )
+    );
+    EXPECT_EQ(0, battle_state.player.get_stat_stage(Stat::SpecialDefense));
 }

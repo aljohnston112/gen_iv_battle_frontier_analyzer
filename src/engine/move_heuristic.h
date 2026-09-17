@@ -125,7 +125,11 @@ BestMoveResults get_move_results_when_choosing_move(
     const BestMoveResults best_move_results = get_best_move_result(
         policy_container,
         temp_battle_state,
-        temp_attacker.get_moves(),
+        temp_attacker.get_moves(
+            policy_container.can_use_less_accurate_moves(
+                who_attacker_is
+            )
+        ),
         who_attacker_is,
         std::nullopt,
         defender_move_result,
@@ -157,16 +161,15 @@ inline bool is_further_evaluation_needed(
     const Who who_attacker_is,
     const BestMoveResult& best_defender_move
 ) {
-
     const bool is_player_attacker = who_attacker_is == Who::Player;
     const PokemonState& attacker =
         is_player_attacker
             ? battle_state.player
             : battle_state.opponent;
-    const PokemonState& defender =
-        is_player_attacker
-            ? battle_state.opponent
-            : battle_state.player;
+    // const PokemonState& defender =
+    //     is_player_attacker
+    //         ? battle_state.opponent
+    //         : battle_state.player;
 
     if (attacker.has_status_with_stage(StatusWithStage::Asleep)) {
         return false;
@@ -179,6 +182,12 @@ inline bool is_further_evaluation_needed(
     // ) {
     //     return true;
     // }
+    // TODO test one vs the other
+
+    if (attacker_move == Move::Hail && !battle_state.has_weather(Weather::Hail))
+    [[unlikely]] {
+        return true;
+    }
 
     if (move_has_flag(
             attacker_move,
@@ -366,7 +375,11 @@ BestMoveResults get_best_move_result(
                     choose_move_against_defender(
                         policy_container,
                         battle_state,
-                        defender.get_moves(),
+                        defender.get_moves(
+                            policy_container.can_use_less_accurate_moves(
+                                who_defender_is
+                            )
+                        ),
                         who_defender_is,
                         std::nullopt,
                         current_move_result,
@@ -382,7 +395,12 @@ BestMoveResults get_best_move_result(
                     move,
                     who_attacker_is,
                     best_defender_move
-                ) && attacker.get_moves().size() > 1 && depth < 7;
+                ) &&
+                attacker.get_moves(
+                    policy_container.can_use_less_accurate_moves(
+                        who_attacker_is
+                    )
+                ).size() > 1 && depth < 7;
             // policy_container.log(FORMAT_LAMBDA(
             //     "RECURSE attacker={} move={} PP={} defender_move={} PP={} "
             //     "attacker_HP={} defender_HP={} \n",
@@ -528,7 +546,11 @@ BestMoveResults get_best_move_result(
             choose_move_against_defender(
                 policy_container,
                 battle_state,
-                defender.get_moves(),
+                defender.get_moves(
+                    policy_container.can_use_less_accurate_moves(
+                        who_defender_is
+                    )
+                ),
                 who_defender_is,
                 defender_move_results,
                 best_move_result,

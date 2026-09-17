@@ -10,7 +10,7 @@
 
 TEST(MoveExecution, NormalEffectivenessDoesCorrectDamageForSpecialAttack) {
     const BattleState battle_state{
-        PokemonState{&Regigias_7_3},
+        PokemonState{&Regigigas_7_3},
         PokemonState{&Cresselia_7_4}
     };
     random_does_correct_damage_for_attack<
@@ -44,7 +44,7 @@ TEST(MoveExecution, NotVeryEffectiveSTABDoesCorrectDamageForSpecialAttack) {
 
 TEST(MoveExecution, NotVeryEffectiveDoesCorrectDamageForSpecialAttack) {
     const BattleState battle_state{
-        PokemonState{&Regigias_7_3},
+        PokemonState{&Regigigas_7_3},
         PokemonState{&Cresselia_7_4}
     };
     random_does_correct_damage_for_attack<
@@ -109,7 +109,8 @@ TEST(
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.opponent.decrease_stat_stage<Stat::SpecialDefense>(5, StatDropSource::StatDropSourceCount);
+    battle_state.opponent.decrease_stat_stage<Stat::SpecialDefense>(
+        5, StatDropSource::StatDropSourceCount);
     random_does_correct_damage_for_attack<
         DamageTestCase<AlwaysCritRNGPolicy, LowDamageRandomFactorPolicy, 108>,
         DamageTestCase<AlwaysCritRNGPolicy, HighDamageRandomFactorPolicy, 127>
@@ -124,7 +125,8 @@ TEST(
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.player.decrease_stat_stage<Stat::SpecialAttack>(6, StatDropSource::StatDropSourceCount);
+    battle_state.player.decrease_stat_stage<Stat::SpecialAttack>(
+        6, StatDropSource::StatDropSourceCount);
     random_does_correct_damage_for_attack<
         DamageTestCase<AlwaysCritRNGPolicy, LowDamageRandomFactorPolicy, 31>,
         DamageTestCase<AlwaysCritRNGPolicy, HighDamageRandomFactorPolicy, 37>
@@ -154,7 +156,8 @@ TEST(
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.opponent.decrease_stat_stage<Stat::SpecialDefense>(5, StatDropSource::StatDropSourceCount);
+    battle_state.opponent.decrease_stat_stage<Stat::SpecialDefense>(
+        5, StatDropSource::StatDropSourceCount);
 
     constexpr int16_t min_damage = 108;
     constexpr int16_t max_damage = 127;
@@ -203,4 +206,19 @@ TEST(
     }
 }
 
+TEST(MoveExecution, ShadowBallDoesNoDamageToNormalTypes) {
+    const BattleState battle_state{
+        PokemonState{&Suicune_7_3},
+        PokemonState{&Regigigas_7_3}
+    };
 
+    EXPECT_EQ(
+        0,
+        get_damage_of_move(
+            DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+            battle_state,
+            get_move_info(Move::ShadowBall),
+            Who::Player
+        )
+    );
+}

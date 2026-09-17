@@ -17,8 +17,18 @@ inline void apply_end_of_turn_2([[maybe_unused]] PokemonState& pokemon_state) {
     // 2.0 Wish: "pokemon's wish came true"
 }
 
-inline void apply_end_of_turn_3([[maybe_unused]] PokemonState& pokemon_state) {
+inline void apply_end_of_turn_3(
+    const BattleState& battle_state,
+    PokemonState& pokemon_state
+) {
     // 3.0 Hail, Rain, Sandstorm, or Sun message
+    if (battle_state.has_weather(Weather::Hail) &&
+        !pokemon_state.has_type(PokemonType::Ice)
+    ) {
+        pokemon_state.add_damage(
+            pokemon_state.get_original_stat(Stat::Health) / 16
+        );
+    }
 }
 
 inline void apply_end_of_turn_4([[maybe_unused]] PokemonState& pokemon_state) {
@@ -106,8 +116,8 @@ void apply_end_of_turn(
     apply_end_of_turn_2(first_state);
     apply_end_of_turn_2(second_state);
 
-    apply_end_of_turn_3(first_state);
-    apply_end_of_turn_3(second_state);
+    apply_end_of_turn_3(battle_state, first_state);
+    apply_end_of_turn_3(battle_state, second_state);
 
     apply_end_of_turn_4(first_state);
     apply_end_of_turn_4(second_state);
@@ -132,6 +142,7 @@ void apply_end_of_turn(
 
     first_state.apply_end_of_turn();
     second_state.apply_end_of_turn();
+    battle_state.apply_end_of_turn();
 }
 
 #endif //GEN_IV_BATTLE_FRONTIER_ANALYZER_END_OF_TURN_EFFECTS_H

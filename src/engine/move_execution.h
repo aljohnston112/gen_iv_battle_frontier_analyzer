@@ -124,7 +124,7 @@ uint16_t get_damage_of_move(
     damage = damage / 50 / burn / screen;
 
     const PokemonType move_type = move_info->type;
-    const Weather weather = battle_state.weather;
+    const Weather weather = battle_state.get_weather();
     if (weather == Weather::Rain) {
         if (move_type == PokemonType::Water) {
             damage = damage * 3 / 2;
@@ -212,7 +212,9 @@ uint16_t get_damage_of_move(
         damage = damage / 2;
     }
 
-    damage = std::max(1, damage);
+    if (effectiveness != 0) {
+        damage = std::max(1, damage);
+    }
     return static_cast<uint16_t>(damage);
 }
 
@@ -387,6 +389,18 @@ void roll_burn(
     }
 }
 
+inline bool move_always_hits(
+    const BattleState& battle_state,
+    [[maybe_unused]] const Who who_attacker_is,
+    const Move move
+) {
+    if (move == Move::Blizzard &&
+        battle_state.has_weather(Weather::Hail)
+    )[[unlikely]] {
+        return true;
+    }
+    return false;
+}
 
 template <typename... Policies>
 bool move_does_nothing(
@@ -411,7 +425,24 @@ bool move_does_nothing(
             attacker_move_info,
             who_attacker_is
         )
+        &&
+        !move_always_hits(
+            battle_state,
+            who_attacker_is,
+            attacker_move_info->move
+        )
     ) {
+        return true;
+    }
+
+    if (get_effectiveness(defender_state->get_types(), move_type) == 0) {
+        return true;
+    }
+
+    if (attacker_move_info->move == Move::Blizzard &&
+        battle_state.has_weather(Weather::Hail) &&
+        defender_state->is_semi_invulnerable()
+    ) [[unlikely]] {
         return true;
     }
 
@@ -689,6 +720,15 @@ uint16_t execute_move(
 
     // Moves should only be considered "executed" past this point!
     // =========================================================================
+    bool pressure_active = false;
+    if (defender_ability == Ability::Pressure &&
+        !(move_has_flag(attacker_move, MoveFlag::TARGETS_SELF) ||
+            (!attacker.has_type(PokemonType::Ghost) &&
+                attacker_move == Move::Curse))
+    ) {
+        pressure_active = true;
+    }
+
     if (move_does_nothing(
             policy_container,
             battle_state,
@@ -696,7 +736,7 @@ uint16_t execute_move(
             who_attacker_is
         )
     ) {
-        attacker.decrement_power_point(attacker_move);
+        attacker.decrement_power_point(attacker_move, pressure_active);
         return 0;
     }
 
@@ -710,11 +750,26 @@ uint16_t execute_move(
         );
     }
 
+    const auto attacker_item = attacker.get_current_item_for_effect();
+    if (attacker_move == Move::Hail) {
+        uint8_t turns = 5;
+        if (attacker_item == Item::IcyRock) {
+            turns = 8;
+        }
+        battle_state.set_weather(Weather::Hail, turns);
+    }
+
     if (attacker_move == Move::Rest) {
         const auto attacker_ability = attacker.get_current_ability();
         if (attacker.has_status_with_stage(StatusWithStage::HealBlocked)) {
             bool use_struggle = true;
-            for (const auto move : attacker.get_moves()) {
+            for (const auto move :
+                 attacker.get_moves(
+                     policy_container.can_use_less_accurate_moves(
+                         who_attacker_is
+                     )
+                 )
+            ) {
                 if (move != Move::Rest &&
                     attacker.has_power_points(move)
                 ) {
@@ -730,7 +785,7 @@ uint16_t execute_move(
                     who_attacker_is
                 );
             }
-            attacker.decrement_power_point(attacker_move);
+            attacker.decrement_power_point(attacker_move, pressure_active);
             return 0;
         }
 
@@ -741,7 +796,7 @@ uint16_t execute_move(
             (attacker_ability != Ability::Soundproof &&
                 battle_state.has_field_status(FieldStatus::UproarActive))
         ) {
-            attacker.decrement_power_point(attacker_move);
+            attacker.decrement_power_point(attacker_move, pressure_active);
             return 0;
         }
 
@@ -763,12 +818,12 @@ uint16_t execute_move(
         } else {
             attacker.set_sleep(2);
         }
-        attacker.decrement_power_point(attacker_move);
+        attacker.decrement_power_point(attacker_move, pressure_active);
         return 0;
     }
 
 
-    const Weather weather = battle_state.weather;
+    const Weather weather = battle_state.get_weather();
     uint16_t damage = 0;
     if (attacker_move == Move::Moonlight) [[unlikely]] {
         execute_moonlight(attacker, weather);
@@ -909,7 +964,7 @@ uint16_t execute_move(
         roll_flinch(policy_container, defender, 20);
     }
 
-    attacker.decrement_power_point(attacker_move);
+    attacker.decrement_power_point(attacker_move, pressure_active);
     return damage;
 }
 

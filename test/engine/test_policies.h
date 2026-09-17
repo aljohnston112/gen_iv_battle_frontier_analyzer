@@ -3,11 +3,36 @@
 
 #include "policies.h"
 
+// Accuracy
+// =============================================================================
+template <typename T>
+constexpr PolicyContainer<
+    T,
+    OnlyOpponentCanUseLessAccurateMovesPolicy,
+    OpponentOptimizedConfusionStatusPolicy,
+    NeverConfuseRNGPolicy,
+    NeverCritRNGPolicy,
+    OpponentOptimizedRandomFactorPolicy,
+    NeverFlinchRNGPolicy,
+    NeverFreezeRNGPolicy,
+    OpponentOptimizedStatChangePolicy,
+    NeverParalyzeRNGPolicy,
+    NeverBurnRNGPolicy
+> ACCURACY_POLICY_CONTAINER{};
+
+constexpr auto ALWAYS_MISS_POLICY_CONTAINER =
+    ACCURACY_POLICY_CONTAINER<AlwaysMissAccuracyEvasionFactorPolicy>;
+
+constexpr auto NEVER_MISS_POLICY_CONTAINER =
+    ACCURACY_POLICY_CONTAINER<NeverMissAccuracyEvasionFactorPolicy>;
+
+
 // Burn
 // =============================================================================
 template <typename T>
 constexpr PolicyContainer<
-    AlwaysHitAccuracyEvasionFactorPolicy,
+    NeverMissAccuracyEvasionFactorPolicy,
+    OnlyOpponentCanUseLessAccurateMovesPolicy,
     OpponentOptimizedConfusionStatusPolicy,
     NeverConfuseRNGPolicy,
     NeverCritRNGPolicy,
@@ -52,7 +77,8 @@ public:
 };
 
 constexpr PolicyContainer<
-    AlwaysHitAccuracyEvasionFactorPolicy,
+    NeverMissAccuracyEvasionFactorPolicy,
+    OnlyOpponentCanUseLessAccurateMovesPolicy,
     LowRandomConfusionEffectPolicy,
     NeverConfuseRNGPolicy,
     NeverCritRNGPolicy,
@@ -66,7 +92,8 @@ constexpr PolicyContainer<
 
 template <typename T>
 constexpr PolicyContainer<
-    AlwaysHitAccuracyEvasionFactorPolicy,
+    NeverMissAccuracyEvasionFactorPolicy,
+    OnlyOpponentCanUseLessAccurateMovesPolicy,
     T,
     AlwaysConfuseRNGPolicy,
     NeverCritRNGPolicy,
@@ -88,7 +115,8 @@ constexpr auto ALWAYS_CONFUSE_LOW_RANDOM_CONFUSION_POLICY_CONTAINER =
 // =============================================================================
 template <typename T>
 constexpr PolicyContainer<
-    AlwaysHitAccuracyEvasionFactorPolicy,
+    NeverMissAccuracyEvasionFactorPolicy,
+    OnlyOpponentCanUseLessAccurateMovesPolicy,
     OpponentOptimizedConfusionStatusPolicy,
     NeverConfuseRNGPolicy,
     NeverCritRNGPolicy,
@@ -110,7 +138,8 @@ constexpr auto ALWAYS_FLINCH_POLICY_CONTAINER =
 // =============================================================================
 template <typename T>
 constexpr PolicyContainer<
-    AlwaysHitAccuracyEvasionFactorPolicy,
+    NeverMissAccuracyEvasionFactorPolicy,
+    OnlyOpponentCanUseLessAccurateMovesPolicy,
     OpponentOptimizedConfusionStatusPolicy,
     NeverConfuseRNGPolicy,
     NeverCritRNGPolicy,
@@ -132,7 +161,8 @@ constexpr auto ALWAYS_FREEZE_POLICY_CONTAINER =
 // =============================================================================
 template <typename T>
 constexpr PolicyContainer<
-    AlwaysHitAccuracyEvasionFactorPolicy,
+    NeverMissAccuracyEvasionFactorPolicy,
+    OnlyOpponentCanUseLessAccurateMovesPolicy,
     OpponentOptimizedConfusionStatusPolicy,
     NeverConfuseRNGPolicy,
     NeverCritRNGPolicy,
@@ -177,7 +207,8 @@ public:
 };
 
 constexpr PolicyContainer<
-    AlwaysHitAccuracyEvasionFactorPolicy,
+    NeverMissAccuracyEvasionFactorPolicy,
+    OnlyOpponentCanUseLessAccurateMovesPolicy,
     NeverConfuseRNGPolicy,
     LowRandomConfusionEffectPolicy,
     LowRandomSleepEffectPolicy,
@@ -193,7 +224,8 @@ constexpr PolicyContainer<
 
 template <typename T>
 constexpr PolicyContainer<
-    AlwaysHitAccuracyEvasionFactorPolicy,
+    NeverMissAccuracyEvasionFactorPolicy,
+    OnlyOpponentCanUseLessAccurateMovesPolicy,
     NeverConfuseRNGPolicy,
     LowRandomConfusionEffectPolicy,
     T,
@@ -252,7 +284,8 @@ struct NeverChangeStatPolicy :
 
 template <typename T>
 constexpr PolicyContainer<
-    AlwaysHitAccuracyEvasionFactorPolicy,
+    NeverMissAccuracyEvasionFactorPolicy,
+    OnlyOpponentCanUseLessAccurateMovesPolicy,
     OpponentOptimizedConfusionStatusPolicy,
     NeverConfuseRNGPolicy,
     NeverCritRNGPolicy,
@@ -291,7 +324,8 @@ struct HighDamageRandomFactorPolicy :
 
 template <typename T>
 constexpr PolicyContainer<
-    AlwaysHitAccuracyEvasionFactorPolicy,
+    NeverMissAccuracyEvasionFactorPolicy,
+    OnlyOpponentCanUseLessAccurateMovesPolicy,
     OpponentOptimizedConfusionStatusPolicy,
     NeverConfuseRNGPolicy,
     NeverCritRNGPolicy,
@@ -317,7 +351,8 @@ constexpr auto OPPONENT_OPTIMIZED_POLICY_CONTAINER =
 template <typename T>
 constexpr auto DEFAULT_POLICY_CONTAINER =
     PolicyContainer<
-        AlwaysHitAccuracyEvasionFactorPolicy,
+        NeverMissAccuracyEvasionFactorPolicy,
+        OnlyOpponentCanUseLessAccurateMovesPolicy,
         OpponentOptimizedConfusionStatusPolicy,
         NeverConfuseRNGPolicy,
         NeverCritRNGPolicy,

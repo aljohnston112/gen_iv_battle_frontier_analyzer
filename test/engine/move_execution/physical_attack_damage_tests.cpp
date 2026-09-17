@@ -41,7 +41,7 @@ TEST(MoveExecution, NotVeryEffectiveDoesCorrectDamageForPhysicalAttack) {
 TEST(MoveExecution, SuperEffectiveDoesTheCorrectDamageForPhysicalAttack) {
     const BattleState battle_state{
         PokemonState{&Regirock_7_3},
-        PokemonState{&Regigias_7_3}
+        PokemonState{&Regigigas_7_3}
     };
     random_does_correct_damage_for_attack<
         DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 70>,
@@ -258,7 +258,7 @@ TEST(
 ) {
     BattleState battle_state{
         PokemonState{&Regirock_7_3},
-        PokemonState{&Regigias_7_3}
+        PokemonState{&Regigigas_7_3}
     };
     battle_state.player.try_set_status_condition(StatusCondition::Burn);
     random_does_correct_damage_for_attack<

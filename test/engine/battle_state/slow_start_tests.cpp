@@ -9,30 +9,30 @@
 
 TEST(BattleState, SlowStartHalvesAttackAndSpeed) {
     const BattleState battle_state{
-        PokemonState{&Regigias_7_3},
-        PokemonState{&Regigias_7_3}
+        PokemonState{&Regigigas_7_3},
+        PokemonState{&Regigigas_7_3}
     };
     EXPECT_EQ(
-        (Regigias_7_3.get_stat(Stat::Attack) / 2),
+        (Regigigas_7_3.get_stat(Stat::Attack) / 2),
         battle_state.player.get_current_stat(Stat::Attack)
     );
     EXPECT_EQ(
-        (Regigias_7_3.get_stat(Stat::Speed) / 2),
+        (Regigigas_7_3.get_stat(Stat::Speed) / 2),
         battle_state.player.get_current_stat(Stat::Speed)
     );
 }
 
 TEST(BattleState, AttackAndSpeedAreRestoredAfter5TurnsOfSlowStart) {
     BattleState battle_state{
-        PokemonState{&Regigias_7_3},
-        PokemonState{&Regigias_7_3}
+        PokemonState{&Regigigas_7_3},
+        PokemonState{&Regigigas_7_3}
     };
     EXPECT_EQ(
-        (Regigias_7_3.get_stat(Stat::Attack) / 2),
+        (Regigigas_7_3.get_stat(Stat::Attack) / 2),
         battle_state.player.get_current_stat(Stat::Attack)
     );
     EXPECT_EQ(
-        (Regigias_7_3.get_stat(Stat::Speed) / 2),
+        (Regigigas_7_3.get_stat(Stat::Speed) / 2),
         battle_state.player.get_current_stat(Stat::Speed)
     );
 
@@ -41,11 +41,11 @@ TEST(BattleState, AttackAndSpeedAreRestoredAfter5TurnsOfSlowStart) {
     }
 
     EXPECT_EQ(
-        Regigias_7_3.get_stat(Stat::Attack),
+        Regigigas_7_3.get_stat(Stat::Attack),
         battle_state.player.get_current_stat(Stat::Attack)
     );
     EXPECT_EQ(
-        Regigias_7_3.get_stat(Stat::Speed),
+        Regigigas_7_3.get_stat(Stat::Speed),
         battle_state.player.get_current_stat(Stat::Speed)
     );
 }
@@ -55,15 +55,15 @@ TEST(
     AttackAndSpeedAreRestoredWithModifiersAfter5TurnsOfSlowStart
 ) {
     BattleState battle_state{
-        PokemonState{&Regigias_7_3},
-        PokemonState{&Regigias_7_3}
+        PokemonState{&Regigigas_7_3},
+        PokemonState{&Regigigas_7_3}
     };
     EXPECT_EQ(
-        (Regigias_7_3.get_stat(Stat::Attack) / 2),
+        (Regigigas_7_3.get_stat(Stat::Attack) / 2),
         battle_state.player.get_current_stat(Stat::Attack)
     );
     EXPECT_EQ(
-        (Regigias_7_3.get_stat(Stat::Speed) / 2),
+        (Regigigas_7_3.get_stat(Stat::Speed) / 2),
         battle_state.player.get_current_stat(Stat::Speed)
     );
     battle_state.player.decrease_stat_stage<Stat::Attack>(1, StatDropSource::StatDropSourceCount);
@@ -75,7 +75,7 @@ TEST(
 
     EXPECT_EQ(
         calculate_stat_based_on_stage<Stat::Attack>(
-            Regigias_7_3.get_stat(Stat::Attack),
+            Regigigas_7_3.get_stat(Stat::Attack),
             -1,
             StatusCondition::NoCondition
         ),
@@ -83,7 +83,7 @@ TEST(
     );
     EXPECT_EQ(
         calculate_stat_based_on_stage<Stat::Speed>(
-            Regigias_7_3.get_stat(Stat::Speed),
+            Regigigas_7_3.get_stat(Stat::Speed),
             -2,
             StatusCondition::NoCondition
         ),

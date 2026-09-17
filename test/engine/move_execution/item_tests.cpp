@@ -95,8 +95,8 @@ TEST(
     WiseGlassesIncreasesSpecialAttackPowerBy10Percent
 ) {
     const BattleState battle_state{
-        PokemonState{&Regigias_7_3},
-        PokemonState{&Regigias_7_3}
+        PokemonState{&Regigigas_7_3},
+        PokemonState{&Regigigas_7_3}
     };
     random_does_correct_damage_for_attack<
         DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 112>,
@@ -110,7 +110,7 @@ TEST(
     BrightPowderLowersOthersAccuracyByTenPercent
 ) {
     const BattleState battle_state{
-        PokemonState{&Regigias_7_3},
+        PokemonState{&Regigigas_7_3},
         PokemonState{&Heatran_7_3}
     };
     const MoveInfo* move_info = get_move_info(Move::Flamethrower);

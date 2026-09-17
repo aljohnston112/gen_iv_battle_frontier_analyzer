@@ -10,12 +10,14 @@ TEST(BattleState, PPLossTriggersStruggle) {
         PokemonState{&Cresselia_7_4}
     };
 
-    const auto player_moves = battle_state.player.get_moves();
+    const auto player_moves =
+        battle_state.player.get_moves(true);
     for (const auto move : player_moves) {
         battle_state.player.clear_power_points(move);
     }
 
-    const auto moves = battle_state.player.get_moves();
+    const auto moves =
+        battle_state.player.get_moves(true);
     EXPECT_EQ(
         1,
         moves.size()

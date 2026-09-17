@@ -1,9 +1,12 @@
-add_executable(
+add_library(
         battle_state_test
+        OBJECT
 
         clear_body_tests.cpp
         slow_start_tests.cpp
         struggle_tests.cpp
+        lum_berrry_tests.cpp
+        get_move_tests.cpp
 )
 
 target_link_libraries(
@@ -11,10 +14,5 @@ target_link_libraries(
         PRIVATE
         core
         GTest::gtest_main
-)
-
-add_test(
-        NAME battle_state_test
-        COMMAND battle_state_test
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+        GTest::gmock
 )

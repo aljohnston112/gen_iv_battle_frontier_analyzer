@@ -10,15 +10,10 @@ TODO
 
     Mist Ball is chosen when it leads to better outcome
     Energy Ball is chosen when it leads to better outcome
-    Shadow Ball is chosen when it leads to better outcome
-    Earth Power is chosen when it leads to better outcome
-    Focus Blast is chosen when it leads to better outcome
-    Ancient Power is chosen when its boost leads to better outcome
-    Charge Beam is chosen when its boost leads to better outcome
     Flamethrower is chosen when its boost leads to better outcome
     Rest is chosen when its boost leads to better outcome
+    Hail is chosen when its boost leads to better outcome
     Hammer Arm is chosen when its boost leads to better outcome
-
     Draco Meteor is chosen when, depsite the special attack drop, it leads to better outcome
 
     Flash fire is not activated by a Normal, Flying, Poison, or Steel move
@@ -55,7 +50,7 @@ TODO
     If a pokemon with early bird uses rest, it will wake up after 2 turns (including turn rest is used)
     Rest fails if the user has Insomnia
     Rest fails if the user has Vital Spirit
-    If the user has Soundproof, then rest suceeds under the Uproar field effect
+    If the user has Soundproof, then rest succeeds under the Uproar field effect
     Rest fails if it is used via Sleep Talk
 
     If curse is used by a ghost type with non-ghost type, the user does not lose half HP
@@ -68,8 +63,11 @@ TODO
     Curse misses when used by a ghost type and defender is semi invulnerable
     A cursed, raging pokemon will be uncursed when another move is picked, but rage will still build
 
-
-
+    Synthesis will recover only 1/4 of the user's maximum HP during hail
+    Morning Sun will recover only 1/4 of the user's maximum HP during hail
+    Castform's Weather Ball is ice type during hail
+    Pokémon with the Ice Body Ability recover 1⁄16 of their maximum HP in hail
+    Pokémon with the Snow Cloak Ability increase their evasiveness by 20% in hail
 
 
 

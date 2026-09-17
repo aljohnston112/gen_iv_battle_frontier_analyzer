@@ -219,21 +219,7 @@ std::vector<CustomPokemon> construct_all_custom_batle_factory_pokemon(
             nature
         );
 
-        const bool isPlayer = who == Who::Player;
-        std::vector<Move> moves;
-        if (isPlayer) {
-            moves = {};
-            for (const auto move : p.moves) {
-                if (const auto moveInfo = get_move_info(move);
-                    moveInfo->accuracy == 100
-                ) {
-                    moves.emplace_back(move);
-                }
-            }
-        } else {
-            moves = p.moves;
-        }
-
+        std::vector<Move> moves = p.moves;
         std::ranges::sort(
             moves,
             [&all_move_infos](const Move a, const Move b) {

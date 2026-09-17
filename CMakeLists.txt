@@ -127,10 +127,10 @@ add_custom_target(
         move_heuristic_test
 )
 
-add_custom_target(run_tests DEPENDS build_all_tests
-        COMMAND ${CMAKE_CTEST_COMMAND}
-        --test-dir "${CMAKE_BINARY_DIR}/test"
-        --output-on-failure
-        COMMENT "Running tests via ctest..."
+add_custom_target(
+        run_tests
+        DEPENDS build_all_tests
+        COMMAND $<TARGET_FILE:all_tests> --gtest_color=yes
+        COMMENT "Running tests..."
         VERBATIM
 )

@@ -46,7 +46,8 @@ inline BattleResultEntry single_battle(
     const BattleEngine battle_engine{
         std::move(
             PolicyContainer<
-                AlwaysHitAccuracyEvasionFactorPolicy,
+                NeverMissAccuracyEvasionFactorPolicy,
+                OnlyOpponentCanUseLessAccurateMovesPolicy,
                 OpponentOptimizedConfusionStatusPolicy,
                 NeverConfuseRNGPolicy,
                 NeverCritRNGPolicy,
@@ -84,7 +85,11 @@ inline BattleResultEntry single_battle(
             choose_move_against_defender(
                 battle_engine.policy_container,
                 *battle_state,
-                battle_state->player.get_moves(),
+                battle_state->player.get_moves(
+                    battle_engine.policy_container.can_use_less_accurate_moves(
+                        Who::Player
+                    )
+                ),
                 Who::Player,
                 std::nullopt,
                 std::nullopt
@@ -97,7 +102,11 @@ inline BattleResultEntry single_battle(
             choose_move_against_defender(
                 battle_engine.policy_container,
                 *battle_state,
-                battle_state->opponent.get_moves(),
+                battle_state->opponent.get_moves(
+                    battle_engine.policy_container.can_use_less_accurate_moves(
+                        Who::Opponent
+                    )
+                ),
                 Who::Opponent,
                 std::nullopt,
                 player_move_results.attacker_results
@@ -129,4 +138,16 @@ inline BattleResultEntry single_battle(
             }
         )
     };
+}
+
+inline BattleResultEntry single_battle(
+    const CustomPokemon& player_pokemon,
+    const CustomPokemon& opponent_pokemon
+) {
+    return single_battle(
+        std::array{player_pokemon, opponent_pokemon},
+        std::array{player_pokemon, opponent_pokemon},
+        0,
+        1
+    );
 }

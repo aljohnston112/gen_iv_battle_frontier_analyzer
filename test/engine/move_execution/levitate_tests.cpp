@@ -8,7 +8,7 @@
 
 TEST(MoveExecution, GroundMoveDoesNoDamageToDefenderWithLevitate) {
     BattleState battle_state{
-        PokemonState{&Regigias_7_3},
+        PokemonState{&Regigigas_7_3},
         PokemonState{&Cresselia_7_4}
     };
 
@@ -47,7 +47,7 @@ TEST(MoveExecution,
     };
 
     BattleState battle_state4{
-        PokemonState{&Regigias_7_3},
+        PokemonState{&Regigigas_7_3},
         PokemonState{&Cresselia_7_4}
     };
 

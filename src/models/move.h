@@ -1071,6 +1071,7 @@ enum class MoveFlag {
     IS_SOUND_BASED,
     CANT_BE_USED_DURING_GRAVITY,
     POWERS_IRON_FIST,
+    TARGETS_SELF,
     COUNT
 };
 
@@ -1338,6 +1339,15 @@ inline constexpr std::array<
     flags[to_int(Move::DrainPunch)][to_int(MoveFlag::HEALS_ATTACKER)] = true;
     flags[to_int(Move::HealOrder)][to_int(MoveFlag::HEALS_ATTACKER)] = true;
 
+    flags[to_int(Move::Recover)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Softboiled)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::MilkDrink)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::MorningSun)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Synthesis)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Moonlight)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::SlackOff)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::HealOrder)][to_int(MoveFlag::TARGETS_SELF)] = true;
+
     flags[to_int(Move::SwordsDance)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
         true;
     flags[to_int(Move::Growth)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
@@ -1373,6 +1383,28 @@ inline constexpr std::array<
         true;
     flags[to_int(Move::DefendOrder)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
         true;
+
+    flags[to_int(Move::SwordsDance)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Growth)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Meditate)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Agility)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::DoubleTeam)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Harden)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Minimize)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Withdraw)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Amnesia)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::AcidArmor)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Sharpen)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::TailGlow)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::CosmicPower)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::IronDefense)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Howl)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::BulkUp)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::CalmMind)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::DragonDance)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::RockPolish)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::NastyPlot)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::DefendOrder)][to_int(MoveFlag::TARGETS_SELF)] = true;
 
     flags[to_int(Move::SwordsDance)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)]
         = true;
@@ -1458,7 +1490,8 @@ inline constexpr std::array<
     flags[to_int(Move::RockPolish)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPEED)] =
         true;
 
-    flags[to_int(Move::HammerArm)][to_int(MoveFlag::LOWERS_ATTACKERS_SPEED_ONE_STAGE)] =
+    flags[to_int(Move::HammerArm)][to_int(
+            MoveFlag::LOWERS_ATTACKERS_SPEED_ONE_STAGE)] =
         true;
 
     flags[to_int(Move::DoubleTeam)][to_int(MoveFlag::BOOSTS_ATTACKERS_EVASION)]
@@ -1468,6 +1501,8 @@ inline constexpr std::array<
 
     flags[to_int(Move::FocusEnergy)][to_int(
         MoveFlag::BOOSTS_ATTACKERS_CRIT_RATE)] = true;
+
+    flags[to_int(Move::FocusEnergy)][to_int(MoveFlag::TARGETS_SELF)] = true;
 
     flags[to_int(Move::Ancientpower)][to_int(MoveFlag::OMNI_BOOSTS_ATTACKER)] =
         true;
@@ -1579,8 +1614,6 @@ inline constexpr std::array<
     flags[to_int(Move::SweetScent)][to_int(MoveFlag::LOWERS_DEFENDER_EVASION)] =
         true;
 
-    flags[to_int(Move::Blizzard)][to_int(MoveFlag::BYPASSES_ACCURACY)] = true;
-    flags[to_int(Move::Thunder)][to_int(MoveFlag::BYPASSES_ACCURACY)] = true;
     flags[to_int(Move::Swift)][to_int(MoveFlag::BYPASSES_ACCURACY)] = true;
     flags[to_int(Move::FaintAttack)][to_int(MoveFlag::BYPASSES_ACCURACY)] =
         true;
@@ -1609,6 +1642,9 @@ inline constexpr std::array<
 
     flags[to_int(Move::Detect)][to_int(MoveFlag::PROTECTS_USER)] = true;
     flags[to_int(Move::Protect)][to_int(MoveFlag::PROTECTS_USER)] = true;
+
+    flags[to_int(Move::Detect)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Protect)][to_int(MoveFlag::TARGETS_SELF)] = true;
 
     flags[to_int(Move::Disable)][to_int(MoveFlag::IS_OTHER)] = true;
     flags[to_int(Move::Mist)][to_int(MoveFlag::IS_OTHER)] = true;
@@ -1766,6 +1802,38 @@ inline constexpr std::array<
     flags[to_int(Move::BugBite)][to_int(MoveFlag::IS_OTHER)] = true;
     flags[to_int(Move::LunarDance)][to_int(MoveFlag::IS_OTHER)] = true;
     flags[to_int(Move::CrushGrip)][to_int(MoveFlag::IS_OTHER)] = true;
+    
+    flags[to_int(Move::Teleport)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::DefenseCurl)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Barrier)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Bide)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Splash)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Rest)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Conversion)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Substitute)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Conversion2)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::DestinyBond)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::SleepTalk)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::BatonPass)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Stockpile)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Swallow)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::FollowMe)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Charge)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Wish)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Ingrain)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::MagicCoat)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Recycle)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Imprison)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Refresh)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Grudge)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Snatch)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Camouflage)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Roost)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::HealingWish)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::PowerTrick)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::AquaRing)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::MagnetRise)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::LunarDance)][to_int(MoveFlag::TARGETS_SELF)] = true;
 
     flags[to_int(Move::Sandstorm)][to_int(MoveFlag::CHANGES_WEATHER)] = true;
     flags[to_int(Move::RainDance)][to_int(MoveFlag::CHANGES_WEATHER)] = true;
@@ -1862,7 +1930,8 @@ inline constexpr std::array<
 
     flags[to_int(Move::FirePunch)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::Ember)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
-    flags[to_int(Move::Flamethrower)][to_int(MoveFlag::BURNS_DEFENDER_10)] = true;
+    flags[to_int(Move::Flamethrower)][to_int(MoveFlag::BURNS_DEFENDER_10)] =
+        true;
     flags[to_int(Move::FireBlast)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::FlameWheel)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::SacredFire)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
@@ -1875,7 +1944,7 @@ inline constexpr std::array<
 
     flags[to_int(Move::IcePunch)][to_int(MoveFlag::FREEZES_DEFENDER)] = true;
     flags[to_int(Move::IceBeam)][to_int(MoveFlag::FREEZES_DEFENDER_10)] = true;
-    flags[to_int(Move::Blizzard)][to_int(MoveFlag::FREEZES_DEFENDER)] = true;
+    flags[to_int(Move::Blizzard)][to_int(MoveFlag::FREEZES_DEFENDER_10)] = true;
     flags[to_int(Move::PowderSnow)][to_int(MoveFlag::FREEZES_DEFENDER)] = true;
     flags[to_int(Move::IceFang)][to_int(MoveFlag::FREEZES_DEFENDER)] = true;
 
@@ -1964,7 +2033,8 @@ inline constexpr std::array<
     flags[to_int(Move::Astonish)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::Extrasensory)][to_int(MoveFlag::FLINCHES_DEFENDER)] =
         true;
-    flags[to_int(Move::DarkPulse)][to_int(MoveFlag::FLINCHES_DEFENDER_20)] = true;
+    flags[to_int(Move::DarkPulse)][to_int(MoveFlag::FLINCHES_DEFENDER_20)] =
+        true;
     flags[to_int(Move::AirSlash)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::DragonRush)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::ThunderFang)][to_int(MoveFlag::FLINCHES_DEFENDER)] =
@@ -2763,7 +2833,8 @@ inline constexpr std::array<
 }();
 
 inline bool move_has_flag(const Move move, const MoveFlag move_flag) {
-    return move != Move::MoveCount && MOVE_FLAGS[to_int(move)][to_int(move_flag)];
+    return move != Move::MoveCount && MOVE_FLAGS[to_int(move)][
+        to_int(move_flag)];
 }
 
 constexpr auto IMPLEMENTED_MOVES = [] {
@@ -2789,6 +2860,10 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::StoneEdge)] = true;
     implemented_moves[to_int(Move::Curse)] = true;
     implemented_moves[to_int(Move::HammerArm)] = true;
+    implemented_moves[to_int(Move::Hail)] = true;
+    implemented_moves[to_int(Move::HydroPump)] = true;
+    implemented_moves[to_int(Move::Blizzard)] = true;
+
     return implemented_moves;
 }();
 
@@ -2820,4 +2895,3 @@ inline void verify_moves_implemented(
         _verify_moves_implemented(opponent_moves);
     }
 }
-

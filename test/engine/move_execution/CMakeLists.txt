@@ -1,5 +1,6 @@
-add_executable(
+add_library(
         move_execution_test
+        OBJECT
 
         damage_util.h
 
@@ -18,6 +19,9 @@ add_executable(
         special_attack_damage_tests.cpp
         stat_change_tests.cpp
         struggle_tests.cpp
+        pressure_tests.cpp
+        hail_tests.cpp
+        blizzard_tests.cpp
 )
 
 target_link_libraries(
@@ -25,10 +29,4 @@ target_link_libraries(
         PRIVATE
         core
         GTest::gtest_main
-)
-
-add_test(
-        NAME move_execution_test
-        COMMAND move_execution_test
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
 )

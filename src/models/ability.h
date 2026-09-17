@@ -275,6 +275,7 @@ constexpr auto IMPLEMENTED_ABILITIES = [] {
     implemented_abilities[to_int(Ability::SlowStart)] = true;
     implemented_abilities[to_int(Ability::FlashFire)] = true;
     implemented_abilities[to_int(Ability::ClearBody)] = true;
+    implemented_abilities[to_int(Ability::Pressure)] = true;
 
     // Any attack increasing abilities need to be applied to hit_from_confusion!
     return implemented_abilities;

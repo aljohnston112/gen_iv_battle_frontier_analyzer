@@ -102,7 +102,6 @@ TEST(
     ASSERT_EQ(0, battle_state.player.get_stat_stage(Stat::Speed));
 }
 
-
 static void
 curse_misses_when_used_by_non_ghost_type_with_ghost_type_and_defender_is_semi_invulnerable(
     const MoveStatusWithStage move_status_with_stage
@@ -118,7 +117,7 @@ curse_misses_when_used_by_non_ghost_type_with_ghost_type_and_defender_is_semi_in
 
     battle_state.opponent.set_move_status_with_stage(
         move_status_with_stage,
-        Move::ShadowForce,
+        Move::MoveCount,
         1
     );
 
@@ -150,7 +149,6 @@ TEST(
     );
 }
 
-
 TEST(
     MoveExecution,
     CurseMissesDefenderWhenUsedByNonGhostTypeWithGhostTypeAndDefenderIsSkyHigh
@@ -160,7 +158,6 @@ TEST(
     );
 }
 
-
 TEST(
     MoveExecution,
     CurseMissesDefenderWhenUsedByNonGhostTypeWithGhostTypeAndDefenderIsSubmerged
@@ -169,7 +166,6 @@ TEST(
         MoveStatusWithStage::Submerged
     );
 }
-
 
 TEST(
     MoveExecution,

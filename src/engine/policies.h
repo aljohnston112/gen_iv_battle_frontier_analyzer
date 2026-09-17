@@ -28,13 +28,23 @@ template <typename T>
 concept IsAccuracyEvasionFactorPolicy =
     std::derived_from<T, AccuracyEvasionFactorPolicy<T>>;
 
-struct AlwaysHitAccuracyEvasionFactorPolicy :
-    AccuracyEvasionFactorPolicy<AlwaysHitAccuracyEvasionFactorPolicy> {
+struct NeverMissAccuracyEvasionFactorPolicy :
+    AccuracyEvasionFactorPolicy<NeverMissAccuracyEvasionFactorPolicy> {
     static bool does_move_miss_due_to_accuracy_and_evasion_impl(
         const BattleState&,
         const MoveInfo*,
         const Who) {
         return false;
+    }
+};
+
+struct AlwaysMissAccuracyEvasionFactorPolicy :
+    AccuracyEvasionFactorPolicy<AlwaysMissAccuracyEvasionFactorPolicy> {
+    static bool does_move_miss_due_to_accuracy_and_evasion_impl(
+        const BattleState&,
+        const MoveInfo*,
+        const Who) {
+        return true;
     }
 };
 
@@ -101,6 +111,31 @@ private:
     }
 };
 
+// =============================================================================
+template <typename T>
+struct CanUseLessAccurateMovesPolicy {
+    bool can_use_less_accurate_moves(
+        const Who who
+    ) const {
+        return static_cast<const T*>(this)->
+            can_use_less_accurate_moves_impl(who);
+    }
+};
+
+template <typename T>
+concept IsCanUseLessAccurateMovesPolicy =
+    std::derived_from<T, CanUseLessAccurateMovesPolicy<T>>;
+
+struct OnlyOpponentCanUseLessAccurateMovesPolicy :
+    CanUseLessAccurateMovesPolicy<OnlyOpponentCanUseLessAccurateMovesPolicy> {
+    static bool can_use_less_accurate_moves_impl(
+        const Who who
+    ) {
+        return who == Who::Opponent;
+    }
+};
+
+
 // Burn 
 // =============================================================================
 template <typename T>
@@ -129,7 +164,7 @@ struct AlwaysBurnRNGPolicy :
 };
 
 struct OpponentOptimizedBurnRNGPolicy :
-    BurnRNGPolicy<AlwaysBurnRNGPolicy> {
+    BurnRNGPolicy<OpponentOptimizedBurnRNGPolicy> {
     static bool roll_for_burn_impl(const int8_t, const Who who) {
         return who == Who::Player;
     }
@@ -524,6 +559,10 @@ struct HeuristicLogger {
 using NoLogging = LoggingPolicy<>;
 using DebugLogging = LoggingPolicy<HeuristicLogger>;
 
+template <template <typename> typename TemplateBase, typename T>
+concept derives_from_self =
+    std::derived_from<T, TemplateBase<T>>;
+
 template <template <typename...> typename TemplateBase, typename T>
 concept derives_from_template = requires(T t) {
     []<typename... U>(const TemplateBase<U...>&) {}(t);
@@ -551,7 +590,7 @@ concept IsAllowedPolicy =
             } -> std::same_as<void>;
         }
     ) ||
-    (derives_from_template<AccuracyEvasionFactorPolicy, T> &&
+    (derives_from_self<AccuracyEvasionFactorPolicy, T> &&
         requires(const T& t) {
             {
                 t.does_move_miss_due_to_accuracy_and_evasion_impl(
@@ -565,19 +604,28 @@ concept IsAllowedPolicy =
             } -> std::same_as<bool>;
         })
     ||
-    (derives_from_template<BurnRNGPolicy, T> &&
+    (derives_from_self<CanUseLessAccurateMovesPolicy, T> &&
+        requires(const T& t) {
+            {
+                t.can_use_less_accurate_moves_impl(
+                    Who::Player
+                )
+            } -> std::same_as<bool>;
+        })
+    ||
+    (derives_from_self<BurnRNGPolicy, T> &&
         requires(const T& t) {
             {
                 t.roll_for_burn_impl(static_cast<uint8_t>(0), Who::Player)
             } -> std::same_as<bool>;
         }) ||
-    (derives_from_template<CritRNGPolicy, T> &&
+    (derives_from_self<CritRNGPolicy, T> &&
         requires(const T& t) {
             {
                 t.roll_for_crit_impl(static_cast<double>(0.0))
             } -> std::same_as<bool>;
         }) ||
-    (derives_from_template<ConfusionStatusPolicy, T> &&
+    (derives_from_self<ConfusionStatusPolicy, T> &&
         requires(const T& t) {
             {
                 t.roll_turns_confused_impl(Who::Player)
@@ -586,7 +634,7 @@ concept IsAllowedPolicy =
                 t.roll_random_confusion_impl(Who::Player)
             } -> std::same_as<uint8_t>;
         }) ||
-    (derives_from_template<ConfusionStatusRNGPolicy, T> &&
+    (derives_from_self<ConfusionStatusRNGPolicy, T> &&
         requires(const T& t) {
             {
                 t.roll_for_confusion_impl(static_cast<double>(0.0))
@@ -595,21 +643,21 @@ concept IsAllowedPolicy =
                 t.roll_for_self_hit_impl(static_cast<double>(0.0))
             } -> std::same_as<bool>;
         }) ||
-    (derives_from_template<DamageRandomFactorPolicy, T> &&
+    (derives_from_self<DamageRandomFactorPolicy, T> &&
         requires(const T& t) {
             { t.roll_random_impl(Who::Player) } -> std::same_as<uint8_t>;
         }) ||
-    (derives_from_template<FlinchRNGPolicy, T> &&
+    (derives_from_self<FlinchRNGPolicy, T> &&
         requires(const T& t) {
             {
                 t.roll_for_flinch_impl(static_cast<uint8_t>(0))
             } -> std::same_as<bool>;
         }) ||
-    (derives_from_template<OpponentKnowledgePolicy, T> &&
+    (derives_from_self<OpponentKnowledgePolicy, T> &&
         requires(const T& t) {
             { t.opponent_knows_player_move_impl() } -> std::same_as<bool>;
         }) ||
-    (derives_from_template<FreezeRNGPolicy, T> &&
+    (derives_from_self<FreezeRNGPolicy, T> &&
         requires(const T& t) {
             {
                 t.roll_for_freeze_impl(static_cast<uint8_t>(0))
@@ -618,11 +666,11 @@ concept IsAllowedPolicy =
                 t.roll_for_thaw_impl(static_cast<uint8_t>(0))
             } -> std::same_as<bool>;
         }) ||
-    (derives_from_template<OpponentKnowledgePolicy, T> &&
+    (derives_from_self<OpponentKnowledgePolicy, T> &&
         requires(const T& t) {
             { t.opponent_knows_player_move_impl() } -> std::same_as<bool>;
         }) ||
-    (derives_from_template<ParalysisRNGPolicy, T> &&
+    (derives_from_self<ParalysisRNGPolicy, T> &&
         requires(const T& t) {
             {
                 t.roll_for_paralysis_impl(static_cast<uint8_t>(0))
@@ -631,12 +679,12 @@ concept IsAllowedPolicy =
                 t.can_move_while_paralyzed_impl(static_cast<uint8_t>(0))
             } -> std::same_as<bool>;
         }) ||
-    (derives_from_template<SpeedAdvantagePolicy, T> &&
+    (derives_from_self<SpeedAdvantagePolicy, T> &&
         requires(const T& t, const BattleState& state) {
             { t.is_player_faster_impl(state) } -> std::same_as<bool>;
         })
     ||
-    (derives_from_template<SleepStatusPolicy, T> &&
+    (derives_from_self<SleepStatusPolicy, T> &&
         requires(const T& t) {
             {
                 t.roll_turns_asleep_impl(Who::Player)
@@ -645,7 +693,7 @@ concept IsAllowedPolicy =
                 t.roll_random_sleep_impl(Who::Player)
             } -> std::same_as<uint8_t>;
         }) ||
-    (derives_from_template<SleepStatusRNGPolicy, T> &&
+    (derives_from_self<SleepStatusRNGPolicy, T> &&
         requires(const T& t) {
             {
                 t.roll_for_sleep_impl(static_cast<double>(0.0))
@@ -654,7 +702,7 @@ concept IsAllowedPolicy =
                 t.roll_for_awakening_impl(static_cast<double>(0.0))
             } -> std::same_as<bool>;
         }) ||
-    (derives_from_template<StatChangePolicy, T> && requires(const T& t) {
+    (derives_from_self<StatChangePolicy, T> && requires(const T& t) {
         {
             t.roll_stat_drop_impl(static_cast<uint8_t>(0), Who::Player)
         } -> std::same_as<bool>;
@@ -664,6 +712,7 @@ template <typename... Policies>
     requires
     (IsAllowedPolicy<Policies> && ...) &&
     contains_at_most_one<AccuracyEvasionFactorPolicy, Policies...> &&
+    contains_at_most_one<CanUseLessAccurateMovesPolicy, Policies...> &&
     contains_at_most_one<BurnRNGPolicy, Policies...> &&
     contains_at_most_one<CritRNGPolicy, Policies...> &&
     contains_at_most_one<ConfusionStatusPolicy, Policies...> &&

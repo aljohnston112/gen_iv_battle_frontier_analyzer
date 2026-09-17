@@ -1,5 +1,6 @@
-add_executable(
+add_library(
         battle_engine_test
+        OBJECT
 
         flash_fire_tests.cpp
         sleep_tests.cpp
@@ -11,10 +12,4 @@ target_link_libraries(
         PRIVATE
         core
         GTest::gtest_main
-)
-
-add_test(
-        NAME battle_engine_test
-        COMMAND battle_engine_test
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
 )

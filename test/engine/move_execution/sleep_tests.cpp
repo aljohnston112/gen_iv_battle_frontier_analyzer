@@ -317,7 +317,8 @@ TEST(
         StatusWithStage::HealBlocked,
         5
     );
-    const auto moves = battle_state.player.get_moves();
+    const auto moves =
+        battle_state.player.get_moves(true);
     for (const auto move : moves) {
         if (move != Move::Rest) {
             battle_state.player.clear_power_points(move);
