@@ -666,10 +666,6 @@ concept IsAllowedPolicy =
                 t.roll_for_thaw_impl(static_cast<uint8_t>(0))
             } -> std::same_as<bool>;
         }) ||
-    (derives_from_self<OpponentKnowledgePolicy, T> &&
-        requires(const T& t) {
-            { t.opponent_knows_player_move_impl() } -> std::same_as<bool>;
-        }) ||
     (derives_from_self<ParalysisRNGPolicy, T> &&
         requires(const T& t) {
             {
@@ -722,6 +718,7 @@ template <typename... Policies>
     contains_at_most_one<FreezeRNGPolicy, Policies...> &&
     contains_at_most_one<LoggingPolicy, Policies...> &&
     contains_at_most_one<OpponentKnowledgePolicy, Policies...> &&
+    contains_at_most_one<ParalysisRNGPolicy, Policies...> &&
     contains_at_most_one<SleepStatusPolicy, Policies...> &&
     contains_at_most_one<SleepStatusRNGPolicy, Policies...> &&
     contains_at_most_one<SpeedAdvantagePolicy, Policies...> &&

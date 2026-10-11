@@ -8,9 +8,16 @@
 #include "gtest/gtest.h"
 
 TEST(MoveExecution, NormalEffectivenessDoesCorrectDamageForPhysicalAttack) {
-    // TODO
+    BattleState battle_state{
+        PokemonState{&Regirock_7_3},
+        PokemonState{&Entei_7_3}
+    };
+    battle_state.player.clear_status_condition();
+    random_does_correct_damage_for_attack<
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 44>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 52>
+    >(battle_state, Move::HammerArm);
 }
-
 
 TEST(MoveExecution, STABDoesCorrectDamageForPhysicalAttack) {
     const BattleState battle_state{
@@ -24,7 +31,14 @@ TEST(MoveExecution, STABDoesCorrectDamageForPhysicalAttack) {
 }
 
 TEST(MoveExecution, NotVeryEffectiveSTABDoesCorrectDamageForPhysicalAttack) {
-    // TODO
+    const BattleState battle_state{
+        PokemonState{&Regirock_7_3},
+        PokemonState{&Regirock_7_3}
+    };
+    random_does_correct_damage_for_attack<
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 31>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 37>
+    >(battle_state, Move::StoneEdge);
 }
 
 TEST(MoveExecution, NotVeryEffectiveDoesCorrectDamageForPhysicalAttack) {
@@ -211,9 +225,21 @@ TEST(
     MoveExecution,
     NormalEffectivenessDoesCorrectDamageForPhysicalAttackWhenAttackerIsBurned
 ) {
-    // TODO
+    BattleState battle_state{
+        PokemonState{&Regirock_7_3},
+        PokemonState{&Entei_7_3}
+    };
+    battle_state.player.try_set_status_condition(StatusCondition::Burn);
+    random_does_correct_damage_for_attack<
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 22>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 27>
+    >(battle_state, Move::HammerArm);
+    battle_state.player.clear_status_condition();
+    random_does_correct_damage_for_attack<
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 44>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 52>
+    >(battle_state, Move::HammerArm);
 }
-
 
 TEST(
     MoveExecution,
@@ -234,8 +260,15 @@ TEST(
     MoveExecution,
     NotVeryEffectiveSTABDoesCorrectDamageForPhysicalAttackWhenAttackerIsBurned
 ) {
-    // TODO
-}
+    BattleState battle_state{
+        PokemonState{&Regirock_7_3},
+        PokemonState{&Regirock_7_3}
+    };
+    battle_state.player.try_set_status_condition(StatusCondition::Burn);
+    random_does_correct_damage_for_attack<
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 16>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 19>
+    >(battle_state, Move::StoneEdge);}
 
 TEST(
     MoveExecution,

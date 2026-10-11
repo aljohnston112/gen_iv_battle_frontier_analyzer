@@ -81,7 +81,7 @@ inline BattleResultEntry single_battle(
 
     auto battle_state = &path.back().battle_state;
     while (!battle_state->is_battle_over()) {
-        const BestMoveResults player_move_results =
+        const MoveResults move_results =
             choose_move_against_defender(
                 battle_engine.policy_container,
                 *battle_state,
@@ -92,32 +92,24 @@ inline BattleResultEntry single_battle(
                 ),
                 Who::Player,
                 std::nullopt,
-                std::nullopt
+                std::nullopt,
+                0
             );
-        if (player_move_results.attacker_results.move == Move::MoveCount) {
+        if (move_results.attacker_results.evaluated_move == Move::MoveCount) {
             throw std::runtime_error{"Player picked invalid move"};
         }
-
-        const BestMoveResults opponent_move_results =
-            choose_move_against_defender(
-                battle_engine.policy_container,
-                *battle_state,
-                battle_state->opponent.get_moves(
-                    battle_engine.policy_container.can_use_less_accurate_moves(
-                        Who::Opponent
-                    )
-                ),
-                Who::Opponent,
-                std::nullopt,
-                player_move_results.attacker_results
-            );
+        if (move_results.defender_results.evaluated_move ==
+            Move::MoveCount
+        ) {
+            throw std::runtime_error{"Opponent picked invalid move"};
+        }
         BattleState next_battle_state = *battle_state;
         auto turn_result =
             execute_turn(
                 battle_engine.policy_container,
                 next_battle_state,
-                player_move_results.attacker_results.move,
-                opponent_move_results.attacker_results.move
+                move_results.attacker_results.evaluated_move,
+                move_results.defender_results.evaluated_move
             );
         path.emplace_back(std::move(turn_result));
         battle_state = &path.back().battle_state;

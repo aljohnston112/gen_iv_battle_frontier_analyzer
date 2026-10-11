@@ -51,7 +51,22 @@ TEST(MoveExecution,
         PokemonState{&Cresselia_7_4}
     };
 
-    // Normal TODO
+    BattleState battle_state5{
+        PokemonState{&Entei_7_3},
+        PokemonState{&Cresselia_7_4}
+    };
+
+    // Normal
+    EXPECT_EQ(
+        51,
+        execute_move(
+            DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+            battle_state5,
+            Who::Player,
+            Move::HyperBeam
+        )
+    );
+    battle_state.opponent.add_hp(51);
 
     // Fighting
     EXPECT_EQ(

@@ -51,7 +51,6 @@ enum class Status {
 
 enum class StatusWithStage {
     SlowStarting,
-    Charging,
     Recharging,
     ElectricBoosted,
     CritChanceModifier,
@@ -89,6 +88,7 @@ enum class MoveStatusWithStage {
     Encored,
     MoveDisabled,
     MetronomeActive,
+    Charging,
     MoveStatusWithStageCount
 };
 
@@ -149,7 +149,7 @@ class PokemonState {
     std::vector<Move> current_accurate_moves;
 
     std::array<PokemonType, 2> current_types;
-
+    Move last_used_move = Move::MoveCount;
     // If any fields are added, UPDATE THE HASH
 
     void set_stat(const Stat stat, const uint16_t new_stat) {
@@ -322,6 +322,17 @@ public:
         return static_cast<uint8_t>(move_status_stages[to_int(status)].stage);
     }
 
+    [[nodiscard]] Move get_move_status_move(
+        const MoveStatusWithStage status
+    ) const {
+        if (!has_move_status_with_stage(status)) {
+            throw std::runtime_error{
+                "Status does not have an attached move"
+            };
+        }
+        return move_status_stages[to_int(status)].move;
+    }
+
     void set_move_status_with_stage(
         const MoveStatusWithStage status_with_stage,
         const Move move,
@@ -330,6 +341,14 @@ public:
         move_statuses_with_stage[to_int(status_with_stage)] = true;
         move_status_stages[to_int(status_with_stage)].move = move;
         move_status_stages[to_int(status_with_stage)].stage = value;
+    }
+
+    void clear_move_status_with_stage(
+        const MoveStatusWithStage status_with_stage
+    ) {
+        move_statuses_with_stage[to_int(status_with_stage)] = false;
+        move_status_stages[to_int(status_with_stage)].move = Move::MoveCount;
+        move_status_stages[to_int(status_with_stage)].stage = 0;
     }
 
     bool is_semi_invulnerable() const {
@@ -450,7 +469,7 @@ public:
         current_item = Item::NoItem;
     }
 
-    [[nodiscard]] uint get_power_points(const Move move) const {
+    [[nodiscard]] int8_t get_power_points(const Move move) const {
         return power_points[to_int(move)];
     }
 
@@ -520,7 +539,8 @@ public:
         if (has_status_with_stage(StatusWithStage::SlowStarting)) [[unlikely]] {
             decrement_status_with_stage_value(StatusWithStage::SlowStarting);
         }
-        if (has_status_with_stage(StatusWithStage::Confused)) {
+        if (!has_status_with_stage(StatusWithStage::Recharging) &&
+            has_status_with_stage(StatusWithStage::Confused)) {
             decrement_status_with_stage_value(StatusWithStage::Confused);
         }
         if (has_status_with_stage(StatusWithStage::Asleep)) {
@@ -537,6 +557,14 @@ public:
 
     void on_new_weather(const Weather weather) {
         refresh_current_accurate_moves(weather);
+    }
+
+    [[nodiscard]] Move get_last_used_move() const {
+        return last_used_move;
+    }
+
+    void set_last_used_move(const Move move) {
+        last_used_move = move;
     }
 
     friend struct std::hash<PokemonState>;
@@ -595,7 +623,8 @@ struct std::hash<PokemonState> {
             hash_array(state.stat_stages),
             hash_array(state.power_points),
             hash_vector_of_enums(state.current_moves),
-            hash_array_of_enums(state.current_types)
+            hash_array_of_enums(state.current_types),
+            std::hash<int>{}(to_int(state.last_used_move))
         );
     }
 };
@@ -608,6 +637,7 @@ class BattleState {
     > field_status_stages{};
     Weather current_weather = Weather::Clear;
     uint8_t weather_turns_left = 0;
+    Move last_used_move = Move::MoveCount;
 
 public:
     PokemonState player;
@@ -658,11 +688,21 @@ public:
         return current_weather == weather;
     }
 
+    [[nodiscard]] Move get_last_used_move() const {
+        return last_used_move;
+    }
+
+    void set_last_used_move(const Move move) {
+        last_used_move = move;
+    }
+
 private:
     void send_weather_update() {
         player.on_new_weather(current_weather);
         opponent.on_new_weather(current_weather);
     }
+
+    friend struct std::hash<BattleState>;
 };
 
 template <>
@@ -670,9 +710,11 @@ struct std::hash<BattleState> {
     size_t operator()(const BattleState& state) const noexcept {
         return hash_combine(
             0,
-            std::hash<int>{}(to_int(state.get_weather())),
+            std::hash<int>{}(to_int(state.current_weather)),
+            std::hash<int>{}(state.weather_turns_left),
             std::hash<PokemonState>{}(state.player),
-            std::hash<PokemonState>{}(state.opponent)
+            std::hash<PokemonState>{}(state.opponent),
+            std::hash<int>{}(to_int(state.last_used_move))
         );
     }
 };

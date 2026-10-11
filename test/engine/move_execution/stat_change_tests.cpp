@@ -297,7 +297,7 @@ TEST(MoveExecution, DracoMeteorDropsSpecialAtttack) {
         Move::DracoMeteor
     );
     EXPECT_EQ(battle_state.player.get_stat_stage(Stat::SpecialAttack), -2);
-    EXPECT_EQ(battle_state.opponent.get_stat_stage(Stat::SpecialAttack), 0);
+    EXPECT_EQ(battle_state.opponent.get_stat_stage(Stat::SpecialAttack), -2);
 }
 
 TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {

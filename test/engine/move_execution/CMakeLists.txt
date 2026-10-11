@@ -22,6 +22,11 @@ add_library(
         pressure_tests.cpp
         hail_tests.cpp
         blizzard_tests.cpp
+        damage_reducing_berry_tests.cpp
+        sunny_day_tests.cpp
+        soloarbeam_tests.cpp
+        last_used_move_tests.cpp
+        hyper_beam_tests.cpp
 )
 
 target_link_libraries(

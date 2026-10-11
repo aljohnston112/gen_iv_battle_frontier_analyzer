@@ -1,6 +1,7 @@
 #include "thread_pool.h"
 
 #include <future>
+#include <iostream>
 
 ThreadPool::ThreadPool(const size_t numThreads) {
     for (size_t i = 0; i < numThreads; ++i) {
@@ -44,8 +45,8 @@ void ThreadPool::addTask(Function&& function) {
             1,
             std::memory_order_relaxed
         );
-        task_condition.notify_one();
     }
+    task_condition.notify_one();
 }
 
 void ThreadPool::addTasks(std::vector<Function>& functions) {
@@ -69,8 +70,8 @@ void ThreadPool::waitForTasks() {
     ) {
         {
             std::lock_guard lock(mutex);
-            std::this_thread::yield();
         }
+        std::this_thread::yield();
     }
 }
 

@@ -41,6 +41,20 @@ const CustomPokemon Cresselia_7_4_NoItem{
     .pounds = 188.7
 };
 
+const CustomPokemon Entei_7_3{
+    .unique_id = "Entei_7_3",
+    .name = Pokemon::Entei,
+    .ability = Ability::Pressure,
+    .level = 50,
+    .item = Item::ShucaBerry,
+    .types = {PokemonType::Fire, PokemonType::NoType},
+    .moves = {
+        Move::SunnyDay, Move::FireBlast, Move::SolarBeam, Move::HyperBeam
+    },
+    .stats = {187, 118, 102, 151, 92, 148},
+    .pounds = 948
+};
+
 const CustomPokemon Heatran_7_3{
     .unique_id = "Heatran_7_3",
     .name = Pokemon::Heatran,

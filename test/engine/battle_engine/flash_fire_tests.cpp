@@ -108,7 +108,22 @@ TEST(BattleEngine, FlashFireIsNotActivatedAfterBeingHitWithNonFireMoves) {
 
     EXPECT_FALSE(battle_state4.player.has_status(Status::FlashFired));
 
-    // Normal TODO
+    BattleState battle_state5{
+        PokemonState{&Heatran_7_3},
+        PokemonState{&Entei_7_3}
+    };
+
+    EXPECT_FALSE(battle_state5.player.has_status(Status::FlashFired));
+
+    // Normal
+    execute_move(
+        DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+        battle_state5,
+        Who::Opponent,
+        Move::HyperBeam
+    );
+
+    EXPECT_FALSE(battle_state5.player.has_status(Status::FlashFired));
 
     // Fighting
     execute_move(
@@ -276,7 +291,10 @@ TEST(BattleEngine,
     };
 
     battle_state.player.set_status(Status::FlashFired);
-    battle_state.player.decrease_stat_stage<Stat::SpecialAttack>(2, StatDropSource::StatDropSourceCount);
+    battle_state.player.decrease_stat_stage<Stat::SpecialAttack>(
+        2,
+        StatDropSource::StatDropSourceCount
+    );
 
     EXPECT_EQ(
         52u,
@@ -359,14 +377,14 @@ TEST(BattleEngine,
 
     // Dragon
     EXPECT_EQ(
-    45u,
-    execute_move(
-        DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
-        battle_state,
-        Who::Player,
-        Move::DragonPulse
-    )
-);
+        45u,
+        execute_move(
+            DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+            battle_state,
+            Who::Player,
+            Move::DragonPulse
+        )
+    );
     battle_state.opponent.add_hp(
         battle_state.opponent.get_original_stat(Stat::Health)
     );
@@ -400,7 +418,7 @@ TEST(BattleEngine, FlashFireDoesNotActivateWhenFrozen) {
     battle_state.opponent.try_set_status_condition(StatusCondition::Freeze);
     EXPECT_TRUE(
         battle_state.opponent.has_status_condition(StatusCondition::Freeze)
-        );
+    );
 
     execute_move(
         ALWAYS_BURN_POLICY_CONTAINER,

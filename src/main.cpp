@@ -7,10 +7,13 @@
 // TODO Run the battle enough times to perf it and see if it can be made faster.
 
 int main() {
-    printf("OpenMP version: %d\n", _OPENMP);
+
+    std::cout << "Starting Program" << std::endl;
 
     const auto start =
         std::chrono::high_resolution_clock::now();
+
+    std::cout << "Start Time Recorded" << std::endl;
 
     // const auto all_player_pokemon =
     // construct_all_pokemon_forms(Player);
@@ -29,15 +32,19 @@ int main() {
     //     )
     // );
 
+    std::cout << "Loading Pokemon From Disk" << std::endl;
+
     const auto battle_factory_player_pokemon =
-        construct_all_custom_batle_factory_pokemon(Who::Player);
+        construct_all_custom_batle_factory_pokemon();
     const auto battle_factory_opponent_pokemon =
-        construct_all_custom_batle_factory_pokemon(Who::Opponent);
+        construct_all_custom_batle_factory_pokemon();
 
     const auto rr_start =
         std::chrono::high_resolution_clock::now();
 
-    constexpr size_t n = 7;
+    std::cout << "RR Start Time Recorded; Starting Battles" << std::endl;
+
+    constexpr size_t n = 8;
     const auto pokemon_to_battle_result_entries =
         do_round_robin(
             std::span(
@@ -61,6 +68,8 @@ int main() {
     //         battle_factory_opponent_pokemon.size()
     //     )
     // );
+
+    std::cout << "Battles Over" << std::endl;
 
     const auto end =
         std::chrono::high_resolution_clock::now();

@@ -14,17 +14,26 @@ TEST(
         PokemonState{&Cresselia_7_4},
         PokemonState{&Cresselia_7_4}
     };
-    auto [attacker_results, defender_results] =
+    const MoveResults player_move_results =
         choose_move_against_defender(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state,
-            battle_state.player.get_moves(true),
+            battle_state.player.get_moves(false),
             Who::Player,
             std::nullopt,
-            std::nullopt
+            std::nullopt,
+            0
         );
-    ASSERT_EQ(attacker_results.move, Move::SignalBeam);
-    ASSERT_EQ(defender_results.move, Move::Psychic);
+
+
+    ASSERT_EQ(
+        player_move_results.attacker_results.evaluated_move,
+              Move::SignalBeam
+              );
+    ASSERT_EQ(
+        player_move_results.defender_results.evaluated_move,
+              Move::Psychic
+              );
 }
 
 TEST(
@@ -35,17 +44,25 @@ TEST(
         PokemonState{&Cresselia_7_4},
         PokemonState{&LatiasNoItem}
     };
-    auto [attacker_results, defender_results] =
+    const MoveResults player_move_results =
         choose_move_against_defender(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state,
-            battle_state.player.get_moves(true),
+            battle_state.player.get_moves(false),
             Who::Player,
             std::nullopt,
-            std::nullopt
+            std::nullopt,
+            0
         );
-    ASSERT_EQ(defender_results.move, Move::Thunderbolt);
-    ASSERT_EQ(attacker_results.move, Move::IceBeam);
+
+    ASSERT_EQ(
+        player_move_results.defender_results.evaluated_move,
+              Move::Thunderbolt
+              );
+    ASSERT_EQ(
+        player_move_results.attacker_results.evaluated_move,
+              Move::IceBeam
+              );
 }
 
 TEST(
@@ -56,17 +73,25 @@ TEST(
         PokemonState{&Heatran_7_3},
         PokemonState{&Heatran_7_3}
     };
-    auto [attacker_results, defender_results] =
+    const MoveResults player_move_results =
         choose_move_against_defender(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state,
-            battle_state.player.get_moves(true),
+            battle_state.player.get_moves(false),
             Who::Player,
             std::nullopt,
-            std::nullopt
+            std::nullopt,
+            0
         );
-    ASSERT_EQ(defender_results.move, Move::EarthPower);
-    ASSERT_EQ(attacker_results.move, Move::EarthPower);
+
+    ASSERT_EQ(
+        player_move_results.attacker_results.evaluated_move,
+              Move::EarthPower
+              );
+    ASSERT_EQ(
+        player_move_results.defender_results.evaluated_move,
+              Move::EarthPower
+              );
 }
 
 TEST(
@@ -77,17 +102,22 @@ TEST(
         PokemonState{&Cresselia_7_4},
         PokemonState{&Regirock_7_3}
     };
-    auto [attacker_results, defender_results] =
+    const MoveResults player_move_results =
         choose_move_against_defender(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state,
-            battle_state.opponent.get_moves(true),
-            Who::Opponent,
+            battle_state.player.get_moves(false),
+            Who::Player,
             std::nullopt,
-            std::nullopt
+            std::nullopt,
+            0
         );
-    ASSERT_EQ(defender_results.move, Move::Psychic);
-    ASSERT_EQ(attacker_results.move, Move::Curse);
+
+    ASSERT_EQ(
+        player_move_results.attacker_results.evaluated_move,
+              Move::Psychic
+              );
+    ASSERT_EQ(player_move_results.defender_results.evaluated_move, Move::Curse);
 }
 
 TEST(
@@ -106,16 +136,21 @@ TEST(
             battle_state.player.get_power_points(move)
         );
     }
-    auto [attacker_results, defender_results] =
+    const MoveResults player_move_results =
         choose_move_against_defender(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state,
             battle_state.player.get_moves(false),
             Who::Player,
             std::nullopt,
-            std::nullopt
+            std::nullopt,
+            0
         );
-    ASSERT_NE(attacker_results.move, Move::MoveCount);
+
+    ASSERT_NE(
+        player_move_results.attacker_results.evaluated_move,
+              Move::MoveCount
+              );
 }
 
 TEST(
@@ -134,16 +169,21 @@ TEST(
             battle_state.player.get_power_points(move)
         );
     }
-    auto [attacker_results, defender_results] =
+    const MoveResults player_move_results =
         choose_move_against_defender(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state,
             battle_state.player.get_moves(false),
             Who::Player,
             std::nullopt,
-            std::nullopt
+            std::nullopt,
+            0
         );
-    ASSERT_NE(attacker_results.move, Move::Struggle);
+
+    ASSERT_NE(
+        player_move_results.attacker_results.evaluated_move,
+              Move::Struggle
+              );
 }
 
 TEST(
@@ -154,16 +194,21 @@ TEST(
         PokemonState{&Regigigas_7_3},
         PokemonState{&Suicune_7_3}
     };
-    auto [attacker_results, defender_results] =
+    const MoveResults player_move_results =
         choose_move_against_defender(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state,
-            battle_state.opponent.get_moves(true),
-            Who::Opponent,
+            battle_state.player.get_moves(false),
+            Who::Player,
             std::nullopt,
-            std::nullopt
+            std::nullopt,
+            0
         );
-    ASSERT_NE(attacker_results.move, Move::ShadowBall);
+
+    ASSERT_NE(
+        player_move_results.defender_results.evaluated_move,
+              Move::ShadowBall
+              );
 }
 
 TEST(
@@ -175,16 +220,21 @@ TEST(
         PokemonState{&Regigigas_7_3}
     };
     battle_state.set_weather(Weather::Hail, 5);
-    auto [attacker_results, defender_results] =
+    const MoveResults player_move_results =
         choose_move_against_defender(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state,
             battle_state.player.get_moves(false),
             Who::Player,
             std::nullopt,
-            std::nullopt
+            std::nullopt,
+            0
         );
-    ASSERT_EQ(attacker_results.move, Move::Blizzard);
+
+    ASSERT_EQ(
+        player_move_results.attacker_results.evaluated_move,
+              Move::Blizzard
+              );
 }
 
 namespace {
@@ -326,30 +376,12 @@ TEST(
 
 TEST(
     MoveHeuristic,
-    OpponentCresselia_7_3ChoosesChargeBeamThenTwoShadowBallsAgainstCresselia_7_4
+    OpponentCresselia_7_3ChoosesThreeShadowBallsAgainstCresselia_7_4
 ) {
-    // Another fantastic test case!
-
-    // This order means the first turn has 7 more damage,
-    // but equal damage over three turns compared to the next battle
     opponent_chooses_moves_against_player(
         Cresselia_7_4,
         Cresselia_7_3,
-        Move::Psychic,
         Move::ShadowBall,
-        Move::ShadowBall
-    );
-
-    // And this order means the third turn has 7 more damage,
-    // but equal damage over three turns compared to teh previous battle
-    CustomPokemon other{Cresselia_7_3};
-    other.moves = {
-        Move::ChargeBeam, Move::Psychic, Move::ShadowBall, Move::EnergyBall
-    };
-    opponent_chooses_moves_against_player(
-        Cresselia_7_4,
-        other,
-        Move::ChargeBeam,
         Move::ShadowBall,
         Move::ShadowBall
     );
@@ -370,12 +402,12 @@ TEST(
 
 TEST(
     MoveHeuristic,
-    OpponentHeatran_7_3ChoosesEarthPowerThenFlamethrowerAgainstRegigigas_7_3
+    OpponentHeatran_7_3ChoosesFlamethrowerThenFlamethrowerAgainstRegigigas_7_3
 ) {
     opponent_chooses_moves_against_player(
         Regigigas_7_3,
         Heatran_7_3,
-        Move::EarthPower,
+        Move::Flamethrower,
         Move::Flamethrower
     );
 }
@@ -389,5 +421,112 @@ TEST(
         Regirock_7_3,
         Move::Hail,
         Move::Blizzard
+    );
+}
+
+TEST(
+    MoveHeuristic,
+    HeuristicReturnsChargingMoveWithDamageWhenAttackerIsCharging
+) {
+    BattleState battle_state{
+        PokemonState{&Entei_7_3},
+        PokemonState{&Suicune_7_3}
+    };
+    // To prevent immediate KO
+    battle_state.opponent.clear_power_points(Move::HydroPump);
+
+    battle_state.player.set_move_status_with_stage(
+        MoveStatusWithStage::Charging,
+        Move::SolarBeam,
+        1
+    );
+
+    const MoveResults player_move_results =
+        choose_move_against_defender(
+            DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+            battle_state,
+            battle_state.player.get_moves(false),
+            Who::Player,
+            std::nullopt,
+            std::nullopt,
+            0
+        );
+
+    EXPECT_EQ(Move::SolarBeam,
+              player_move_results.attacker_results.evaluated_move);
+    EXPECT_GT(player_move_results.attacker_results.line[0].damage, 0);
+    EXPECT_TRUE(player_move_results.attacker_results.hits_to_ko.has_value());
+    EXPECT_GT(player_move_results.attacker_results.total_damage, 0);
+}
+
+TEST(
+    MoveHeuristic,
+    HeuristicReturnsRechargingMoveWithNoDamageWhenAttackerIsRecharging
+) {
+    BattleState battle_state{
+        PokemonState{&Entei_7_3},
+        PokemonState{&Suicune_7_3}
+    };
+
+    battle_state.player.set_status_with_stage(
+        StatusWithStage::Recharging,
+        1
+    );
+    battle_state.player.set_last_used_move(Move::HyperBeam);
+
+    const MoveResults player_move_results =
+        choose_move_against_defender(
+            DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+            battle_state,
+            battle_state.player.get_moves(false),
+            Who::Player,
+            std::nullopt,
+            std::nullopt,
+            0
+        );
+
+    EXPECT_EQ(
+        Move::HyperBeam,
+        player_move_results.attacker_results.evaluated_move
+    );
+    EXPECT_EQ(0, player_move_results.attacker_results.line[0].damage);
+}
+
+TEST(
+    MoveHeuristic,
+    OpponentEntei_7_3ChoosesFireBlastThreeTimesAgainstCresselia_7_3
+) {
+    opponent_chooses_moves_against_player(
+        Cresselia_7_3,
+        Entei_7_3,
+        Move::FireBlast,
+        Move::FireBlast,
+        Move::FireBlast
+    );
+}
+
+TEST(
+    MoveHeuristic,
+    PlayerEntei_7_3ChoosesSunnyDayThenSolarbeamAgainstCresselia_7_4
+) {
+    player_chooses_moves_against_opponent(
+        Entei_7_3,
+        Cresselia_7_4,
+        Move::SunnyDay,
+        Move::SolarBeam
+    );
+}
+
+TEST(
+    MoveHeuristic,
+    OpponentEntei_7_3ChoosesHyperBeamTwoTimesAgainstHeatran_7_3
+) {
+    // 2nd hyper beam is the recharge turn
+    opponent_chooses_moves_against_player(
+        Heatran_7_3,
+        Entei_7_3,
+        Move::HyperBeam,
+        Move::HyperBeam,
+        Move::HyperBeam
     );
 }

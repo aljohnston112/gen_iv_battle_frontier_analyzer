@@ -113,9 +113,7 @@ parse_battle_factory_file(const char* path) {
     return out;
 }
 
-std::vector<CustomPokemon> construct_all_custom_batle_factory_pokemon(
-    const Who who
-) {
+std::vector<CustomPokemon> construct_all_custom_batle_factory_pokemon() {
     const auto& all_serebii_pokemon =
         get_all_serebii_pokemon();
     const auto& all_move_infos = get_all_moves();

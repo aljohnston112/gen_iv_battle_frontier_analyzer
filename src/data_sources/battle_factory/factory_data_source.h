@@ -25,4 +25,4 @@ parse_base_stats_file(const char* path);
 inline std::unordered_map<std::string, BattleFactoryPokemon>
 parse_battle_factory_file(const char* path);
 
-std::vector<CustomPokemon> construct_all_custom_batle_factory_pokemon(Who who);
+std::vector<CustomPokemon> construct_all_custom_batle_factory_pokemon();

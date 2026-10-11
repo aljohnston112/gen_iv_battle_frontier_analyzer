@@ -144,6 +144,15 @@ uint16_t get_damage_of_move(
     ) {
         damage = damage * 3 / 2;
     }
+    if (move == Move::SolarBeam &&
+        (battle_state.has_weather(Weather::Rain) ||
+            battle_state.has_weather(Weather::Fog) ||
+            battle_state.has_weather(Weather::Sandstorm) ||
+            battle_state.has_weather(Weather::Hail))
+    ) {
+        damage = damage / 2;
+    }
+
     damage = damage + 2;
 
     const uint8_t crit = is_crit ? 2 : 1;
@@ -206,7 +215,8 @@ uint16_t get_damage_of_move(
         damage = damage * 2;
     }
     const auto defender_item = defender.get_current_item_for_effect();
-    if (DAMAGE_REDUCING_BERRIES.contains(defender_item) &&
+    if (effectiveness > 16 &&
+        DAMAGE_REDUCING_BERRIES.contains(defender_item) &&
         DAMAGE_REDUCING_BERRIES.at(defender_item) == move_info->type
     ) [[unlikely]] {
         damage = damage / 2;
@@ -230,12 +240,6 @@ uint16_t execute_power_move(
         is_player_attacker
             ? battle_state.opponent
             : battle_state.player;
-    const auto defender_item = defender.get_current_item_for_effect();
-    if (DAMAGE_REDUCING_BERRIES.contains(defender_item) &&
-        DAMAGE_REDUCING_BERRIES.at(defender_item) == move->type
-    ) [[unlikely]] {
-        defender.clear_current_item();
-    }
 
     const uint16_t hp_before = defender.get_current_stat(Stat::Health);
     defender.add_damage(
@@ -246,6 +250,15 @@ uint16_t execute_power_move(
             who_attacker_is
         )
     );
+
+    const auto defender_item = defender.get_current_item_for_effect();
+    if (get_effectiveness(defender.get_types(), move->type) > 16 &&
+        DAMAGE_REDUCING_BERRIES.contains(defender_item) &&
+        DAMAGE_REDUCING_BERRIES.at(defender_item) == move->type
+    ) [[unlikely]] {
+        defender.clear_current_item();
+    }
+
     return hp_before - defender.get_current_stat(Stat::Health);
 }
 
@@ -435,7 +448,9 @@ bool move_does_nothing(
         return true;
     }
 
-    if (get_effectiveness(defender_state->get_types(), move_type) == 0) {
+    if (attacker_move_info->category != Category::STATUS &&
+        get_effectiveness(defender_state->get_types(), move_type) == 0
+    ) {
         return true;
     }
 
@@ -457,6 +472,13 @@ bool move_does_nothing(
         (attacker_state->has_status_with_stage(StatusWithStage::Asleep) ||
             attacker_state->get_current_stat(Stat::Health) ==
             attacker_state->get_original_stat(Stat::Health))) {
+        return true;
+    }
+
+    if (attacker_move_info->move == Move::Moonlight &&
+        attacker_state->get_current_stat(Stat::Health) ==
+        attacker_state->get_original_stat(Stat::Health)
+    ) {
         return true;
     }
 
@@ -518,7 +540,7 @@ uint16_t get_struggle_damage(
 
     const Item attacker_item = attacker.get_current_item_for_effect();
     if (attacker_item == Item::LifeOrb) {
-        damage = damage * 4 / 3;
+        damage = damage * 13 / 10;
     } else if (const int8_t n =
             attacker.get_move_status_stage(MoveStatusWithStage::MetronomeActive)
         ;
@@ -640,24 +662,44 @@ uint16_t execute_move(
         is_player_attacker
             ? battle_state.player
             : battle_state.opponent;
-    if (attacker.get_current_stat(Stat::Health) <= 0) {
-        return 0;
-    }
+    // A KO'd attacker can still execute a move; needed for hits to KO lookahead
+    // if (attacker.get_current_stat(Stat::Health) <= 0) {
+    //     return 0;
+    // }
 
     PokemonState& defender =
         is_player_attacker
             ? battle_state.opponent
             : battle_state.player;
+
     if (defender.get_current_stat(Stat::Health) <= 0) {
         return 0;
     }
     const Ability defender_ability = defender.get_current_ability();
 
-    if (attacker.has_status(Status::Flinched)) {
-        attacker.clear_status(Status::Flinched);
-        return 0;
-    }
+    attacker.set_last_used_move(Move::MoveCount);
+    battle_state.set_last_used_move(Move::MoveCount);
 
+    bool pressure_active = false;
+    if (defender_ability == Ability::Pressure &&
+        !(move_has_flag(attacker_move, MoveFlag::TARGETS_SELF) ||
+            (!attacker.has_type(PokemonType::Ghost) &&
+                attacker_move == Move::Curse))
+    ) {
+        pressure_active = true;
+    }
+    auto decrement_move_power_point = [&]() {
+        attacker.decrement_power_point(attacker_move, pressure_active);
+    };
+    auto consume_power_point_if_solar_beam = [&]() {
+        if (attacker_move == Move::SolarBeam &&
+            battle_state.has_weather(Weather::Sun)
+        ) {
+            decrement_move_power_point();
+        }
+    };
+
+    // The freeze check has to be before clearing the recharge flag
     if (attacker.get_current_status_condition() ==
         StatusCondition::Freeze
     ) [[unlikely]] {
@@ -668,12 +710,26 @@ uint16_t execute_move(
         ) [[unlikely]] {
             attacker.clear_status_condition();
         } else {
+            consume_power_point_if_solar_beam();
             return 0;
         }
     }
 
+    // The recharge flag can only be cleared after the freeze check
+    if (attacker.has_status_with_stage(StatusWithStage::Recharging)) {
+        attacker.clear_status_with_stage(StatusWithStage::Recharging);
+        return 0;
+    }
+
+    if (attacker.has_status(Status::Flinched)) {
+        attacker.clear_status(Status::Flinched);
+        consume_power_point_if_solar_beam();
+        return 0;
+    }
+
     if (attacker.has_status_with_stage(StatusWithStage::Asleep))
     [[unlikely]] {
+        consume_power_point_if_solar_beam();
         return 0;
     }
 
@@ -681,6 +737,7 @@ uint16_t execute_move(
         StatusCondition::Paralysis
     )[[unlikely]] {
         if (!policy_container.can_move_while_paralyzed(25)) [[unlikely]] {
+            consume_power_point_if_solar_beam();
             return 0;
         }
     }
@@ -696,8 +753,38 @@ uint16_t execute_move(
                 attacker,
                 who_attacker_is
             );
+            consume_power_point_if_solar_beam();
             return 0;
         }
+    }
+
+    // Moves should only be considered "executed" past this point!
+    // =========================================================================
+    auto commit_move_execution = [&]() {
+        decrement_move_power_point();
+        attacker.set_last_used_move(attacker_move);
+        battle_state.set_last_used_move(attacker_move);
+    };
+
+    if (move_does_nothing(
+            policy_container,
+            battle_state,
+            attacker_move_info,
+            who_attacker_is
+        )
+    ) {
+        commit_move_execution();
+        return 0;
+    }
+
+    if (attacker_move == Move::Struggle) {
+        return execute_struggle(
+            policy_container,
+            battle_state,
+            attacker,
+            defender,
+            who_attacker_is
+        );
     }
 
     if (attacker_move == Move::Curse) {
@@ -718,36 +805,20 @@ uint16_t execute_move(
         }
     }
 
-    // Moves should only be considered "executed" past this point!
-    // =========================================================================
-    bool pressure_active = false;
-    if (defender_ability == Ability::Pressure &&
-        !(move_has_flag(attacker_move, MoveFlag::TARGETS_SELF) ||
-            (!attacker.has_type(PokemonType::Ghost) &&
-                attacker_move == Move::Curse))
-    ) {
-        pressure_active = true;
-    }
-
-    if (move_does_nothing(
-            policy_container,
-            battle_state,
-            attacker_move_info,
-            who_attacker_is
-        )
-    ) {
-        attacker.decrement_power_point(attacker_move, pressure_active);
-        return 0;
-    }
-
-    if (attacker_move == Move::Struggle) {
-        return execute_struggle(
-            policy_container,
-            battle_state,
-            attacker,
-            defender,
-            who_attacker_is
-        );
+    if (move_has_flag(attacker_move, MoveFlag::REQUIRES_CHARGING_TURN)) {
+        if (!attacker.get_move_status_stage(MoveStatusWithStage::Charging) &&
+            !(attacker_move == Move::SolarBeam &&
+                battle_state.has_weather(Weather::Sun))
+        ) {
+            attacker.set_move_status_with_stage(
+                MoveStatusWithStage::Charging,
+                attacker_move,
+                1
+            );
+            return 0;
+        }
+        // Move will be executed
+        attacker.clear_move_status_with_stage(MoveStatusWithStage::Charging);
     }
 
     const auto attacker_item = attacker.get_current_item_for_effect();
@@ -757,6 +828,12 @@ uint16_t execute_move(
             turns = 8;
         }
         battle_state.set_weather(Weather::Hail, turns);
+    } else if (attacker_move == Move::SunnyDay) {
+        uint8_t turns = 5;
+        if (attacker_item == Item::HeatRock) {
+            turns = 8;
+        }
+        battle_state.set_weather(Weather::Sun, turns);
     }
 
     if (attacker_move == Move::Rest) {
@@ -785,7 +862,7 @@ uint16_t execute_move(
                     who_attacker_is
                 );
             }
-            attacker.decrement_power_point(attacker_move, pressure_active);
+            commit_move_execution();
             return 0;
         }
 
@@ -796,7 +873,7 @@ uint16_t execute_move(
             (attacker_ability != Ability::Soundproof &&
                 battle_state.has_field_status(FieldStatus::UproarActive))
         ) {
-            attacker.decrement_power_point(attacker_move, pressure_active);
+            commit_move_execution();
             return 0;
         }
 
@@ -814,14 +891,13 @@ uint16_t execute_move(
 
         if (attacker_ability == Ability::EarlyBird)
         [[unlikely]] {
-            attacker.set_sleep(1);
-        } else {
             attacker.set_sleep(2);
+        } else {
+            attacker.set_sleep(3);
         }
-        attacker.decrement_power_point(attacker_move, pressure_active);
+        commit_move_execution();
         return 0;
     }
-
 
     const Weather weather = battle_state.get_weather();
     uint16_t damage = 0;
@@ -840,9 +916,8 @@ uint16_t execute_move(
         who_attacker_is == Who::Player
             ? Who::Opponent
             : Who::Player;
-    if (move_has_flag(attacker_move, MoveFlag::CONFUSES_DEFENDER_10)) [[unlikely
-        ]
-    ] {
+    if (move_has_flag(attacker_move, MoveFlag::CONFUSES_DEFENDER_10)
+    ) [[unlikely]] {
         roll_confusion(
             policy_container,
             defender,
@@ -850,24 +925,26 @@ uint16_t execute_move(
             10
         );
     }
-    if (move_has_flag(attacker_move, MoveFlag::FREEZES_DEFENDER_10)) [[unlikely]
-    ] {
+
+    if (move_has_flag(attacker_move, MoveFlag::FREEZES_DEFENDER_10)
+    ) [[unlikely]] {
         roll_freeze(policy_container, weather, defender, 10);
     }
 
-    if (move_has_flag(attacker_move, MoveFlag::PARALYZES_DEFENDER_10))
-    [[unlikely]] {
+    if (move_has_flag(attacker_move, MoveFlag::PARALYZES_DEFENDER_10)
+    )[[unlikely]] {
         roll_paralysis(policy_container, defender, 10);
     }
 
-    if (move_has_flag(attacker_move, MoveFlag::BURNS_DEFENDER_10)) [[unlikely]
-    ] {
+    if (move_has_flag(attacker_move, MoveFlag::BURNS_DEFENDER_10)
+    ) [[unlikely]] {
         roll_burn(policy_container, defender, 10, who_defender_is);
     }
 
     if (move_has_flag(
             attacker_move,
-            MoveFlag::OMNI_BOOSTS_ATTACKER)
+            MoveFlag::OMNI_BOOSTS_ATTACKER
+        )
     )[[unlikely]] {
         if (policy_container.roll_stat_increase(10, who_attacker_is)) {
             attacker.increase_stat_stage<Stat::Attack>(1);
@@ -880,7 +957,8 @@ uint16_t execute_move(
 
     if (move_has_flag(
             attacker_move,
-            MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_70)
+            MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_70
+        )
     )[[unlikely]] {
         if (policy_container.roll_stat_increase(70, who_attacker_is)) {
             attacker.increase_stat_stage<Stat::SpecialAttack>(1);
@@ -889,7 +967,8 @@ uint16_t execute_move(
 
     if (move_has_flag(
             attacker_move,
-            MoveFlag::LOWERS_ATTACKERS_SPEED_ONE_STAGE)
+            MoveFlag::LOWERS_ATTACKERS_SPEED_ONE_STAGE
+        )
     )[[unlikely]] {
         attacker.decrease_stat_stage<Stat::Speed>(1, StatDropSource::Self);
     }
@@ -903,8 +982,10 @@ uint16_t execute_move(
     }
 
     if (move_has_flag(
-        attacker_move,
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK_ONE_STAGE_50)) [[unlikely]] {
+            attacker_move,
+            MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK_ONE_STAGE_50
+        )
+    ) [[unlikely]] {
         roll_stat_drop<Stat::SpecialAttack, Policies...>(
             policy_container,
             defender,
@@ -917,7 +998,8 @@ uint16_t execute_move(
 
     if (move_has_flag(
             attacker_move,
-            MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)
+            MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10
+        )
     ) [[unlikely]] {
         roll_stat_drop<Stat::SpecialDefense, Policies...>(
             policy_container,
@@ -931,7 +1013,8 @@ uint16_t execute_move(
 
     if (move_has_flag(
             attacker_move,
-            MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_20)
+            MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_20
+        )
     ) [[unlikely]] {
         roll_stat_drop<Stat::SpecialDefense, Policies...>(
             policy_container,
@@ -941,6 +1024,14 @@ uint16_t execute_move(
             20,
             StatDropSource::OtherMove
         );
+    }
+
+    if (move_has_flag(
+            attacker_move,
+            MoveFlag::REQUIRES_RECHARGE_TURN
+        )
+    ) {
+        attacker.set_status_with_stage(StatusWithStage::Recharging, 1);
     }
 
     if (defender.get_current_ability() == Ability::FlashFire &&
@@ -964,7 +1055,7 @@ uint16_t execute_move(
         roll_flinch(policy_container, defender, 20);
     }
 
-    attacker.decrement_power_point(attacker_move, pressure_active);
+    commit_move_execution();
     return damage;
 }
 

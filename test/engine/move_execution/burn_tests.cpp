@@ -125,20 +125,74 @@ TEST(MoveExecution, FlamethrowerDoesNotBurnsOnFalseRoll) {
 }
 
 TEST(MoveExecution, FlamethrowerDoesNotBurnFireTypeDefender) {
-    // BattleState battle_state{
-    //     PokemonState{&Heatran_7_3},
-    //
-    // };
-    //
-    // execute_move(
-    //     ALWAYS_BURN_POLICY_CONTAINER,
-    //     battle_state,
-    //     Who::Player,
-    //     get_move_info(Move::Flamethrower)
-    // );
-    //
-    // EXPECT_TRUE(
-    //     battle_state.opponent.has_status_condition(StatusCondition::Burn)
-    // );
-    // TODO when there is a fire type without flash fire
+    BattleState battle_state{
+        PokemonState{&Entei_7_3},
+        PokemonState{&Heatran_7_3}
+    };
+
+    execute_move(
+        ALWAYS_BURN_POLICY_CONTAINER,
+        battle_state,
+        Who::Opponent,
+        Move::Flamethrower
+    );
+
+    EXPECT_FALSE(
+        battle_state.player.has_status_condition(StatusCondition::Burn)
+    );
 }
+
+TEST(MoveExecution, FireBlastBurnsOnTrueRoll) {
+    BattleState battle_state{
+        PokemonState{&Entei_7_3},
+        PokemonState{&Cresselia_7_3}
+    };
+
+    execute_move(
+        ALWAYS_BURN_POLICY_CONTAINER,
+        battle_state,
+        Who::Player,
+        Move::FireBlast
+    );
+
+    EXPECT_TRUE(
+        battle_state.opponent.has_status_condition(StatusCondition::Burn)
+    );
+}
+
+TEST(MoveExecution, FireBlastDoesNotBurnsOnFalseRoll) {
+    BattleState battle_state{
+        PokemonState{&Entei_7_3},
+        PokemonState{&Cresselia_7_3}
+    };
+
+    execute_move(
+        NEVER_BURN_POLICY_CONTAINER,
+        battle_state,
+        Who::Player,
+        Move::FireBlast
+    );
+
+    EXPECT_FALSE(
+        battle_state.opponent.has_status_condition(StatusCondition::Burn)
+    );
+}
+
+TEST(MoveExecution, FireBlastDoesNotBurnFireTypeDefender) {
+    BattleState battle_state{
+        PokemonState{&Entei_7_3},
+        PokemonState{&Entei_7_3}
+    };
+
+    execute_move(
+        ALWAYS_BURN_POLICY_CONTAINER,
+        battle_state,
+        Who::Opponent,
+        Move::FireBlast
+    );
+
+    EXPECT_FALSE(
+        battle_state.player.has_status_condition(StatusCondition::Burn)
+    );
+}
+

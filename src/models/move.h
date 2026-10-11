@@ -1932,7 +1932,7 @@ inline constexpr std::array<
     flags[to_int(Move::Ember)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::Flamethrower)][to_int(MoveFlag::BURNS_DEFENDER_10)] =
         true;
-    flags[to_int(Move::FireBlast)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
+    flags[to_int(Move::FireBlast)][to_int(MoveFlag::BURNS_DEFENDER_10)] = true;
     flags[to_int(Move::FlameWheel)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::SacredFire)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::HeatWave)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
@@ -2863,6 +2863,10 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::Hail)] = true;
     implemented_moves[to_int(Move::HydroPump)] = true;
     implemented_moves[to_int(Move::Blizzard)] = true;
+    implemented_moves[to_int(Move::SunnyDay)] = true;
+    implemented_moves[to_int(Move::FireBlast)] = true;
+    implemented_moves[to_int(Move::SolarBeam)] = true;
+    implemented_moves[to_int(Move::HyperBeam)] = true;
 
     return implemented_moves;
 }();

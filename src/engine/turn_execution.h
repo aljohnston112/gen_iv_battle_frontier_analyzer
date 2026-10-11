@@ -44,6 +44,9 @@ TurnResult execute_turn(
                                  ? opponent_move
                                  : player_move;
 
+    if (battle_state.is_battle_over()) {
+        throw std::runtime_error{"Battle is over at start of turn"};
+    }
     const uint16_t first_move_damage =
         execute_move(
             policy_container,

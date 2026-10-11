@@ -17,6 +17,7 @@ TEST(MoveExecution, RestCauseSleepForTwoTurns) {
         Who::Player,
         Move::Rest
     );
+    battle_state.player.apply_end_of_turn();
 
     EXPECT_TRUE(
         battle_state.player.has_status_with_stage(StatusWithStage::Asleep)

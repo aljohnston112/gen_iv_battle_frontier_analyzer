@@ -78,7 +78,7 @@ struct PokemonBattleResultEntries {
 inline unsigned int getNumberOfThreads() {
     static unsigned int numThreads = std::thread::hardware_concurrency();
     if (MULTI_THREADED) {
-        return numThreads;
+        return numThreads * 10;
     }
     return 1;
 }

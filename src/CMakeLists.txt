@@ -7,7 +7,6 @@ add_executable(gen_iv_battle_frontier_analyzer main.cpp)
 target_link_libraries(
         gen_iv_battle_frontier_analyzer PRIVATE
         core
-        OpenMP::OpenMP_CXX
 )
 
 function(add_data_copy_post_build target_name)

@@ -88,8 +88,6 @@ endif ()
 add_compile_options(${COMMON_COMPILE_FLAGS})
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -flto")
 
-find_package(OpenMP REQUIRED)
-
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
@@ -118,19 +116,25 @@ FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(test)
 
-add_custom_target(
-        build_all_tests DEPENDS
+add_executable(all_tests)
 
-        battle_engine_test
-        battle_state_test
-        move_execution_test
-        move_heuristic_test
+target_sources(
+        all_tests
+        PRIVATE
+
+        $<TARGET_OBJECTS:battle_engine_test>
+        $<TARGET_OBJECTS:battle_state_test>
+        $<TARGET_OBJECTS:move_execution_test>
+        $<TARGET_OBJECTS:move_heuristic_test>
 )
 
-add_custom_target(
-        run_tests
-        DEPENDS build_all_tests
-        COMMAND $<TARGET_FILE:all_tests> --gtest_color=yes
-        COMMENT "Running tests..."
-        VERBATIM
+target_link_libraries(
+        all_tests
+        PRIVATE
+
+        core
+
+        GTest::gtest_main
 )
+
+add_data_copy_post_build(all_tests)

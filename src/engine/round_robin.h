@@ -51,7 +51,7 @@ std::vector<PokemonBattleResultEntries> do_battles(
     std::vector<PokemonBattleResultEntries> all_battle_result_entries{};
     all_battle_result_entries.resize(pokemon_to_battle_entries.size());
 
-    const unsigned int number_of_threads = getNumberOfThreads() * 10;
+    const unsigned int number_of_threads = getNumberOfThreads();
     ThreadPool thread_pool{number_of_threads};
     const size_t chunk_size =
         pokemon_to_battle_entries.size() / number_of_threads;
@@ -114,12 +114,18 @@ std::vector<PokemonBattleEntries> get_battle_entries(
                  opponent_pokemon
              ] : std::views::enumerate(all_opponent_pokemon)
         ) {
-            battles_for_player.emplace_back(
-                BattleEntry{
-                    .player_index = static_cast<size_t>(player_index),
-                    .opponent_index = static_cast<size_t>(opponent_index),
-                }
-            );
+            if(true
+                // player_index == 1
+                // || player_index == 4 || player_index == 5)
+                // && opponent_index == 7
+                ) {
+                battles_for_player.emplace_back(
+                    BattleEntry{
+                        .player_index = static_cast<size_t>(player_index),
+                        .opponent_index = static_cast<size_t>(opponent_index),
+                    }
+                );
+            }
         }
         pokemon_to_battles.push_back(
             PokemonBattleEntries{

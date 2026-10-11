@@ -1,6 +1,4 @@
 TODO
-    Damage calcs for physical attacks (plus with burn) for remaining cases
-
     These moves clear freeze when used while frozen
         FlameWheel
         FlareBlitz
@@ -16,12 +14,9 @@ TODO
     Hammer Arm is chosen when its boost leads to better outcome
     Draco Meteor is chosen when, depsite the special attack drop, it leads to better outcome
 
-    Flash fire is not activated by a Normal, Flying, Poison, or Steel move
+    Flash fire is not activated by a Flying, Poison, or Steel move
     Flash fire makes physical fire move use attack stat * 1.5
     Flash fire makes physical fire move use attack stat * 1.5 with stat stages included
-    Flash fire does not affect any other type move for missing types
-
-    Flamethrower does not burn fire types
 
     Pokémon with a substitute cannot flinch
     Pokémon with Inner Focus cannot flinch
@@ -36,7 +31,7 @@ TODO
     Each strike of a multistrike move has an independent chance of causing the target to flinch from King's Rock
     Each strike of a multistrike move has an independent chance of causing the target to flinch from Razor Fang
 
-    Non-ground move can do damage to a defender with Levitate: steel, flying, poison, normal
+    Non-ground move can do damage to a defender with Levitate: steel, flying, poison
 
     Clear body prevents stat stage drop from an opponent's ability
     Clear body does not prevent the stat reductions from items
@@ -65,25 +60,28 @@ TODO
 
     Synthesis will recover only 1/4 of the user's maximum HP during hail
     Morning Sun will recover only 1/4 of the user's maximum HP during hail
+    Synthesis will recover 2/3 of user's maximum HP during sun
+    Morning Sun will recover 2/3 of user's maximum HP during sun
     Castform's Weather Ball is ice type during hail
     Pokémon with the Ice Body Ability recover 1⁄16 of their maximum HP in hail
     Pokémon with the Snow Cloak Ability increase their evasiveness by 20% in hail
 
+    Pokémon with the Chlorophyll Ability will have their Speed doubled in the sun
+    Pokémon with the Dry Skin Ability will lose 1/8 of their maximum HP at the end of each turn in the sun
+    Pokémon with the Flower Gift Ability will raise the team's Attack and Special Defense by 50% in the sun
+    Cherrin will transfrom into its Sunshine form
+    Pokémon with the Solar Power Ability will have their Special Attack raised by 50% and lose 1/8 of their HP each turn in the sun
+    Pokémon with the Leaf Guard Ability will be immune to being inflicted with non-volatile status conditions in the sun
 
+    If the target uses Mirror Move during the turn that the user takes in sunlight, Mirror Move will copy the move that the user executed immediately before using SolarBeam
+    If a Pokémon holding a Power Herb uses SolarBeam, it will consume the Power Herb to execute SolarBeam in one turn
+    If there is harsh sunlight, the Power Herb will not be consumed during solarbeam execution
 
+    Bide: the final turn invalidates last used move
+    Assist, Copycat, Me First, Metronome, Mirror Move, Nature Power, Sleep Talk, and Snatch set the last used move is set to the calling move unless the called move continues past one turn
+    If a Pokémon tries to use a move but is prevented by a status condition or effect (such as sleep, paralysis, or flinching), the last-used move becomes invalid
 
-
-
-
-
-
-
-
-
-
-
-
-
+    If the user has Truant, the recharge turn of Hyper Beam and "loafing around" take place on the same turn
 
 
 
