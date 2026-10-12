@@ -28,12 +28,12 @@ TEST(
 
     ASSERT_EQ(
         player_move_results.attacker_results.evaluated_move,
-              Move::SignalBeam
-              );
+        Move::SignalBeam
+    );
     ASSERT_EQ(
         player_move_results.defender_results.evaluated_move,
-              Move::Psychic
-              );
+        Move::Psychic
+    );
 }
 
 TEST(
@@ -57,12 +57,12 @@ TEST(
 
     ASSERT_EQ(
         player_move_results.defender_results.evaluated_move,
-              Move::Thunderbolt
-              );
+        Move::Thunderbolt
+    );
     ASSERT_EQ(
         player_move_results.attacker_results.evaluated_move,
-              Move::IceBeam
-              );
+        Move::IceBeam
+    );
 }
 
 TEST(
@@ -86,12 +86,12 @@ TEST(
 
     ASSERT_EQ(
         player_move_results.attacker_results.evaluated_move,
-              Move::EarthPower
-              );
+        Move::EarthPower
+    );
     ASSERT_EQ(
         player_move_results.defender_results.evaluated_move,
-              Move::EarthPower
-              );
+        Move::EarthPower
+    );
 }
 
 TEST(
@@ -115,8 +115,8 @@ TEST(
 
     ASSERT_EQ(
         player_move_results.attacker_results.evaluated_move,
-              Move::Psychic
-              );
+        Move::Psychic
+    );
     ASSERT_EQ(player_move_results.defender_results.evaluated_move, Move::Curse);
 }
 
@@ -149,8 +149,8 @@ TEST(
 
     ASSERT_NE(
         player_move_results.attacker_results.evaluated_move,
-              Move::MoveCount
-              );
+        Move::MoveCount
+    );
 }
 
 TEST(
@@ -182,8 +182,8 @@ TEST(
 
     ASSERT_NE(
         player_move_results.attacker_results.evaluated_move,
-              Move::Struggle
-              );
+        Move::Struggle
+    );
 }
 
 TEST(
@@ -207,8 +207,8 @@ TEST(
 
     ASSERT_NE(
         player_move_results.defender_results.evaluated_move,
-              Move::ShadowBall
-              );
+        Move::ShadowBall
+    );
 }
 
 TEST(
@@ -233,8 +233,8 @@ TEST(
 
     ASSERT_EQ(
         player_move_results.attacker_results.evaluated_move,
-              Move::Blizzard
-              );
+        Move::Blizzard
+    );
 }
 
 namespace {
@@ -528,5 +528,37 @@ TEST(
         Move::HyperBeam,
         Move::HyperBeam,
         Move::HyperBeam
+    );
+}
+
+TEST(
+    MoveHeuristic,
+    PlayerRaikou_7_3ChoosesRainDanceThenThunderAgainstRegigigas_7_3
+) {
+    player_chooses_moves_against_opponent(
+        Raikou_7_3,
+        Regigigas_7_3,
+        Move::RainDance,
+        Move::Thunder
+    );
+}
+
+TEST(
+    MoveHeuristic,
+    PlayerRaikou_7_3SwitchesToExtrasensoryWhenEntei_7_3ChangesWeatherFromRainToSun
+) {
+    player_chooses_moves_against_opponent(
+        Raikou_7_3,
+        Entei_7_3,
+        Move::RainDance,
+        Move::Thunder,
+        Move::Extrasensory
+    );
+    opponent_chooses_moves_against_player(
+        Raikou_7_3,
+        Entei_7_3,
+        Move::FireBlast, // For the burn
+        Move::SunnyDay, // To remove thunder from player's move set
+        Move::FireBlast
     );
 }

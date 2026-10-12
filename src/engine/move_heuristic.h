@@ -128,7 +128,10 @@ inline bool is_further_evaluation_needed(
     if ((attacker_move == Move::Hail &&
             !battle_state.has_weather(Weather::Hail)) ||
         (attacker_move == Move::SunnyDay &&
-            !battle_state.has_weather(Weather::Sun))
+            !battle_state.has_weather(Weather::Sun)) ||
+        (attacker_move == Move::RainDance &&
+            !battle_state.has_weather(Weather::Rain)
+        )
     ) [[unlikely]] {
         return true;
     }

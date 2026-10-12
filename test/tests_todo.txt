@@ -8,7 +8,6 @@ TODO
 
     Mist Ball is chosen when it leads to better outcome
     Energy Ball is chosen when it leads to better outcome
-    Flamethrower is chosen when its boost leads to better outcome
     Rest is chosen when its boost leads to better outcome
     Hail is chosen when its boost leads to better outcome
     Hammer Arm is chosen when its boost leads to better outcome
@@ -60,9 +59,10 @@ TODO
 
     Synthesis will recover only 1/4 of the user's maximum HP during hail
     Morning Sun will recover only 1/4 of the user's maximum HP during hail
+    Synthesis will recover only 1/4 of the user's maximum HP during rain
+    Morning Sun will recover only 1/4 of the user's maximum HP during rain
     Synthesis will recover 2/3 of user's maximum HP during sun
     Morning Sun will recover 2/3 of user's maximum HP during sun
-    Castform's Weather Ball is ice type during hail
     Pokémon with the Ice Body Ability recover 1⁄16 of their maximum HP in hail
     Pokémon with the Snow Cloak Ability increase their evasiveness by 20% in hail
 
@@ -83,7 +83,20 @@ TODO
 
     If the user has Truant, the recharge turn of Hyper Beam and "loafing around" take place on the same turn
 
+    Physical damage test for water and fire moves in weather
+    A Pokémon with Rain Dish will restore 1/16 its maximum HP to itself after every turn
+    A Pokémon with Swift Swim will be twice as fast in the rain
+    A Pokémon with the Dry Skin Ability will regain 1/8 of their maximum HP at the end of each turn
+    A Pokémon with Hydration will have their existing status conditions cured at the end of each turn
+    Pokémon with Forecast transform into the Water type in rain
+    Pokémon with Forecast transform into the Fire type in sun
+    Pokémon with Forecast transform into the Ice type in hail
+    Pokémon with Forecast transform into the Normal type in sand, fog, or clear
 
+    Weather Ball is Water type during rain
+    Weather Ball is Fire type during sun
+    Weather Ball is Ice type during hail
+    Weather Ball is Normal type during sand, fog, or clear
 
 
 

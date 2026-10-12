@@ -26,7 +26,7 @@ TEST(MoveExecution, ThunderBoltParalyzesOnTrueRoll) {
     );
 }
 
-TEST(MoveExecution, ThunderBoltDoesNotParalyzOnFalseRoll) {
+TEST(MoveExecution, ThunderBoltDoesNotParalyzeOnFalseRoll) {
     BattleState battle_state{
         PokemonState{&LatiasNoItem},
         PokemonState{&LatiasNoItem}
@@ -173,4 +173,61 @@ TEST(MoveExecution, SpeedReturnsToNormalAfterParalysisIsCured) {
 
 TEST(MoveExecution, MagicGuardPreventsParalysisOnTrueRoll) {
     // TODO once a pokemon with magic guard has its set implemented
+}
+
+TEST(MoveExecution, ThunderParalyzesOnTrueRoll) {
+    BattleState battle_state{
+        PokemonState{&Raikou_7_3},
+        PokemonState{&LatiasNoItem}
+    };
+
+    execute_move(
+        ALWAYS_PARALYZE_POLICY_CONTAINER,
+        battle_state,
+        Who::Player,
+        Move::Thunder
+    );
+
+    EXPECT_EQ(
+        StatusCondition::Paralysis,
+        battle_state.opponent.get_current_status_condition()
+    );
+}
+
+TEST(MoveExecution, ThunderDoesNotParalyzeOnFalseRoll) {
+    BattleState battle_state{
+        PokemonState{&Raikou_7_3},
+        PokemonState{&LatiasNoItem}
+    };
+
+    execute_move(
+        NEVER_PARALYZE_POLICY_CONTAINER,
+        battle_state,
+        Who::Player,
+        Move::Thunder
+    );
+
+    EXPECT_NE(
+        StatusCondition::Paralysis,
+        battle_state.opponent.get_current_status_condition()
+    );
+}
+
+TEST(MoveExecution, ThunderParalyzesElectricTypeOnTrueRoll) {
+    BattleState battle_state{
+        PokemonState{&Raikou_7_3},
+        PokemonState{&Raikou_7_3}
+    };
+
+    execute_move(
+        ALWAYS_PARALYZE_POLICY_CONTAINER,
+        battle_state,
+        Who::Player,
+        Move::Thunder
+    );
+
+    EXPECT_EQ(
+        StatusCondition::Paralysis,
+        battle_state.opponent.get_current_status_condition()
+    );
 }

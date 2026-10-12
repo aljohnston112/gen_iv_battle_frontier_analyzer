@@ -407,8 +407,10 @@ inline bool move_always_hits(
     [[maybe_unused]] const Who who_attacker_is,
     const Move move
 ) {
-    if (move == Move::Blizzard &&
-        battle_state.has_weather(Weather::Hail)
+    if ((move == Move::Blizzard &&
+            battle_state.has_weather(Weather::Hail)) ||
+        (move == Move::Thunder &&
+            battle_state.has_weather(Weather::Rain))
     )[[unlikely]] {
         return true;
     }
@@ -454,11 +456,18 @@ bool move_does_nothing(
         return true;
     }
 
-    if (attacker_move_info->move == Move::Blizzard &&
-        battle_state.has_weather(Weather::Hail) &&
+    if (((attacker_move_info->move == Move::Blizzard &&
+                battle_state.has_weather(Weather::Hail)) ||
+            (attacker_move_info->move == Move::Thunder &&
+                battle_state.has_weather(Weather::Rain))) &&
         defender_state->is_semi_invulnerable()
     ) [[unlikely]] {
-        return true;
+        return !(
+            attacker_move_info->move == Move::Thunder &&
+            defender_state->has_move_status_with_stage(
+                MoveStatusWithStage::SkyHigh
+            )
+        );
     }
 
     const Ability defender_ability = defender_state->get_current_ability();
@@ -834,6 +843,12 @@ uint16_t execute_move(
             turns = 8;
         }
         battle_state.set_weather(Weather::Sun, turns);
+    } else if (attacker_move == Move::RainDance) {
+        uint8_t turns = 5;
+        if (attacker_item == Item::DampRock) {
+            turns = 8;
+        }
+        battle_state.set_weather(Weather::Rain, turns);
     }
 
     if (attacker_move == Move::Rest) {
@@ -934,6 +949,9 @@ uint16_t execute_move(
     if (move_has_flag(attacker_move, MoveFlag::PARALYZES_DEFENDER_10)
     )[[unlikely]] {
         roll_paralysis(policy_container, defender, 10);
+    } else if (move_has_flag(attacker_move, MoveFlag::PARALYZES_DEFENDER_30)
+    )[[unlikely]] {
+        roll_paralysis(policy_container, defender, 30);
     }
 
     if (move_has_flag(attacker_move, MoveFlag::BURNS_DEFENDER_10)
@@ -1048,11 +1066,15 @@ uint16_t execute_move(
     }
 
     // TODO see test_todo.txt for missing flinch related features
-    if (move_has_flag(attacker_move, MoveFlag::FLINCHES_DEFENDER_20) &&
-        (defender_ability != Ability::InnerFocus &&
+    if ((defender_ability != Ability::InnerFocus &&
             defender_ability != Ability::ShieldDust)
     ) [[unlikely]] {
-        roll_flinch(policy_container, defender, 20);
+        if (move_has_flag(attacker_move, MoveFlag::FLINCHES_DEFENDER_20)) {
+            roll_flinch(policy_container, defender, 20);
+        } else if (move_has_flag(attacker_move,
+                                 MoveFlag::FLINCHES_DEFENDER_10)) {
+            roll_flinch(policy_container, defender, 10);
+        }
     }
 
     commit_move_execution();

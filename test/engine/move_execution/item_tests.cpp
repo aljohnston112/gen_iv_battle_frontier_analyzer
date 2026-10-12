@@ -113,7 +113,7 @@ TEST(
         PokemonState{&Regigigas_7_3},
         PokemonState{&Heatran_7_3}
     };
-    const MoveInfo* move_info = get_move_info(Move::Flamethrower);
+    const MoveInfo* move_info = get_move_info(Move::Ancientpower);
     const uint16_t accuracy_evasion_value =
         calculate_accuracy_and_evasion_based_on_stage(
             move_info->accuracy,
@@ -127,9 +127,9 @@ TEST(
     EXPECT_EQ(
         accuracy_evasion_value * 9 / 10,
         RealAccuracyEvasionFactorPolicy::get_accuracy_evasion_value(
-            battle_state.player,
-            battle_state.opponent,
-            move_info
+            battle_state,
+            move_info,
+            Who::Player
         )
     );
 }

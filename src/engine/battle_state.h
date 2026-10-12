@@ -178,7 +178,8 @@ class PokemonState {
         current_accurate_moves.clear();
         for (const auto move : current_moves) {
             if (get_move_info(move)->accuracy == 100 ||
-                (move == Move::Blizzard && current_weather == Weather::Hail)
+                (move == Move::Blizzard && current_weather == Weather::Hail) ||
+                (move == Move::Thunder && current_weather == Weather::Rain)
             ) {
                 current_accurate_moves.emplace_back(move);
             }
@@ -656,6 +657,9 @@ public:
     }
 
     void set_weather(const Weather weather, const uint8_t turns) {
+        if (this->current_weather == weather) {
+            return;
+        }
         this->current_weather = weather;
         this->weather_turns_left = turns;
         send_weather_update();

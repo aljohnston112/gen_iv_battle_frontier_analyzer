@@ -1018,6 +1018,7 @@ enum class MoveFlag {
     CONTINUES,
     DEALS_DOUBLE_AFTER_MINIMIZE,
     FLINCHES_DEFENDER, // TODO replace
+    FLINCHES_DEFENDER_10,
     FLINCHES_DEFENDER_20,
     FORCES_USER_OUT,
     FREEZES_DEFENDER, // TODO replace
@@ -1054,6 +1055,7 @@ enum class MoveFlag {
     OMNI_BOOSTS_ATTACKER,
     PARALYZES_DEFENDER, // TODO replace
     PARALYZES_DEFENDER_10,
+    PARALYZES_DEFENDER_30,
     POISONS_DEFENDER,
     RAISES_DEFENDER_ATTACK,
     RAISES_DEFENDER_SPECIAL_ATTACK,
@@ -1108,6 +1110,7 @@ inline constexpr std::array<
     flags[to_int(Move::PayDay)][to_int(MoveFlag::HAS_POWER)] = true;
     flags[to_int(Move::FirePunch)][to_int(MoveFlag::HAS_POWER)] = true;
     flags[to_int(Move::IcePunch)][to_int(MoveFlag::HAS_POWER)] = true;
+    flags[to_int(Move::Thunder)][to_int(MoveFlag::HAS_POWER)] = true;
     flags[to_int(Move::ThunderPunch)][to_int(MoveFlag::HAS_POWER)] = true;
     flags[to_int(Move::Scratch)][to_int(MoveFlag::HAS_POWER)] = true;
     flags[to_int(Move::ViceGrip)][to_int(MoveFlag::HAS_POWER)] = true;
@@ -1958,7 +1961,7 @@ inline constexpr std::array<
         true;
     flags[to_int(Move::ThunderWave)][to_int(MoveFlag::PARALYZES_DEFENDER)] =
         true;
-    flags[to_int(Move::Thunder)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
+    flags[to_int(Move::Thunder)][to_int(MoveFlag::PARALYZES_DEFENDER_30)] = true;
     flags[to_int(Move::Lick)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::Glare)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::ZapCannon)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
@@ -2031,7 +2034,7 @@ inline constexpr std::array<
     flags[to_int(Move::Twister)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::NeedleArm)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::Astonish)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
-    flags[to_int(Move::Extrasensory)][to_int(MoveFlag::FLINCHES_DEFENDER)] =
+    flags[to_int(Move::Extrasensory)][to_int(MoveFlag::FLINCHES_DEFENDER_10)] =
         true;
     flags[to_int(Move::DarkPulse)][to_int(MoveFlag::FLINCHES_DEFENDER_20)] =
         true;
@@ -2867,6 +2870,9 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::FireBlast)] = true;
     implemented_moves[to_int(Move::SolarBeam)] = true;
     implemented_moves[to_int(Move::HyperBeam)] = true;
+    implemented_moves[to_int(Move::RainDance)] = true;
+    implemented_moves[to_int(Move::Extrasensory)] = true;
+    implemented_moves[to_int(Move::Thunder)] = true;
 
     return implemented_moves;
 }();

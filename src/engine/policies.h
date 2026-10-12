@@ -54,10 +54,19 @@ struct RealAccuracyEvasionFactorPolicy :
         m_generator(std::move(generator)) {}
 
     static uint16_t get_accuracy_evasion_value(
-        const PokemonState& attacker_state,
-        const PokemonState& defender_state,
-        const MoveInfo* move
+        const BattleState& battle_state,
+        const MoveInfo* move,
+        const Who who_attacker_is
     ) {
+        const bool is_player_attacker = who_attacker_is == Who::Player;
+        const PokemonState& attacker_state =
+            is_player_attacker
+                ? battle_state.player
+                : battle_state.opponent;
+        const PokemonState& defender_state =
+            is_player_attacker
+                ? battle_state.opponent
+                : battle_state.player;
         uint16_t accuracy_evasion_value =
             calculate_accuracy_and_evasion_based_on_stage(
                 move->accuracy,
@@ -74,6 +83,12 @@ struct RealAccuracyEvasionFactorPolicy :
             accuracy_evasion_value =
                 static_cast<uint16_t>(accuracy_evasion_value * 9 / 10);
         }
+        if (move->move == Move::Thunder &&
+            battle_state.has_weather(Weather::Sun)
+        ) {
+            accuracy_evasion_value /= 2;
+        }
+
         return accuracy_evasion_value;
     }
 
@@ -82,21 +97,11 @@ struct RealAccuracyEvasionFactorPolicy :
         const MoveInfo* move_info,
         const Who who_attacker_is
     ) {
-        const bool is_player_attacker = who_attacker_is == Who::Player;
-        const PokemonState& attacker_state =
-            is_player_attacker
-                ? battle_state.player
-                : battle_state.opponent;
-        const PokemonState& defender_state =
-            is_player_attacker
-                ? battle_state.opponent
-                : battle_state.player;
-
         const uint16_t accuracy_evasion_value =
             get_accuracy_evasion_value(
-                attacker_state,
-                defender_state,
-                move_info
+                battle_state,
+                move_info,
+                who_attacker_is
             );
         return roll_accuracy_threshold(who_attacker_is) >=
             accuracy_evasion_value;

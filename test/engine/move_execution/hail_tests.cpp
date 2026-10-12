@@ -5,6 +5,61 @@
 
 #include "gtest/gtest.h"
 
+TEST(MoveExecution, HailFailsInHail) {
+    BattleState battle_state{
+        PokemonState{&Suicune_7_3},
+        PokemonState{&Suicune_7_3}
+    };
+
+    battle_state.set_weather(Weather::Hail, 1);
+    ASSERT_EQ(Weather::Hail, battle_state.get_weather());
+
+    execute_move(
+        DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+        battle_state,
+        Who::Player,
+        Move::Hail
+    );
+    apply_end_of_turn(
+        DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+        battle_state
+    );
+
+    ASSERT_EQ(Weather::Clear, battle_state.get_weather());
+}
+
+TEST(MoveExecution, HailReplacesSetWeather) {
+    BattleState battle_state{
+        PokemonState{&Suicune_7_3},
+        PokemonState{&Suicune_7_3}
+    };
+
+    battle_state.set_weather(Weather::Rain, 5);
+    ASSERT_EQ(Weather::Rain, battle_state.get_weather());
+
+    execute_move(
+        DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+        battle_state,
+        Who::Player,
+        Move::Hail
+    );
+
+    ASSERT_EQ(Weather::Hail, battle_state.get_weather());
+    for (uint8_t i = 0; i < 4; ++i) {
+        apply_end_of_turn(
+            DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+            battle_state
+        );
+        ASSERT_EQ(Weather::Hail, battle_state.get_weather());
+    }
+
+    apply_end_of_turn(
+        DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+        battle_state
+    );
+    ASSERT_EQ(Weather::Clear, battle_state.get_weather());
+}
+
 TEST(MoveExecution, HailLastFiveTurns) {
     BattleState battle_state{
         PokemonState{&Suicune_7_3},

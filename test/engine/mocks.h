@@ -103,6 +103,21 @@ const CustomPokemon LatiasNoItem{
     .pounds = 88.2
 };
 
+const CustomPokemon Raikou_7_3{
+    .unique_id = "Raikou_7_3",
+    .name = Pokemon::Raikou,
+    .ability = Ability::Pressure,
+    .level = 50,
+    .item = Item::WiseGlasses,
+    .types = {PokemonType::Electric, PokemonType::NoType},
+    .moves = {
+        Move::Thunder, Move::RainDance, Move::Extrasensory,
+        Move::SignalBeam
+    },
+    .stats = {162, 91, 92, 179, 117, 163},
+    .pounds = 392.4
+};
+
 const CustomPokemon Regirock_7_3{
     .unique_id = "Regirock_7_3",
     .name = Pokemon::Regirock,

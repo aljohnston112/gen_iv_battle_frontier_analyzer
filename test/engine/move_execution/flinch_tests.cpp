@@ -80,3 +80,40 @@ TEST(MoveExecution, DarkPulseDoesNotCauseFlinchOnFalseRoll) {
 
     ASSERT_FALSE(battle_state.player.has_status(Status::Flinched));
 }
+
+TEST(MoveExecution, ExtrasensoryCausesFlinchOnTrueRoll) {
+    BattleState battle_state{
+        PokemonState{&Heatran_7_3},
+        PokemonState{&Raikou_7_3}
+    };
+
+    ASSERT_FALSE(battle_state.player.has_status(Status::Flinched));
+
+    execute_move(
+        ALWAYS_FLINCH_POLICY_CONTAINER,
+        battle_state,
+        Who::Opponent,
+        Move::Extrasensory
+    );
+
+    ASSERT_TRUE(battle_state.player.has_status(Status::Flinched));
+}
+
+TEST(MoveExecution, ExtrasensoryDoesNotCauseFlinchOnFalseRoll) {
+    BattleState battle_state{
+        PokemonState{&Heatran_7_3},
+        PokemonState{&Raikou_7_3}
+    };
+
+    ASSERT_FALSE(battle_state.player.has_status(Status::Flinched));
+
+    execute_move(
+        NEVER_FLINCH_POLICY_CONTAINER,
+        battle_state,
+        Who::Opponent,
+        Move::Extrasensory
+    );
+
+    ASSERT_FALSE(battle_state.player.has_status(Status::Flinched));
+}
+
