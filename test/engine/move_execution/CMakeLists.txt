@@ -30,6 +30,7 @@ add_library(
         thunder_tests.cpp
         rain_dance_tests.cpp
         weather_damage_tests.cpp
+        twister_tests.cpp
 )
 
 target_link_libraries(

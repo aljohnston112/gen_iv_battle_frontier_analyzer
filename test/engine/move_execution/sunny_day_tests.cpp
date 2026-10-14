@@ -13,7 +13,7 @@ TEST(MoveExecution, SunnyDayFailsInSun) {
     };
 
     battle_state.set_weather(Weather::Sun, 1);
-    ASSERT_EQ(Weather::Sun, battle_state.get_weather());
+    EXPECT_EQ(Weather::Sun, battle_state.get_weather());
 
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -26,7 +26,7 @@ TEST(MoveExecution, SunnyDayFailsInSun) {
         battle_state
     );
 
-    ASSERT_EQ(Weather::Clear, battle_state.get_weather());
+    EXPECT_EQ(Weather::Clear, battle_state.get_weather());
 }
 
 TEST(MoveExecution, SunnyDayReplacesSetWeather) {
@@ -36,7 +36,7 @@ TEST(MoveExecution, SunnyDayReplacesSetWeather) {
     };
 
     battle_state.set_weather(Weather::Rain, 5);
-    ASSERT_EQ(Weather::Rain, battle_state.get_weather());
+    EXPECT_EQ(Weather::Rain, battle_state.get_weather());
 
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -45,20 +45,20 @@ TEST(MoveExecution, SunnyDayReplacesSetWeather) {
         Move::SunnyDay
     );
 
-    ASSERT_EQ(Weather::Sun, battle_state.get_weather());
+    EXPECT_EQ(Weather::Sun, battle_state.get_weather());
     for (uint8_t i = 0; i < 4; ++i) {
         apply_end_of_turn(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state
         );
-        ASSERT_EQ(Weather::Sun, battle_state.get_weather());
+        EXPECT_EQ(Weather::Sun, battle_state.get_weather());
     }
 
     apply_end_of_turn(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
         battle_state
     );
-    ASSERT_EQ(Weather::Clear, battle_state.get_weather());
+    EXPECT_EQ(Weather::Clear, battle_state.get_weather());
 }
 
 TEST(MoveExecution, SunnyDayLastFiveTurns) {
@@ -67,7 +67,7 @@ TEST(MoveExecution, SunnyDayLastFiveTurns) {
         PokemonState{&Suicune_7_3}
     };
 
-    ASSERT_EQ(Weather::Clear, battle_state.get_weather());
+    EXPECT_EQ(Weather::Clear, battle_state.get_weather());
 
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -76,20 +76,20 @@ TEST(MoveExecution, SunnyDayLastFiveTurns) {
         Move::SunnyDay
     );
 
-    ASSERT_EQ(Weather::Sun, battle_state.get_weather());
+    EXPECT_EQ(Weather::Sun, battle_state.get_weather());
     for (uint8_t i = 0; i < 4; ++i) {
         apply_end_of_turn(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state
         );
-        ASSERT_EQ(Weather::Sun, battle_state.get_weather());
+        EXPECT_EQ(Weather::Sun, battle_state.get_weather());
     }
 
     apply_end_of_turn(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
         battle_state
     );
-    ASSERT_EQ(Weather::Clear, battle_state.get_weather());
+    EXPECT_EQ(Weather::Clear, battle_state.get_weather());
 }
 
 TEST(MoveExecution, SunnyDayLastEightTurnsWhenUserIsHoldingHeatRock) {
@@ -99,7 +99,7 @@ TEST(MoveExecution, SunnyDayLastEightTurnsWhenUserIsHoldingHeatRock) {
     };
     battle_state.player.set_item(Item::HeatRock);
 
-    ASSERT_EQ(Weather::Clear, battle_state.get_weather());
+    EXPECT_EQ(Weather::Clear, battle_state.get_weather());
 
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -108,20 +108,20 @@ TEST(MoveExecution, SunnyDayLastEightTurnsWhenUserIsHoldingHeatRock) {
         Move::SunnyDay
     );
 
-    ASSERT_EQ(Weather::Sun, battle_state.get_weather());
+    EXPECT_EQ(Weather::Sun, battle_state.get_weather());
     for (uint8_t i = 0; i < 7; ++i) {
         apply_end_of_turn(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state
         );
-        ASSERT_EQ(Weather::Sun, battle_state.get_weather());
+        EXPECT_EQ(Weather::Sun, battle_state.get_weather());
     }
 
     apply_end_of_turn(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
         battle_state
     );
-    ASSERT_EQ(Weather::Clear, battle_state.get_weather());
+    EXPECT_EQ(Weather::Clear, battle_state.get_weather());
 }
 
 TEST(

@@ -12,7 +12,7 @@ TEST(MoveExecution, HailFailsInHail) {
     };
 
     battle_state.set_weather(Weather::Hail, 1);
-    ASSERT_EQ(Weather::Hail, battle_state.get_weather());
+    EXPECT_EQ(Weather::Hail, battle_state.get_weather());
 
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -25,7 +25,7 @@ TEST(MoveExecution, HailFailsInHail) {
         battle_state
     );
 
-    ASSERT_EQ(Weather::Clear, battle_state.get_weather());
+    EXPECT_EQ(Weather::Clear, battle_state.get_weather());
 }
 
 TEST(MoveExecution, HailReplacesSetWeather) {
@@ -35,7 +35,7 @@ TEST(MoveExecution, HailReplacesSetWeather) {
     };
 
     battle_state.set_weather(Weather::Rain, 5);
-    ASSERT_EQ(Weather::Rain, battle_state.get_weather());
+    EXPECT_EQ(Weather::Rain, battle_state.get_weather());
 
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -44,20 +44,20 @@ TEST(MoveExecution, HailReplacesSetWeather) {
         Move::Hail
     );
 
-    ASSERT_EQ(Weather::Hail, battle_state.get_weather());
+    EXPECT_EQ(Weather::Hail, battle_state.get_weather());
     for (uint8_t i = 0; i < 4; ++i) {
         apply_end_of_turn(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state
         );
-        ASSERT_EQ(Weather::Hail, battle_state.get_weather());
+        EXPECT_EQ(Weather::Hail, battle_state.get_weather());
     }
 
     apply_end_of_turn(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
         battle_state
     );
-    ASSERT_EQ(Weather::Clear, battle_state.get_weather());
+    EXPECT_EQ(Weather::Clear, battle_state.get_weather());
 }
 
 TEST(MoveExecution, HailLastFiveTurns) {
@@ -66,7 +66,7 @@ TEST(MoveExecution, HailLastFiveTurns) {
         PokemonState{&Suicune_7_3}
     };
 
-    ASSERT_EQ(Weather::Clear, battle_state.get_weather());
+    EXPECT_EQ(Weather::Clear, battle_state.get_weather());
 
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -75,20 +75,20 @@ TEST(MoveExecution, HailLastFiveTurns) {
         Move::Hail
     );
 
-    ASSERT_EQ(Weather::Hail, battle_state.get_weather());
+    EXPECT_EQ(Weather::Hail, battle_state.get_weather());
     for (uint8_t i = 0; i < 4; ++i) {
         apply_end_of_turn(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state
         );
-        ASSERT_EQ(Weather::Hail, battle_state.get_weather());
+        EXPECT_EQ(Weather::Hail, battle_state.get_weather());
     }
 
     apply_end_of_turn(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
         battle_state
     );
-    ASSERT_EQ(Weather::Clear, battle_state.get_weather());
+    EXPECT_EQ(Weather::Clear, battle_state.get_weather());
 }
 
 TEST(MoveExecution, HailDamagesNonIceTypesForASixteenthOfTheirMaxHealth) {
@@ -115,14 +115,14 @@ TEST(MoveExecution, HailDamagesNonIceTypesForASixteenthOfTheirMaxHealth) {
         );
         battle_state.player.increment_power_point(Move::Hail, 1);
 
-        ASSERT_EQ(Weather::Hail, battle_state.get_weather());
+        EXPECT_EQ(Weather::Hail, battle_state.get_weather());
 
         apply_end_of_turn(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state
         );
 
-        ASSERT_EQ(
+        EXPECT_EQ(
             hp_before -
             (battle_state.opponent.get_original_stat(Stat::Health) / 16),
             battle_state.opponent.get_current_stat(Stat::Health)
@@ -153,14 +153,14 @@ TEST(MoveExecution, HailDoesNotDamageIceTypes) {
         Move::Hail
     );
 
-    ASSERT_EQ(Weather::Hail, battle_state.get_weather());
+    EXPECT_EQ(Weather::Hail, battle_state.get_weather());
 
     apply_end_of_turn(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
         battle_state
     );
 
-    ASSERT_EQ(
+    EXPECT_EQ(
         hp_before,
         battle_state.opponent.get_current_stat(Stat::Health)
     );
@@ -173,7 +173,7 @@ TEST(MoveExecution, HailLastEightTurnsWhenUserIsHoldingIcyRock) {
     };
     battle_state.player.set_item(Item::IcyRock);
 
-    ASSERT_EQ(Weather::Clear, battle_state.get_weather());
+    EXPECT_EQ(Weather::Clear, battle_state.get_weather());
 
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -182,18 +182,18 @@ TEST(MoveExecution, HailLastEightTurnsWhenUserIsHoldingIcyRock) {
         Move::Hail
     );
 
-    ASSERT_EQ(Weather::Hail, battle_state.get_weather());
+    EXPECT_EQ(Weather::Hail, battle_state.get_weather());
     for (uint8_t i = 0; i < 7; ++i) {
         apply_end_of_turn(
             DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
             battle_state
         );
-        ASSERT_EQ(Weather::Hail, battle_state.get_weather());
+        EXPECT_EQ(Weather::Hail, battle_state.get_weather());
     }
 
     apply_end_of_turn(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
         battle_state
     );
-    ASSERT_EQ(Weather::Clear, battle_state.get_weather());
+    EXPECT_EQ(Weather::Clear, battle_state.get_weather());
 }

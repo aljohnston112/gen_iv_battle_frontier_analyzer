@@ -8,16 +8,16 @@ namespace {
     void lum_berry_clears_status_condition() {
         PokemonState state{&Suicune_7_3};
 
-        ASSERT_EQ(Item::LumBerry, state.get_current_item_for_effect());
+        EXPECT_EQ(Item::LumBerry, state.get_current_item_for_effect());
 
         state.try_set_status_condition(T);
 
-        ASSERT_FALSE(state.has_status_condition(T));
-        ASSERT_EQ(
+        EXPECT_FALSE(state.has_status_condition(T));
+        EXPECT_EQ(
             StatusCondition::NoCondition,
             state.get_current_status_condition()
         );
-        ASSERT_EQ(Item::NoItem, state.get_current_item_for_effect());
+        EXPECT_EQ(Item::NoItem, state.get_current_item_for_effect());
     }
 }
 
@@ -46,12 +46,12 @@ namespace {
     void lum_berry_clears_status_with_stage() {
         PokemonState state{&Suicune_7_3};
 
-        ASSERT_EQ(Item::LumBerry, state.get_current_item_for_effect());
+        EXPECT_EQ(Item::LumBerry, state.get_current_item_for_effect());
 
         state.set_status_with_stage(T, 5);
 
-        ASSERT_FALSE(state.has_status_with_stage(T));
-        ASSERT_EQ(Item::NoItem, state.get_current_item_for_effect());
+        EXPECT_FALSE(state.has_status_with_stage(T));
+        EXPECT_EQ(Item::NoItem, state.get_current_item_for_effect());
     }
 }
 

@@ -26,11 +26,11 @@ TEST(
         );
 
 
-    ASSERT_EQ(
+    EXPECT_EQ(
         player_move_results.attacker_results.evaluated_move,
         Move::SignalBeam
     );
-    ASSERT_EQ(
+    EXPECT_EQ(
         player_move_results.defender_results.evaluated_move,
         Move::Psychic
     );
@@ -55,11 +55,11 @@ TEST(
             0
         );
 
-    ASSERT_EQ(
+    EXPECT_EQ(
         player_move_results.defender_results.evaluated_move,
         Move::Thunderbolt
     );
-    ASSERT_EQ(
+    EXPECT_EQ(
         player_move_results.attacker_results.evaluated_move,
         Move::IceBeam
     );
@@ -84,11 +84,11 @@ TEST(
             0
         );
 
-    ASSERT_EQ(
+    EXPECT_EQ(
         player_move_results.attacker_results.evaluated_move,
         Move::EarthPower
     );
-    ASSERT_EQ(
+    EXPECT_EQ(
         player_move_results.defender_results.evaluated_move,
         Move::EarthPower
     );
@@ -113,11 +113,11 @@ TEST(
             0
         );
 
-    ASSERT_EQ(
+    EXPECT_EQ(
         player_move_results.attacker_results.evaluated_move,
         Move::Psychic
     );
-    ASSERT_EQ(player_move_results.defender_results.evaluated_move, Move::Curse);
+    EXPECT_EQ(player_move_results.defender_results.evaluated_move, Move::Curse);
 }
 
 TEST(
@@ -147,7 +147,7 @@ TEST(
             0
         );
 
-    ASSERT_NE(
+    EXPECT_NE(
         player_move_results.attacker_results.evaluated_move,
         Move::MoveCount
     );
@@ -180,7 +180,7 @@ TEST(
             0
         );
 
-    ASSERT_NE(
+    EXPECT_NE(
         player_move_results.attacker_results.evaluated_move,
         Move::Struggle
     );
@@ -205,7 +205,7 @@ TEST(
             0
         );
 
-    ASSERT_NE(
+    EXPECT_NE(
         player_move_results.defender_results.evaluated_move,
         Move::ShadowBall
     );
@@ -231,7 +231,7 @@ TEST(
             0
         );
 
-    ASSERT_EQ(
+    EXPECT_EQ(
         player_move_results.attacker_results.evaluated_move,
         Move::Blizzard
     );
@@ -357,7 +357,8 @@ TEST(
         Regigigas_7_3,
         Move::Ancientpower,
         Move::FocusBlast,
-        Move::Ancientpower
+        Move::Ancientpower,
+        Move::Thunderbolt
     );
 
     CustomPokemon other{Regigigas_7_3};
@@ -370,7 +371,8 @@ TEST(
         other,
         Move::FocusBlast,
         Move::Ancientpower,
-        Move::Ancientpower
+        Move::Ancientpower,
+        Move::Thunderbolt
     );
 }
 
@@ -562,3 +564,72 @@ TEST(
         Move::FireBlast
     );
 }
+
+TEST(
+    MoveHeuristic,
+    OpponentCresselia_7_4ChoosesPsychicTwiceThenSignalBeamAgainstCresselia_7_4
+) {
+    opponent_chooses_moves_against_player(
+        Cresselia_7_4,
+        Cresselia_7_4,
+        Move::Psychic,
+        Move::Psychic,
+        Move::SignalBeam,
+        Move::SignalBeam
+    );
+}
+
+TEST(
+    MoveHeuristic,
+    OpponentRegirock_7_3ChoosesCurseThenStoneEdgeAgainstCresselia_7_4
+) {
+    opponent_chooses_moves_against_player(
+        Cresselia_7_4,
+        Regirock_7_3,
+        Move::Curse,
+        Move::StoneEdge,
+        Move::StoneEdge,
+        Move::StoneEdge,
+        Move::StoneEdge
+    );
+}
+
+TEST(
+    MoveHeuristic,
+    OpponentCresselia_7_3ChoosesChargeBeamThenPsychicAgainstHeatran_7_4
+) {
+    opponent_chooses_moves_against_player(
+        Heatran_7_3,
+        Cresselia_7_3,
+        Move::ChargeBeam,
+        Move::Psychic,
+        Move::Psychic
+    );
+}
+
+TEST(
+    MoveHeuristic,
+    OpponentEntei_7_3ChoosesSunnyDayThenSolarBeamAgainstRegirock_7_3
+) {
+    opponent_chooses_moves_against_player(
+        Regirock_7_3,
+        Entei_7_3,
+        Move::SunnyDay,
+        Move::SolarBeam,
+        Move::SolarBeam
+    );
+}
+
+TEST(
+    MoveHeuristic,
+    PlayerSuicune_7_3ChoosesHailThenBlizzardAgainstRegigigas_7_3
+) {
+    player_chooses_moves_against_opponent(
+        Suicune_7_3,
+        Regigigas_7_3,
+        Move::Hail,
+        Move::Blizzard
+    );
+}
+
+

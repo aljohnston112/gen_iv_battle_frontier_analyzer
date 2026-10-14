@@ -1000,7 +1000,8 @@ enum class MoveFlag {
     BADLY_POISONS,
     BOOSTS_ATTACKERS_ATTACK,
     BOOSTS_ATTACKERS_CRIT_RATE,
-    BOOSTS_ATTACKERS_DEFENSE,
+    BOOSTS_ATTACKERS_DEFENSE, // TODO replace
+    BOOSTS_ATTACKERS_DEFENSE_ONE_STAGE_10,
     BOOSTS_ATTACKERS_EVASION,
     BOOSTS_ATTACKERS_SPECIAL_ATTACK,
     BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_70,
@@ -1327,6 +1328,7 @@ inline constexpr std::array<
     flags[to_int(Move::SeedFlare)][to_int(MoveFlag::HAS_POWER)] = true;
     flags[to_int(Move::OminousWind)][to_int(MoveFlag::HAS_POWER)] = true;
     flags[to_int(Move::ShadowForce)][to_int(MoveFlag::HAS_POWER)] = true;
+    flags[to_int(Move::UTurn)][to_int(MoveFlag::HAS_POWER)] = true;
 
     flags[to_int(Move::Absorb)][to_int(MoveFlag::HEALS_ATTACKER)] = true;
     flags[to_int(Move::MegaDrain)][to_int(MoveFlag::HEALS_ATTACKER)] = true;
@@ -1438,7 +1440,7 @@ inline constexpr std::array<
         true;
     flags[to_int(Move::AcidArmor)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)] =
         true;
-    flags[to_int(Move::SteelWing)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)] =
+    flags[to_int(Move::SteelWing)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE_ONE_STAGE_10)] =
         true;
     flags[to_int(Move::CosmicPower)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)]
         = true;
@@ -2031,7 +2033,7 @@ inline constexpr std::array<
     flags[to_int(Move::Waterfall)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::SkyAttack)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::HyperFang)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
-    flags[to_int(Move::Twister)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
+    flags[to_int(Move::Twister)][to_int(MoveFlag::FLINCHES_DEFENDER_20)] = true;
     flags[to_int(Move::NeedleArm)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::Astonish)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::Extrasensory)][to_int(MoveFlag::FLINCHES_DEFENDER_10)] =
@@ -2873,6 +2875,10 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::RainDance)] = true;
     implemented_moves[to_int(Move::Extrasensory)] = true;
     implemented_moves[to_int(Move::Thunder)] = true;
+    implemented_moves[to_int(Move::DrillPeck)] = true;
+    implemented_moves[to_int(Move::Twister)] = true;
+    implemented_moves[to_int(Move::SteelWing)] = true;
+    implemented_moves[to_int(Move::UTurn)] = true;
 
     return implemented_moves;
 }();

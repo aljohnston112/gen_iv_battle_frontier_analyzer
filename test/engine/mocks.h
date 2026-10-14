@@ -177,6 +177,34 @@ const CustomPokemon Suicune_7_3{
     .pounds = 412.3
 };
 
+const CustomPokemon Zapdos_7_3{
+    .unique_id = "Zapdos_7_3",
+    .name = Pokemon::Zapdos,
+    .ability = Ability::Pressure,
+    .level = 50,
+    .item = Item::KingsRock,
+    .types = {PokemonType::Electric, PokemonType::Flying},
+    .moves = {
+        Move::Twister, Move::SteelWing, Move::UTurn, Move::DrillPeck
+    },
+    .stats = {162, 138, 102, 127, 107, 162},
+    .pounds = 116
+};
+
+const CustomPokemon Zapdos_7_3_NoItem{
+    .unique_id = "Zapdos_7_3",
+    .name = Pokemon::Zapdos,
+    .ability = Ability::Pressure,
+    .level = 50,
+    .item = Item::NoItem,
+    .types = {PokemonType::Electric, PokemonType::Flying},
+    .moves = {
+        Move::Twister, Move::SteelWing, Move::UTurn, Move::DrillPeck
+    },
+    .stats = {162, 138, 102, 127, 107, 162},
+    .pounds = 116
+};
+
 template <typename T>
 concept IsDamageTestCase = requires {
     requires IsCritRNGPolicy<typename T::CritRNGPolicyType>;

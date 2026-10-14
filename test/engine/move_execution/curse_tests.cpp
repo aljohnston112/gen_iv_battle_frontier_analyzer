@@ -12,8 +12,8 @@ TEST(MoveExecution, CurseCursesDefenderWhenUsedByNonGhostTypeWithGhostType) {
     };
     battle_state.player.set_type(PokemonType::Ghost);
 
-    ASSERT_TRUE(battle_state.player.has_type(PokemonType::Ghost));
-    ASSERT_TRUE(battle_state.player.has_type(PokemonType::NoType));
+    EXPECT_TRUE(battle_state.player.has_type(PokemonType::Ghost));
+    EXPECT_TRUE(battle_state.player.has_type(PokemonType::NoType));
 
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -22,7 +22,7 @@ TEST(MoveExecution, CurseCursesDefenderWhenUsedByNonGhostTypeWithGhostType) {
         Move::Curse
     );
 
-    ASSERT_TRUE(battle_state.opponent.has_status(Status::Cursed));
+    EXPECT_TRUE(battle_state.opponent.has_status(Status::Cursed));
 }
 
 TEST(
@@ -37,8 +37,8 @@ TEST(
         battle_state.player.get_current_stat(Stat::Health);
     battle_state.player.set_type(PokemonType::Ghost);
 
-    ASSERT_TRUE(battle_state.player.has_type(PokemonType::Ghost));
-    ASSERT_TRUE(battle_state.player.has_type(PokemonType::NoType));
+    EXPECT_TRUE(battle_state.player.has_type(PokemonType::Ghost));
+    EXPECT_TRUE(battle_state.player.has_type(PokemonType::NoType));
 
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -47,7 +47,7 @@ TEST(
         Move::Curse
     );
 
-    ASSERT_EQ(
+    EXPECT_EQ(
         hp_before - (battle_state.player.get_original_stat(Stat::Health) / 2),
         battle_state.player.get_current_stat(Stat::Health)
     );
@@ -64,8 +64,8 @@ TEST(
     };
     battle_state.player.set_type(PokemonType::Ghost);
 
-    ASSERT_TRUE(battle_state.player.has_type(PokemonType::Ghost));
-    ASSERT_TRUE(battle_state.player.has_type(PokemonType::NoType));
+    EXPECT_TRUE(battle_state.player.has_type(PokemonType::Ghost));
+    EXPECT_TRUE(battle_state.player.has_type(PokemonType::NoType));
 
     const uint16_t attack_before =
         battle_state.player.get_current_stat(Stat::Attack);
@@ -74,9 +74,9 @@ TEST(
     const uint16_t speed_before =
         battle_state.player.get_current_stat(Stat::Speed);
 
-    ASSERT_EQ(0, battle_state.player.get_stat_stage(Stat::Attack));
-    ASSERT_EQ(0, battle_state.player.get_stat_stage(Stat::Defense));
-    ASSERT_EQ(0, battle_state.player.get_stat_stage(Stat::Speed));
+    EXPECT_EQ(0, battle_state.player.get_stat_stage(Stat::Attack));
+    EXPECT_EQ(0, battle_state.player.get_stat_stage(Stat::Defense));
+    EXPECT_EQ(0, battle_state.player.get_stat_stage(Stat::Speed));
 
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -85,21 +85,21 @@ TEST(
         Move::Curse
     );
 
-    ASSERT_EQ(
+    EXPECT_EQ(
         attack_before,
         battle_state.player.get_current_stat(Stat::Attack)
     );
-    ASSERT_EQ(
+    EXPECT_EQ(
         defense_before,
         battle_state.player.get_current_stat(Stat::Defense)
     );
-    ASSERT_EQ(
+    EXPECT_EQ(
         speed_before,
         battle_state.player.get_current_stat(Stat::Speed)
     );
-    ASSERT_EQ(0, battle_state.player.get_stat_stage(Stat::Attack));
-    ASSERT_EQ(0, battle_state.player.get_stat_stage(Stat::Defense));
-    ASSERT_EQ(0, battle_state.player.get_stat_stage(Stat::Speed));
+    EXPECT_EQ(0, battle_state.player.get_stat_stage(Stat::Attack));
+    EXPECT_EQ(0, battle_state.player.get_stat_stage(Stat::Defense));
+    EXPECT_EQ(0, battle_state.player.get_stat_stage(Stat::Speed));
 }
 
 static void
@@ -112,8 +112,8 @@ curse_misses_when_used_by_non_ghost_type_with_ghost_type_and_defender_is_semi_in
     };
     battle_state.player.set_type(PokemonType::Ghost);
 
-    ASSERT_TRUE(battle_state.player.has_type(PokemonType::Ghost));
-    ASSERT_TRUE(battle_state.player.has_type(PokemonType::NoType));
+    EXPECT_TRUE(battle_state.player.has_type(PokemonType::Ghost));
+    EXPECT_TRUE(battle_state.player.has_type(PokemonType::NoType));
 
     battle_state.opponent.set_move_status_with_stage(
         move_status_with_stage,
@@ -121,12 +121,12 @@ curse_misses_when_used_by_non_ghost_type_with_ghost_type_and_defender_is_semi_in
         1
     );
 
-    ASSERT_TRUE(
+    EXPECT_TRUE(
         battle_state.opponent.has_move_status_with_stage(
             move_status_with_stage
         )
     );
-    ASSERT_TRUE(
+    EXPECT_TRUE(
         battle_state.opponent.is_semi_invulnerable()
     );
 
@@ -137,7 +137,7 @@ curse_misses_when_used_by_non_ghost_type_with_ghost_type_and_defender_is_semi_in
         Move::Curse
     );
 
-    ASSERT_FALSE(battle_state.opponent.has_status(Status::Cursed));
+    EXPECT_FALSE(battle_state.opponent.has_status(Status::Cursed));
 }
 
 TEST(
@@ -194,9 +194,9 @@ TEST(
     const uint16_t speed_before =
         battle_state.player.get_current_stat(Stat::Speed);
 
-    ASSERT_EQ(0, battle_state.player.get_stat_stage(Stat::Attack));
-    ASSERT_EQ(0, battle_state.player.get_stat_stage(Stat::Defense));
-    ASSERT_EQ(0, battle_state.player.get_stat_stage(Stat::Speed));
+    EXPECT_EQ(0, battle_state.player.get_stat_stage(Stat::Attack));
+    EXPECT_EQ(0, battle_state.player.get_stat_stage(Stat::Defense));
+    EXPECT_EQ(0, battle_state.player.get_stat_stage(Stat::Speed));
 
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -205,25 +205,25 @@ TEST(
         Move::Curse
     );
 
-    ASSERT_EQ(
+    EXPECT_EQ(
         hp_before,
         battle_state.player.get_current_stat(Stat::Health)
     );
-    ASSERT_LT(
+    EXPECT_LT(
         attack_before,
         battle_state.player.get_current_stat(Stat::Attack)
     );
-    ASSERT_LT(
+    EXPECT_LT(
         defense_before,
         battle_state.player.get_current_stat(Stat::Defense)
     );
-    ASSERT_GT(
+    EXPECT_GT(
         speed_before,
         battle_state.player.get_current_stat(Stat::Speed)
     );
-    ASSERT_EQ(1, battle_state.player.get_stat_stage(Stat::Attack));
-    ASSERT_EQ(1, battle_state.player.get_stat_stage(Stat::Defense));
-    ASSERT_EQ(-1, battle_state.player.get_stat_stage(Stat::Speed));
+    EXPECT_EQ(1, battle_state.player.get_stat_stage(Stat::Attack));
+    EXPECT_EQ(1, battle_state.player.get_stat_stage(Stat::Defense));
+    EXPECT_EQ(-1, battle_state.player.get_stat_stage(Stat::Speed));
 }
 
 TEST(MoveExecution, CurseDropsNotDropUsersHPWhenUsedByNonGhostTypeUser) {
@@ -242,7 +242,7 @@ TEST(MoveExecution, CurseDropsNotDropUsersHPWhenUsedByNonGhostTypeUser) {
         Move::Curse
     );
 
-    ASSERT_EQ(
+    EXPECT_EQ(
         hp_before,
         battle_state.player.get_current_stat(Stat::Health)
     );
@@ -261,7 +261,7 @@ TEST(MoveExecution, CurseDropsNotCurseDefenderWhenUsedByNonGhostTypeUser) {
         Move::Curse
     );
 
-    ASSERT_FALSE(battle_state.opponent.has_status(Status::Cursed));
+    EXPECT_FALSE(battle_state.opponent.has_status(Status::Cursed));
 }
 
 TEST(
@@ -285,9 +285,9 @@ TEST(
     const uint16_t speed_before =
         battle_state.player.get_current_stat(Stat::Speed);
 
-    ASSERT_EQ(6, battle_state.player.get_stat_stage(Stat::Attack));
-    ASSERT_EQ(6, battle_state.player.get_stat_stage(Stat::Defense));
-    ASSERT_EQ(0, battle_state.player.get_stat_stage(Stat::Speed));
+    EXPECT_EQ(6, battle_state.player.get_stat_stage(Stat::Attack));
+    EXPECT_EQ(6, battle_state.player.get_stat_stage(Stat::Defense));
+    EXPECT_EQ(0, battle_state.player.get_stat_stage(Stat::Speed));
 
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -296,23 +296,23 @@ TEST(
         Move::Curse
     );
 
-    ASSERT_EQ(
+    EXPECT_EQ(
         hp_before,
         battle_state.player.get_current_stat(Stat::Health)
     );
-    ASSERT_EQ(
+    EXPECT_EQ(
         attack_before,
         battle_state.player.get_current_stat(Stat::Attack)
     );
-    ASSERT_EQ(
+    EXPECT_EQ(
         defense_before,
         battle_state.player.get_current_stat(Stat::Defense)
     );
-    ASSERT_GT(
+    EXPECT_GT(
         speed_before,
         battle_state.player.get_current_stat(Stat::Speed)
     );
-    ASSERT_EQ(6, battle_state.player.get_stat_stage(Stat::Attack));
-    ASSERT_EQ(6, battle_state.player.get_stat_stage(Stat::Defense));
-    ASSERT_EQ(-1, battle_state.player.get_stat_stage(Stat::Speed));
+    EXPECT_EQ(6, battle_state.player.get_stat_stage(Stat::Attack));
+    EXPECT_EQ(6, battle_state.player.get_stat_stage(Stat::Defense));
+    EXPECT_EQ(-1, battle_state.player.get_stat_stage(Stat::Speed));
 }

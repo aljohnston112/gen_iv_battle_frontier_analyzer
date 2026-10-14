@@ -12,8 +12,8 @@ TEST(MoveExecution, HailMakesBlizzardAlwaysHit) {
         PokemonState{&Suicune_7_3}
     };
 
-    ASSERT_EQ(Weather::Clear, battle_state.get_weather());
-    ASSERT_EQ(
+    EXPECT_EQ(Weather::Clear, battle_state.get_weather());
+    EXPECT_EQ(
         0,
         execute_move(
             ALWAYS_MISS_POLICY_CONTAINER,
@@ -25,8 +25,8 @@ TEST(MoveExecution, HailMakesBlizzardAlwaysHit) {
 
     battle_state.set_weather(Weather::Hail, 5);
 
-    ASSERT_EQ(Weather::Hail, battle_state.get_weather());
-    ASSERT_LT(
+    EXPECT_EQ(Weather::Hail, battle_state.get_weather());
+    EXPECT_LT(
         0,
         execute_move(
             ALWAYS_MISS_POLICY_CONTAINER,
@@ -54,17 +54,17 @@ move_does_no_damage_when_defender_is_semi_invulnerable_and_it_is_hailing(
     );
     battle_state.set_weather(Weather::Hail, 5);
 
-    ASSERT_EQ(Weather::Hail, battle_state.get_weather());
-    ASSERT_TRUE(
+    EXPECT_EQ(Weather::Hail, battle_state.get_weather());
+    EXPECT_TRUE(
         battle_state.opponent.has_move_status_with_stage(
             move_status_with_stage
         )
     );
-    ASSERT_TRUE(
+    EXPECT_TRUE(
         battle_state.opponent.is_semi_invulnerable()
     );
 
-    ASSERT_EQ(
+    EXPECT_EQ(
         0,
         execute_move(
             NEVER_MISS_POLICY_CONTAINER,

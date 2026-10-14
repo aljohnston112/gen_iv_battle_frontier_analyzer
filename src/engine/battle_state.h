@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cassert>
-
 #include "pokemon.h"
 #include "serebii_pokemon_data_source.h"
 

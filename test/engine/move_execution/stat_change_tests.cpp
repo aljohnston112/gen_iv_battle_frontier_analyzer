@@ -205,6 +205,37 @@ TEST(MoveExecution, AncientPowerDoesNotIncreaseAnyStatsOnFalseRoll) {
     }
 }
 
+
+// Defense Boost
+// =============================================================================
+TEST(MoveExecution, SteelWingDefenseBoostDoesNotGoPastSix) {
+    BattleState battle_state{
+        PokemonState{&Zapdos_7_3},
+        PokemonState{&Cresselia_7_3}
+    };
+
+    move_does_not_boost_attackers_stat_past_six_on_true_roll(
+        battle_state,
+        Move::SteelWing,
+        Stat::Defense,
+        1
+    );
+}
+
+TEST(MoveExecution, SteelWingDoesNotBoostDefenseOnFalseRoll) {
+    BattleState battle_state{
+        PokemonState{&Zapdos_7_3},
+        PokemonState{&Cresselia_7_3}
+    };
+
+    move_does_not_boost_attackers_stat_on_false_roll(
+        battle_state,
+        Move::SteelWing,
+        Stat::Defense
+    );
+}
+
+
 // Special Attack Boost
 // =============================================================================
 TEST(MoveExecution, ChargeBeamSpecialAttackBoostDoesNotGoPastSix) {

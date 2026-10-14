@@ -73,6 +73,12 @@ uint16_t get_damage_of_move(
     }
 
     uint16_t power = move_info->power;
+    if (move == Move::Twister &&
+        defender.has_move_status_with_stage(MoveStatusWithStage::SkyHigh)
+    ) {
+        power *= 2;
+    }
+
     if (attacker.get_current_item_for_effect() == Item::WiseGlasses &&
         move_info->category == Category::SPECIAL) [[unlikely]
     ] {
@@ -435,6 +441,7 @@ bool move_does_nothing(
             ? &battle_state.opponent
             : &battle_state.player;
 
+    const auto attacker_move = attacker_move_info->move;
     if (policy_container.does_move_miss_due_to_accuracy_and_evasion(
             battle_state,
             attacker_move_info,
@@ -444,7 +451,7 @@ bool move_does_nothing(
         !move_always_hits(
             battle_state,
             who_attacker_is,
-            attacker_move_info->move
+            attacker_move
         )
     ) {
         return true;
@@ -456,14 +463,23 @@ bool move_does_nothing(
         return true;
     }
 
-    if (((attacker_move_info->move == Move::Blizzard &&
+    if (attacker_move == Move::Twister &&
+        defender_state->is_semi_invulnerable() &&
+        !defender_state->has_move_status_with_stage(
+            MoveStatusWithStage::SkyHigh
+        )
+    ) [[unlikely]] {
+        return true;
+    }
+
+    if (((attacker_move == Move::Blizzard &&
                 battle_state.has_weather(Weather::Hail)) ||
-            (attacker_move_info->move == Move::Thunder &&
+            (attacker_move == Move::Thunder &&
                 battle_state.has_weather(Weather::Rain))) &&
         defender_state->is_semi_invulnerable()
     ) [[unlikely]] {
         return !(
-            attacker_move_info->move == Move::Thunder &&
+            attacker_move == Move::Thunder &&
             defender_state->has_move_status_with_stage(
                 MoveStatusWithStage::SkyHigh
             )
@@ -477,14 +493,14 @@ bool move_does_nothing(
         return true;
     }
 
-    if (attacker_move_info->move == Move::Rest &&
+    if (attacker_move == Move::Rest &&
         (attacker_state->has_status_with_stage(StatusWithStage::Asleep) ||
             attacker_state->get_current_stat(Stat::Health) ==
             attacker_state->get_original_stat(Stat::Health))) {
         return true;
     }
 
-    if (attacker_move_info->move == Move::Moonlight &&
+    if (attacker_move == Move::Moonlight &&
         attacker_state->get_current_stat(Stat::Health) ==
         attacker_state->get_original_stat(Stat::Health)
     ) {
@@ -975,6 +991,16 @@ uint16_t execute_move(
 
     if (move_has_flag(
             attacker_move,
+            MoveFlag::BOOSTS_ATTACKERS_DEFENSE_ONE_STAGE_10
+        )
+    ) [[unlikely]] {
+        if (policy_container.roll_stat_increase(10, who_attacker_is)) {
+            attacker.increase_stat_stage<Stat::Defense>(1);
+        }
+    }
+
+    if (move_has_flag(
+            attacker_move,
             MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_70
         )
     )[[unlikely]] {
@@ -1071,8 +1097,15 @@ uint16_t execute_move(
     ) [[unlikely]] {
         if (move_has_flag(attacker_move, MoveFlag::FLINCHES_DEFENDER_20)) {
             roll_flinch(policy_container, defender, 20);
-        } else if (move_has_flag(attacker_move,
-                                 MoveFlag::FLINCHES_DEFENDER_10)) {
+        } else if (
+            move_has_flag(attacker_move, MoveFlag::FLINCHES_DEFENDER_10)
+        ) {
+            roll_flinch(policy_container, defender, 10);
+        }
+
+        if (attacker_item == Item::KingsRock &&
+            move_has_flag(attacker_move, MoveFlag::AFFECTED_BY_KINGS_ROCK)
+        ) {
             roll_flinch(policy_container, defender, 10);
         }
     }
