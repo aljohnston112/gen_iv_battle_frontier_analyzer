@@ -124,6 +124,10 @@ static void move_does_not_drop_targets_stat_on_false_roll(
     }
 }
 
+
+// Omni Boost
+// =============================================================================
+
 TEST(MoveExecution, AncientPowerIncreasesAllStatsByOneStage) {
     BattleState battle_state{
         PokemonState{&Regigigas_7_3},
@@ -202,6 +206,87 @@ TEST(MoveExecution, AncientPowerDoesNotIncreaseAnyStatsOnFalseRoll) {
         );
 
         battle_state.opponent.increment_power_point(Move::Ancientpower, 1);
+    }
+}
+
+TEST(MoveExecution, OminousWindIncreasesAllStatsByOneStage) {
+    BattleState battle_state{
+        PokemonState{&Zapdos_7_3},
+        PokemonState{&Articuno_7_3}
+    };
+
+    for (uint8_t i = 0; i < 7; i++) {
+        execute_move(
+            OPPONENT_OPTIMIZED_POLICY_CONTAINER,
+            battle_state,
+            Who::Opponent,
+            Move::OminousWind
+        );
+
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::Attack),
+            std::min(6, i + 1)
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::Defense),
+            std::min(6, i + 1)
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::SpecialAttack),
+            std::min(6, i + 1)
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::SpecialDefense),
+            std::min(6, i + 1)
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::Speed),
+            std::min(6, i + 1)
+        );
+
+        battle_state.opponent.increment_power_point(Move::OminousWind, 1);
+        battle_state.player.add_hp(
+            battle_state.player.get_original_stat(Stat::Health)
+        );
+    }
+}
+
+TEST(MoveExecution, OminousWindDoesNotIncreaseAnyStatsOnFalseRoll) {
+    BattleState battle_state{
+        PokemonState{&Zapdos_7_3},
+        PokemonState{&Articuno_7_3}
+    };
+
+    for (uint8_t i = 0; i < 7; i++) {
+        execute_move(
+            NEVER_CHANGE_STAT_POLICY_CONTAINER,
+            battle_state,
+            Who::Opponent,
+            Move::OminousWind
+        );
+
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::Attack),
+            0
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::Defense),
+            0
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::SpecialAttack),
+            0
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::SpecialDefense),
+            0
+        );
+        EXPECT_EQ(
+            battle_state.opponent.get_stat_stage(Stat::Speed),
+            0
+        );
+
+        battle_state.opponent.increment_power_point(Move::OminousWind, 1);
     }
 }
 

@@ -3,6 +3,20 @@
 #include "pokemon.h"
 #include "policies.h"
 
+const CustomPokemon Articuno_7_3{
+    .unique_id = "Articuno_7_3",
+    .name = Pokemon::Articuno,
+    .ability = Ability::Pressure,
+    .level = 50,
+    .item = Item::WiseGlasses,
+    .types = {PokemonType::Flying, PokemonType::Ice},
+    .moves = {
+        Move::OminousWind, Move::WaterPulse, Move::SignalBeam, Move::IceBeam
+    },
+    .stats = {162, 91, 148, 157, 142, 102},
+    .pounds = 122.1
+};
+
 const CustomPokemon Cresselia_7_3{
     .unique_id = "Cresselia_7_3",
     .name = Pokemon::Cresselia,

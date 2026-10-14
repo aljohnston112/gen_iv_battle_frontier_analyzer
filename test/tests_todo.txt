@@ -12,7 +12,6 @@ TODO
     Curse is chosen by a ghost type when it leads to better outcome
     Hyper Beam is chosen when it leads to better outcome
     Steel Wing is chosen when it leads to better outcome
-
     Mist Ball is chosen when it leads to better outcome
     Energy Ball is chosen when it leads to better outcome
     Rest is chosen when its boost leads to better outcome

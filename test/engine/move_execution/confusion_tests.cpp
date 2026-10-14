@@ -106,15 +106,15 @@ TEST(MoveExecution, BeingConfusedPreventsAttackingOnTrueRoll) {
     );
 }
 
-template <typename T>
-concept IsConfusionTestCase = requires {
-    requires IsConfusionStatusPolicy<typename T::ConfusionStatusPolicyType>;
-    requires IsConfusionStatusRNGPolicy<typename
-        T::ConfusionStatusRNGPolicyType>;
-    { +T::ExpectedValue } -> std::same_as<int32_t>;
-};
-
 namespace {
+    template <typename T>
+    concept IsConfusionTestCase = requires {
+        requires IsConfusionStatusPolicy<typename T::ConfusionStatusPolicyType>;
+        requires IsConfusionStatusRNGPolicy<typename
+            T::ConfusionStatusRNGPolicyType>;
+        { +T::ExpectedValue } -> std::same_as<int32_t>;
+    };
+
     template <
         IsConfusionStatusPolicy ConfusionStatusPolicy,
         IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
@@ -125,47 +125,50 @@ namespace {
         using ConfusionStatusRNGPolicyType = ConfusionStatusRNGPolicy;
         static constexpr int32_t ExpectedValue = Value;
     };
-}
 
-template <IsConfusionTestCase Case>
-static void confusion_damage_is_correct(
-    PokemonState&& player
-) {
-    constexpr PolicyContainer<
-        typename Case::ConfusionStatusPolicyType,
-        typename Case::ConfusionStatusRNGPolicyType
-    > policy_container{};
 
-    static constexpr int32_t expected_damage = Case::ExpectedValue;
+    template <IsConfusionTestCase Case>
+    void confusion_damage_is_correct(
+        PokemonState&& player
+    ) {
+        constexpr PolicyContainer<
+            typename Case::ConfusionStatusPolicyType,
+            typename Case::ConfusionStatusRNGPolicyType
+        > policy_container{};
 
-    roll_confusion(
-        policy_container,
-        player,
-        Who::Player,
-        0
-    );
-    EXPECT_TRUE(
-        player.has_status_with_stage(StatusWithStage::Confused)
-    );
+        static constexpr int32_t expected_damage = Case::ExpectedValue;
 
-    EXPECT_EQ(
-        expected_damage,
-        calculate_confused_hit_damage(
+        roll_confusion(
             policy_container,
             player,
-            Who::Player
-        )
-    );
+            Who::Player,
+            0
+        );
+        EXPECT_TRUE(
+            player.has_status_with_stage(StatusWithStage::Confused)
+        );
+
+        EXPECT_EQ(
+            expected_damage,
+            calculate_confused_hit_damage(
+                policy_container,
+                player,
+                Who::Player
+            )
+        );
+    }
 }
 
-template <IsConfusionTestCase... Cases>
-void confusion_damage_is_correct() {
-    (
-        confusion_damage_is_correct<Cases>(
-            PokemonState{&Cresselia_7_4_NoItem}
-        ),
-        ...
-    );
+namespace {
+    template <IsConfusionTestCase... Cases>
+    void confusion_damage_is_correct() {
+        (
+            confusion_damage_is_correct<Cases>(
+                PokemonState{&Cresselia_7_4_NoItem}
+            ),
+            ...
+        );
+    }
 }
 
 TEST(MoveExecution, RandomConfusionDamageIsCorrect) {
@@ -177,47 +180,48 @@ TEST(MoveExecution, RandomConfusionDamageIsCorrect) {
     >();
 }
 
-template <IsConfusionStatusPolicy T>
-static void confused_damage_is_correct_on_true_roll(
-    BattleState&& battle_state
-) {
-    roll_confusion(
-        ALWAYS_CONFUSE_POLICY_CONTAINER<T>,
-        battle_state.player,
-        Who::Player,
-        0
-    );
-    EXPECT_TRUE(
-        battle_state.player.has_status_with_stage(StatusWithStage::Confused)
-    );
-
-    const int32_t expected_damage =
-        calculate_confused_hit_damage(
+namespace {
+    template <IsConfusionStatusPolicy T>
+    void confused_damage_is_correct_on_true_roll(
+        BattleState&& battle_state
+    ) {
+        roll_confusion(
             ALWAYS_CONFUSE_POLICY_CONTAINER<T>,
             battle_state.player,
-            Who::Player
+            Who::Player,
+            0
+        );
+        EXPECT_TRUE(
+            battle_state.player.has_status_with_stage(StatusWithStage::Confused)
         );
 
-    EXPECT_EQ(
-        0,
-        execute_move(
-            ALWAYS_CONFUSE_POLICY_CONTAINER<T>,
-            battle_state,
-            Who::Player,
-           Move::Psychic
-        )
-    );
+        const int32_t expected_damage =
+            calculate_confused_hit_damage(
+                ALWAYS_CONFUSE_POLICY_CONTAINER<T>,
+                battle_state.player,
+                Who::Player
+            );
 
-    EXPECT_EQ(
-        battle_state.player.get_original_stat(Stat::Health) -
-        battle_state.player.get_current_stat(Stat::Health),
-        expected_damage
-    );
+        EXPECT_EQ(
+            0,
+            execute_move(
+                ALWAYS_CONFUSE_POLICY_CONTAINER<T>,
+                battle_state,
+                Who::Player,
+                Move::Psychic
+            )
+        );
+
+        EXPECT_EQ(
+            battle_state.player.get_original_stat(Stat::Health) -
+            battle_state.player.get_current_stat(Stat::Health),
+            expected_damage
+        );
+    }
 }
 
 template <IsConfusionStatusPolicy... Policies>
 static void confused_damage_is_correct_on_true_roll() {
-
     (
         confused_damage_is_correct_on_true_roll<Policies>(
             {
@@ -326,5 +330,41 @@ TEST(MoveExecution, ConfusionEndsOnCorrectTurn) {
             Who::Player,
             Move::Psychic
         )
+    );
+}
+
+TEST(MoveExecution, WaterPulseConfusesOnTrueRoll) {
+    BattleState battle_state{
+        PokemonState{&Articuno_7_3},
+        PokemonState{&Cresselia_7_4}
+    };
+
+    execute_move(
+        ALWAYS_CONFUSE_HIGH_RANDOM_CONFUSION_POLICY_CONTAINER,
+        battle_state,
+        Who::Player,
+        Move::WaterPulse
+    );
+
+    EXPECT_TRUE(
+        battle_state.opponent.has_status_with_stage(StatusWithStage::Confused)
+    );
+}
+
+TEST(MoveExecution, WaterPulseDoesNotConfuseOnFalseRoll) {
+    BattleState battle_state{
+        PokemonState{&Articuno_7_3},
+        PokemonState{&Cresselia_7_4}
+    };
+
+    execute_move(
+        NEVER_CONFUSE_POLICY_CONTAINER,
+        battle_state,
+        Who::Player,
+        Move::WaterPulse
+    );
+
+    EXPECT_FALSE(
+        battle_state.opponent.has_status_with_stage(StatusWithStage::Confused)
     );
 }

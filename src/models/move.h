@@ -1015,6 +1015,7 @@ enum class MoveFlag {
     CAN_BE_SNATCHED,
     CHANGES_WEATHER,
     CONFUSES_DEFENDER_10,
+    CONFUSES_DEFENDER_20,
     CONFUSES_DEFENDER, // TODO replace
     CONTINUES,
     DEALS_DOUBLE_AFTER_MINIMIZE,
@@ -2021,7 +2022,7 @@ inline constexpr std::array<
         true;
     flags[to_int(Move::SignalBeam)][to_int(MoveFlag::CONFUSES_DEFENDER_10)] =
         true;
-    flags[to_int(Move::WaterPulse)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
+    flags[to_int(Move::WaterPulse)][to_int(MoveFlag::CONFUSES_DEFENDER_20)] = true;
     flags[to_int(Move::RockClimb)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
 
     flags[to_int(Move::Stomp)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
@@ -2879,6 +2880,8 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::Twister)] = true;
     implemented_moves[to_int(Move::SteelWing)] = true;
     implemented_moves[to_int(Move::UTurn)] = true;
+    implemented_moves[to_int(Move::OminousWind)] = true;
+    implemented_moves[to_int(Move::WaterPulse)] = true;
 
     return implemented_moves;
 }();

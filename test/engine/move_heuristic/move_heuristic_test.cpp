@@ -632,4 +632,16 @@ TEST(
     );
 }
 
+TEST(
+    MoveHeuristic,
+    OpponentArticuno_7_3ChoosesOminousWindTwiceThenSignalBeamAgainstCresselia_7_4
+) {
+    opponent_chooses_moves_against_player(
+        Cresselia_7_4,
+        Articuno_7_3,
+        Move::OminousWind,
+        Move::OminousWind,
+        Move::SignalBeam
+    );
+}
 

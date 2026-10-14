@@ -955,6 +955,14 @@ uint16_t execute_move(
             who_defender_is,
             10
         );
+    } else if (move_has_flag(attacker_move, MoveFlag::CONFUSES_DEFENDER_20)
+    ) [[unlikely]] {
+        roll_confusion(
+            policy_container,
+            defender,
+            who_defender_is,
+            20
+        );
     }
 
     if (move_has_flag(attacker_move, MoveFlag::FREEZES_DEFENDER_10)
