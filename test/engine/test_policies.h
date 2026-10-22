@@ -9,7 +9,7 @@ template <typename T>
 constexpr PolicyContainer<
     T,
     OnlyOpponentCanUseLessAccurateMovesPolicy,
-    OpponentOptimizedConfusionStatusPolicy,
+    OpponentOptimizedConfusionStatusDamagePolicy,
     NeverConfuseRNGPolicy,
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
@@ -26,6 +26,21 @@ constexpr auto ALWAYS_MISS_POLICY_CONTAINER =
 constexpr auto NEVER_MISS_POLICY_CONTAINER =
     ACCURACY_POLICY_CONTAINER<NeverMissAccuracyEvasionFactorPolicy>;
 
+const PolicyContainer<
+    RealAccuracyEvasionFactorPolicy,
+    OnlyOpponentCanUseLessAccurateMovesPolicy,
+    OpponentOptimizedConfusionStatusDamagePolicy,
+    NeverConfuseRNGPolicy,
+    NeverCritRNGPolicy,
+    OpponentOptimizedRandomFactorPolicy,
+    NeverFlinchRNGPolicy,
+    NeverFreezeRNGPolicy,
+    OpponentOptimizedStatChangePolicy,
+    NeverParalyzeRNGPolicy,
+    NeverBurnRNGPolicy
+> REAL_ACCURACY_EVASION_POLICY_CONTAINER{
+    RealAccuracyEvasionFactorPolicy{std::mt19937{0}}
+};
 
 // Burn
 // =============================================================================
@@ -33,7 +48,7 @@ template <typename T>
 constexpr PolicyContainer<
     NeverMissAccuracyEvasionFactorPolicy,
     OnlyOpponentCanUseLessAccurateMovesPolicy,
-    OpponentOptimizedConfusionStatusPolicy,
+    OpponentOptimizedConfusionStatusDamagePolicy,
     NeverConfuseRNGPolicy,
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
@@ -53,7 +68,7 @@ constexpr auto NEVER_BURN_POLICY_CONTAINER =
 // Confusion
 // =============================================================================
 class HighRandomConfusionEffectPolicy :
-    public ConfusionStatusPolicy<HighRandomConfusionEffectPolicy> {
+    public ConfusionStatusDamagePolicy<HighRandomConfusionEffectPolicy> {
 public:
     static uint8_t roll_turns_confused_impl(const Who) {
         return 2;
@@ -65,7 +80,7 @@ public:
 };
 
 class LowRandomConfusionEffectPolicy :
-    public ConfusionStatusPolicy<LowRandomConfusionEffectPolicy> {
+    public ConfusionStatusDamagePolicy<LowRandomConfusionEffectPolicy> {
 public:
     static uint8_t roll_turns_confused_impl(const Who) {
         return 2;
@@ -117,7 +132,7 @@ template <typename T>
 constexpr PolicyContainer<
     NeverMissAccuracyEvasionFactorPolicy,
     OnlyOpponentCanUseLessAccurateMovesPolicy,
-    OpponentOptimizedConfusionStatusPolicy,
+    OpponentOptimizedConfusionStatusDamagePolicy,
     NeverConfuseRNGPolicy,
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
@@ -140,7 +155,7 @@ template <typename T>
 constexpr PolicyContainer<
     NeverMissAccuracyEvasionFactorPolicy,
     OnlyOpponentCanUseLessAccurateMovesPolicy,
-    OpponentOptimizedConfusionStatusPolicy,
+    OpponentOptimizedConfusionStatusDamagePolicy,
     NeverConfuseRNGPolicy,
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
@@ -163,7 +178,7 @@ template <typename T>
 constexpr PolicyContainer<
     NeverMissAccuracyEvasionFactorPolicy,
     OnlyOpponentCanUseLessAccurateMovesPolicy,
-    OpponentOptimizedConfusionStatusPolicy,
+    OpponentOptimizedConfusionStatusDamagePolicy,
     NeverConfuseRNGPolicy,
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
@@ -286,7 +301,7 @@ template <typename T>
 constexpr PolicyContainer<
     NeverMissAccuracyEvasionFactorPolicy,
     OnlyOpponentCanUseLessAccurateMovesPolicy,
-    OpponentOptimizedConfusionStatusPolicy,
+    OpponentOptimizedConfusionStatusDamagePolicy,
     NeverConfuseRNGPolicy,
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
@@ -326,8 +341,8 @@ template <typename T>
 constexpr PolicyContainer<
     NeverMissAccuracyEvasionFactorPolicy,
     OnlyOpponentCanUseLessAccurateMovesPolicy,
-    OpponentOptimizedConfusionStatusPolicy,
     NeverConfuseRNGPolicy,
+    LowRandomConfusionEffectPolicy,
     NeverCritRNGPolicy,
     T,
     NeverFlinchRNGPolicy,
@@ -344,8 +359,20 @@ constexpr auto LOW_RANDOM_DAMAGE_FACTOR_POLICY_CONTAINER =
 constexpr auto HIGH_RANDOM_DAMAGE_FACTOR_POLICY_CONTAINER =
     RANDOM_DAMAGE_FACTOR_POLICY_CONTAINER<HighDamageRandomFactorPolicy>;
 
-constexpr auto OPPONENT_OPTIMIZED_POLICY_CONTAINER =
-    RANDOM_DAMAGE_FACTOR_POLICY_CONTAINER<OpponentOptimizedRandomFactorPolicy>;
+constexpr PolicyContainer<
+    NeverMissAccuracyEvasionFactorPolicy,
+    OnlyOpponentCanUseLessAccurateMovesPolicy,
+    OpponentOptimizedConfusionStatusDamagePolicy,
+    OpponentOptimizedConfuseRNGPolicy,
+    OpponentOptimizedCritRNGPolicy,
+    OpponentOptimizedRandomFactorPolicy,
+    OpponentOptimizedFlinchRNGPolicy,
+    OpponentOptimizedFreezeRNGPolicy,
+    OpponentOptimizedStatChangePolicy,
+    OpponentOptimizedSpeedAdvantagePolicy,
+    OpponentOptimizedParalysisRNGPolicy,
+    OpponentOptimizedBurnRNGPolicy
+> OPPONENT_OPTIMIZED_POLICY_CONTAINER{};
 
 // Logging
 template <typename T>
@@ -353,7 +380,7 @@ constexpr auto DEFAULT_POLICY_CONTAINER =
     PolicyContainer<
         NeverMissAccuracyEvasionFactorPolicy,
         OnlyOpponentCanUseLessAccurateMovesPolicy,
-        OpponentOptimizedConfusionStatusPolicy,
+        OpponentOptimizedConfusionStatusDamagePolicy,
         NeverConfuseRNGPolicy,
         NeverCritRNGPolicy,
         OpponentOptimizedRandomFactorPolicy,

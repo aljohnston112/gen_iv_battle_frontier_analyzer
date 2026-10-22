@@ -6,6 +6,7 @@ TODO
 
     Guts ignores burn modifier to attack
 
+    Charge Beam is chosen when it leads to better outcome
     Moonlight is chosen when it leads to better outcome
     Earth Power is chosen when it leads to better outcome
     Flamethrower is chosen when it leads to better outcome
@@ -23,7 +24,6 @@ TODO
     Flash fire makes physical fire move use attack stat * 1.5
     Flash fire makes physical fire move use attack stat * 1.5 with stat stages included
 
-    Pokémon with a substitute cannot flinch
     Pokémon with Inner Focus cannot flinch
     Pokémon with Shield Dust cannot flinch
     Pokémon with Steadfast get speed stage boosted by one when flinched
@@ -80,8 +80,8 @@ TODO
     If there is harsh sunlight, the Power Herb will not be consumed during solarbeam execution
 
     Bide: the final turn invalidates last used move
-    Assist, Copycat, Me First, Metronome, Mirror Move, Nature Power, Sleep Talk, and Snatch set the last used move is set to the calling move unless the called move continues past one turn
-    If a Pokémon tries to use a move but is prevented by a status condition or effect (such as sleep, paralysis, or flinching), the last-used move becomes invalid
+    Assist, Copycat, Me First, Metronome, Mirror Move, Nature Power, Sleep Talk, and Snatch set the last used move to the calling move unless the called move continues past one turn
+    If a Pokémon tries to use a move but is prevented by a status condition or effect such as sleep, the last-used move becomes invalid
 
     If the user has Truant, the recharge turn of Hyper Beam and "loafing around" take place on the same turn
 
@@ -102,3 +102,30 @@ TODO
 
     Serene Grace does not change the flinch chance of King's Rock
     Each strike of a multistrike move has an independent chance of causing the target to flinch from King's Rock
+
+    When using Facade, and the attacker is burned and has guts, burn does not half attack
+
+    Substitute blocks stat change from opponent ability
+    Snatch will steal the effect of Substitute
+    all status conditions (poison and sleep) from opponent are not applied to defender with substitute
+    trapping moves from opponent do not trap defender with substitute
+    sticky barb does not transfer when holder has a substitute (both ways)
+    synchronize works against defender with substitute
+    These moves will fail if the target has a substitute, but damage still happens to the substitute:
+        Copycat, Gastro Acid, Heal Block, Lock-On, Mind Reader, Nightmare,
+        Pain Split, Worry Seed, Embargo, Flatter, Psycho Shift, Switcheroo,
+        Trick, Yawn, Fling, Bug Bite, Covet, Knock Off (damage can still double),
+        Pluck, Smelling Salts, Thief, Wake-Up Slap, Dream Eater
+    These moves affect defender with substitute:
+        Aromatherapy, Attract, Defog, Disable, Encore, Foresight, GuardSwap,
+        Haze, Heal Bell, Heart Swap, Helping Hand, Imprison, Me First,
+        Miracle Eye, Odor Sleuth, Perish Song, Power Swap, Psych Up, Roar,
+        Role Play, Skill Swap, Spite, Taunt, Torment, Transform, Whirlwind
+    Creating a substitute will free its owner from binding
+    A Pokémon with substitute that was drowsy before the substitute was put up will still fall asleep
+    Berserk Gene does not affect holder with substitute
+    Rage, Bide, Counter, Metal Burst, and Mirror Coat will not count damage done to a substitute
+    If a substitute breaks in the middle of a multistrike move, the move will continue hitting the Pokémon
+    Shell Bell does not restore defender's HP when a move hits it's substitute
+    Confusion inducing berries do not affect holder with substitute
+    If a Pokémon with a substitute has used Rage and then selects a different move other than Substitute, it will no longer have the substitute

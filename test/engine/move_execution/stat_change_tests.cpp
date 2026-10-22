@@ -60,12 +60,14 @@ static void move_drops_targets_stat_on_true_roll(
 ) {
     const uint8_t m = 6u / n;
     for (uint8_t i = 0; i < m; i++) {
-        execute_move(
+        const uint16_t damage = execute_move(
             OPPONENT_OPTIMIZED_POLICY_CONTAINER,
             battle_state,
             Who::Opponent,
             move
         );
+
+        battle_state.player.add_hp(damage);
 
         EXPECT_EQ(
             battle_state.player.get_stat_stage(stat),
@@ -705,6 +707,35 @@ TEST(MoveExecution, HammerArmDropsSpeedOneStage) {
         Move::HammerArm
     );
     EXPECT_EQ(battle_state.player.get_stat_stage(Stat::Speed), -1);
+}
+
+// Accuracy and Evasion
+// =============================================================================
+TEST(
+    MoveExecution,
+    DoubleTeamSetsEvasionStagesCorrectly
+) {
+    BattleState battle_state{
+        PokemonState{&Regigigas_7_2},
+        PokemonState{&Heatran_7_3}
+    };
+
+    for (uint8_t i = 0; i < 10; i++) {
+        EXPECT_EQ(
+            std::min(i, static_cast<uint8_t>(6)),
+            battle_state.player.get_status_stage(StatusWithStage::Evasion)
+        );
+
+        EXPECT_EQ(
+            0,
+            execute_move(
+                REAL_ACCURACY_EVASION_POLICY_CONTAINER,
+                battle_state,
+                Who::Player,
+                Move::DoubleTeam
+            )
+        );
+    }
 }
 
 // Other tests

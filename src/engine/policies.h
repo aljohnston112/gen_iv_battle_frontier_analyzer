@@ -96,7 +96,7 @@ struct RealAccuracyEvasionFactorPolicy :
         const BattleState& battle_state,
         const MoveInfo* move_info,
         const Who who_attacker_is
-    ) {
+    ) const {
         const uint16_t accuracy_evasion_value =
             get_accuracy_evasion_value(
                 battle_state,
@@ -108,9 +108,9 @@ struct RealAccuracyEvasionFactorPolicy :
     }
 
 private:
-    std::mt19937 m_generator;
+    mutable std::mt19937 m_generator;
 
-    uint8_t roll_accuracy_threshold(const Who) {
+    uint8_t roll_accuracy_threshold(const Who) const {
         static std::uniform_int_distribution<uint8_t> dist(1, 100);
         return dist(m_generator);
     }
@@ -179,8 +179,8 @@ struct OpponentOptimizedBurnRNGPolicy :
 // =============================================================================
 template <typename T>
 struct CritRNGPolicy {
-    bool roll_for_crit(const double percent) const {
-        return static_cast<const T*>(this)->roll_for_crit_impl(percent);
+    bool roll_for_crit(const double percent, const Who who) const {
+        return static_cast<const T*>(this)->roll_for_crit_impl(percent, who);
     }
 };
 
@@ -189,15 +189,22 @@ concept IsCritRNGPolicy = std::derived_from<T, CritRNGPolicy<T>>;
 
 struct NeverCritRNGPolicy :
     CritRNGPolicy<NeverCritRNGPolicy> {
-    static bool roll_for_crit_impl(const double) {
+    static bool roll_for_crit_impl(const double, const Who) {
         return false;
     }
 };
 
 struct AlwaysCritRNGPolicy :
     CritRNGPolicy<AlwaysCritRNGPolicy> {
-    static bool roll_for_crit_impl(const double) {
+    static bool roll_for_crit_impl(const double, const Who) {
         return true;
+    }
+};
+
+struct OpponentOptimizedCritRNGPolicy :
+    CritRNGPolicy<OpponentOptimizedCritRNGPolicy> {
+    static bool roll_for_crit_impl(const double, const Who who) {
+        return who == Who::Player;
     }
 };
 
@@ -205,13 +212,13 @@ struct AlwaysCritRNGPolicy :
 // =============================================================================
 template <typename T>
 struct ConfusionStatusRNGPolicy {
-    bool roll_for_confusion(const int8_t percent) const {
+    bool roll_for_confusion(const int8_t percent, const Who who) const {
         return static_cast<const T*>(this)->
-            roll_for_confusion_impl(percent);
+            roll_for_confusion_impl(percent, who);
     }
 
-    bool roll_for_self_hit(const int8_t percent) const {
-        return static_cast<const T*>(this)->roll_for_self_hit_impl(percent);
+    bool roll_for_self_hit(const int8_t percent, const Who who) const {
+        return static_cast<const T*>(this)->roll_for_self_hit_impl(percent, who);
     }
 };
 
@@ -221,28 +228,39 @@ concept IsConfusionStatusRNGPolicy =
 
 struct NeverConfuseRNGPolicy :
     ConfusionStatusRNGPolicy<NeverConfuseRNGPolicy> {
-    static bool roll_for_confusion_impl(const int8_t) {
+    static bool roll_for_confusion_impl(const int8_t, const Who) {
         return false;
     }
 
-    static bool roll_for_self_hit_impl(const int8_t) {
+    static bool roll_for_self_hit_impl(const int8_t, const Who) {
         return false;
     }
 };
 
 struct AlwaysConfuseRNGPolicy :
     ConfusionStatusRNGPolicy<AlwaysConfuseRNGPolicy> {
-    static bool roll_for_confusion_impl(const int8_t) {
+    static bool roll_for_confusion_impl(const int8_t, const Who) {
         return true;
     }
 
-    static bool roll_for_self_hit_impl(const int8_t) {
+    static bool roll_for_self_hit_impl(const int8_t, const Who) {
         return true;
     }
 };
 
+struct OpponentOptimizedConfuseRNGPolicy :
+    ConfusionStatusRNGPolicy<OpponentOptimizedConfuseRNGPolicy> {
+    static bool roll_for_confusion_impl(const int8_t, const Who who) {
+        return who == Who::Player;
+    }
+
+    static bool roll_for_self_hit_impl(const int8_t, const Who who) {
+        return who == Who::Player;
+    }
+};
+
 template <typename T>
-struct ConfusionStatusPolicy {
+struct ConfusionStatusDamagePolicy {
     uint8_t roll_turns_confused(const Who who) const {
         return static_cast<const T*>(this)->roll_turns_confused_impl(who);
     }
@@ -253,11 +271,11 @@ struct ConfusionStatusPolicy {
 };
 
 template <typename T>
-concept IsConfusionStatusPolicy =
-    std::derived_from<T, ConfusionStatusPolicy<T>>;
+concept IsConfusionStatusDamagePolicy =
+    std::derived_from<T, ConfusionStatusDamagePolicy<T>>;
 
-struct OpponentOptimizedConfusionStatusPolicy :
-    ConfusionStatusPolicy<OpponentOptimizedConfusionStatusPolicy> {
+struct OpponentOptimizedConfusionStatusDamagePolicy :
+    ConfusionStatusDamagePolicy<OpponentOptimizedConfusionStatusDamagePolicy> {
     static uint8_t roll_turns_confused_impl(const Who who) {
         return who == Who::Player ? 4 : 1;
     }
@@ -291,8 +309,8 @@ struct OpponentOptimizedRandomFactorPolicy :
 // =============================================================================
 template <typename T>
 struct FlinchRNGPolicy {
-    bool roll_for_flinch(const uint8_t percent) const {
-        return static_cast<const T*>(this)->roll_for_flinch_impl(percent);
+    bool roll_for_flinch(const uint8_t percent, const Who who) const {
+        return static_cast<const T*>(this)->roll_for_flinch_impl(percent, who);
     }
 };
 
@@ -302,29 +320,35 @@ concept IsFlinchRNGPolicy =
 
 struct NeverFlinchRNGPolicy :
     FlinchRNGPolicy<NeverFlinchRNGPolicy> {
-    static bool roll_for_flinch_impl(const int8_t) {
+    static bool roll_for_flinch_impl(const int8_t, const Who) {
         return false;
     }
 };
 
 struct AlwaysFlinchRNGPolicy :
     FlinchRNGPolicy<AlwaysFlinchRNGPolicy> {
-    static bool roll_for_flinch_impl(const int8_t) {
+    static bool roll_for_flinch_impl(const int8_t, const Who) {
         return true;
     }
 };
 
+struct OpponentOptimizedFlinchRNGPolicy :
+    FlinchRNGPolicy<OpponentOptimizedFlinchRNGPolicy> {
+    static bool roll_for_flinch_impl(const int8_t, const Who who) {
+        return who == Who::Player;
+    }
+};
 
 // Freeze
 // =============================================================================
 template <typename T>
 struct FreezeRNGPolicy {
-    bool roll_for_freeze(const uint8_t percent) const {
-        return static_cast<const T*>(this)->roll_for_freeze_impl(percent);
+    bool roll_for_freeze(const uint8_t percent, const Who who) const {
+        return static_cast<const T*>(this)->roll_for_freeze_impl(percent, who);
     }
 
-    bool roll_for_thaw(const uint8_t percent) const {
-        return static_cast<const T*>(this)->roll_for_thaw_impl(percent);
+    bool roll_for_thaw(const uint8_t percent, const Who who) const {
+        return static_cast<const T*>(this)->roll_for_thaw_impl(percent, who);
     }
 };
 
@@ -334,25 +358,37 @@ concept IsFreezeRNGPolicy =
 
 struct NeverFreezeRNGPolicy :
     FreezeRNGPolicy<NeverFreezeRNGPolicy> {
-    static bool roll_for_freeze_impl(const int8_t) {
+    static bool roll_for_freeze_impl(const int8_t, const Who) {
         return false;
     }
 
-    static bool roll_for_thaw_impl(const int8_t) {
+    static bool roll_for_thaw_impl(const int8_t, const Who) {
         return true;
     }
 };
 
 struct AlwaysFreezeRNGPolicy :
     FreezeRNGPolicy<AlwaysFreezeRNGPolicy> {
-    static bool roll_for_freeze_impl(const int8_t) {
+    static bool roll_for_freeze_impl(const int8_t, const Who) {
         return true;
     }
 
-    static bool roll_for_thaw_impl(const int8_t) {
+    static bool roll_for_thaw_impl(const int8_t, const Who) {
         return false;
     }
 };
+
+struct OpponentOptimizedFreezeRNGPolicy :
+    FreezeRNGPolicy<OpponentOptimizedFreezeRNGPolicy> {
+    static bool roll_for_freeze_impl(const int8_t, const Who who) {
+        return who == Who::Player;
+    }
+
+    static bool roll_for_thaw_impl(const int8_t, const Who who) {
+        return who == Who::Opponent;
+    }
+};
+
 
 // Opponent Knowledge
 // =============================================================================
@@ -379,14 +415,16 @@ struct OpponentOptimizedKnowledgePolicy :
 // =============================================================================
 template <typename T>
 struct ParalysisRNGPolicy {
-    bool roll_for_paralysis(const uint8_t percent) const {
+    bool roll_for_paralysis(const uint8_t percent, const Who who) const {
         return static_cast<const T*>(this)->
-            roll_for_paralysis_impl(percent);
+            roll_for_paralysis_impl(percent, who);
     }
 
-    bool can_move_while_paralyzed(const uint8_t percent) const {
+    bool can_move_while_paralyzed(const uint8_t percent, const Who who) const {
         return static_cast<const T*>(this)->can_move_while_paralyzed_impl(
-            percent);
+            percent,
+            who
+        );
     }
 };
 
@@ -396,23 +434,34 @@ concept IsParalysisRNGPolicy =
 
 struct NeverParalyzeRNGPolicy :
     ParalysisRNGPolicy<NeverParalyzeRNGPolicy> {
-    static bool roll_for_paralysis_impl(const int8_t) {
+    static bool roll_for_paralysis_impl(const int8_t, const Who) {
         return false;
     }
 
-    static bool can_move_while_paralyzed_impl(const int8_t) {
+    static bool can_move_while_paralyzed_impl(const int8_t, const Who) {
         return true;
     }
 };
 
 struct AlwaysParalyzeRNGPolicy :
     ParalysisRNGPolicy<AlwaysParalyzeRNGPolicy> {
-    static bool roll_for_paralysis_impl(const int8_t) {
+    static bool roll_for_paralysis_impl(const int8_t, const Who) {
         return true;
     }
 
-    static bool can_move_while_paralyzed_impl(const int8_t) {
+    static bool can_move_while_paralyzed_impl(const int8_t, const Who) {
         return false;
+    }
+};
+
+struct OpponentOptimizedParalysisRNGPolicy :
+    ParalysisRNGPolicy<OpponentOptimizedParalysisRNGPolicy> {
+    static bool roll_for_paralysis_impl(const int8_t, const Who who) {
+        return who == Who::Player;
+    }
+
+    static bool can_move_while_paralyzed_impl(const int8_t, const Who who) {
+        return who == Who::Opponent;
     }
 };
 
@@ -627,10 +676,10 @@ concept IsAllowedPolicy =
     (derives_from_self<CritRNGPolicy, T> &&
         requires(const T& t) {
             {
-                t.roll_for_crit_impl(static_cast<double>(0.0))
+                t.roll_for_crit_impl(static_cast<double>(0.0), Who::Player)
             } -> std::same_as<bool>;
         }) ||
-    (derives_from_self<ConfusionStatusPolicy, T> &&
+    (derives_from_self<ConfusionStatusDamagePolicy, T> &&
         requires(const T& t) {
             {
                 t.roll_turns_confused_impl(Who::Player)
@@ -642,10 +691,10 @@ concept IsAllowedPolicy =
     (derives_from_self<ConfusionStatusRNGPolicy, T> &&
         requires(const T& t) {
             {
-                t.roll_for_confusion_impl(static_cast<double>(0.0))
+                t.roll_for_confusion_impl(static_cast<double>(0.0), Who::Player)
             } -> std::same_as<bool>;
             {
-                t.roll_for_self_hit_impl(static_cast<double>(0.0))
+                t.roll_for_self_hit_impl(static_cast<double>(0.0), Who::Player)
             } -> std::same_as<bool>;
         }) ||
     (derives_from_self<DamageRandomFactorPolicy, T> &&
@@ -655,7 +704,7 @@ concept IsAllowedPolicy =
     (derives_from_self<FlinchRNGPolicy, T> &&
         requires(const T& t) {
             {
-                t.roll_for_flinch_impl(static_cast<uint8_t>(0))
+                t.roll_for_flinch_impl(static_cast<uint8_t>(0), Who::Player)
             } -> std::same_as<bool>;
         }) ||
     (derives_from_self<OpponentKnowledgePolicy, T> &&
@@ -665,19 +714,22 @@ concept IsAllowedPolicy =
     (derives_from_self<FreezeRNGPolicy, T> &&
         requires(const T& t) {
             {
-                t.roll_for_freeze_impl(static_cast<uint8_t>(0))
+                t.roll_for_freeze_impl(static_cast<uint8_t>(0), Who::Player)
             } -> std::same_as<bool>;
             {
-                t.roll_for_thaw_impl(static_cast<uint8_t>(0))
+                t.roll_for_thaw_impl(static_cast<uint8_t>(0), Who::Player)
             } -> std::same_as<bool>;
         }) ||
     (derives_from_self<ParalysisRNGPolicy, T> &&
         requires(const T& t) {
             {
-                t.roll_for_paralysis_impl(static_cast<uint8_t>(0))
+                t.roll_for_paralysis_impl(static_cast<uint8_t>(0), Who::Player)
             } -> std::same_as<bool>;
             {
-                t.can_move_while_paralyzed_impl(static_cast<uint8_t>(0))
+                t.can_move_while_paralyzed_impl(
+                    static_cast<uint8_t>(0),
+                    Who::Player
+                )
             } -> std::same_as<bool>;
         }) ||
     (derives_from_self<SpeedAdvantagePolicy, T> &&
@@ -689,9 +741,6 @@ concept IsAllowedPolicy =
         requires(const T& t) {
             {
                 t.roll_turns_asleep_impl(Who::Player)
-            } -> std::same_as<uint8_t>;
-            {
-                t.roll_random_sleep_impl(Who::Player)
             } -> std::same_as<uint8_t>;
         }) ||
     (derives_from_self<SleepStatusRNGPolicy, T> &&
@@ -716,7 +765,7 @@ template <typename... Policies>
     contains_at_most_one<CanUseLessAccurateMovesPolicy, Policies...> &&
     contains_at_most_one<BurnRNGPolicy, Policies...> &&
     contains_at_most_one<CritRNGPolicy, Policies...> &&
-    contains_at_most_one<ConfusionStatusPolicy, Policies...> &&
+    contains_at_most_one<ConfusionStatusDamagePolicy, Policies...> &&
     contains_at_most_one<ConfusionStatusRNGPolicy, Policies...> &&
     contains_at_most_one<DamageRandomFactorPolicy, Policies...> &&
     contains_at_most_one<FlinchRNGPolicy, Policies...> &&
@@ -736,6 +785,70 @@ struct PolicyContainer : Policies... {
     explicit PolicyContainer(AccuracyPolicy policy) :
         AccuracyPolicy(std::move(policy)) {}
 };
+
+// Accuracy / Evasion
+static_assert(IsAllowedPolicy<NeverMissAccuracyEvasionFactorPolicy>);
+static_assert(IsAllowedPolicy<AlwaysMissAccuracyEvasionFactorPolicy>);
+static_assert(IsAllowedPolicy<RealAccuracyEvasionFactorPolicy>);
+
+// Can use less accurate moves
+static_assert(IsAllowedPolicy<OnlyOpponentCanUseLessAccurateMovesPolicy>);
+
+// Burn
+static_assert(IsAllowedPolicy<NeverBurnRNGPolicy>);
+static_assert(IsAllowedPolicy<AlwaysBurnRNGPolicy>);
+static_assert(IsAllowedPolicy<OpponentOptimizedBurnRNGPolicy>);
+
+// Critical hit
+static_assert(IsAllowedPolicy<NeverCritRNGPolicy>);
+static_assert(IsAllowedPolicy<AlwaysCritRNGPolicy>);
+static_assert(IsAllowedPolicy<OpponentOptimizedCritRNGPolicy>);
+
+// Confusion RNG
+static_assert(IsAllowedPolicy<NeverConfuseRNGPolicy>);
+static_assert(IsAllowedPolicy<AlwaysConfuseRNGPolicy>);
+static_assert(IsAllowedPolicy<OpponentOptimizedConfuseRNGPolicy>);
+
+// Confusion duration / damage
+static_assert(IsAllowedPolicy<OpponentOptimizedConfusionStatusDamagePolicy>);
+
+// Damage random factor
+static_assert(IsAllowedPolicy<OpponentOptimizedRandomFactorPolicy>);
+
+// Flinch
+static_assert(IsAllowedPolicy<NeverFlinchRNGPolicy>);
+static_assert(IsAllowedPolicy<AlwaysFlinchRNGPolicy>);
+static_assert(IsAllowedPolicy<OpponentOptimizedFlinchRNGPolicy>);
+
+// Freeze / thaw
+static_assert(IsAllowedPolicy<NeverFreezeRNGPolicy>);
+static_assert(IsAllowedPolicy<AlwaysFreezeRNGPolicy>);
+static_assert(IsAllowedPolicy<OpponentOptimizedFreezeRNGPolicy>);
+
+// Opponent knowledge
+static_assert(IsAllowedPolicy<OpponentOptimizedKnowledgePolicy>);
+
+// Paralysis
+static_assert(IsAllowedPolicy<NeverParalyzeRNGPolicy>);
+static_assert(IsAllowedPolicy<AlwaysParalyzeRNGPolicy>);
+static_assert(IsAllowedPolicy<OpponentOptimizedParalysisRNGPolicy>);
+
+// Sleep RNG
+static_assert(IsAllowedPolicy<NeverSleepRNGPolicy>);
+static_assert(IsAllowedPolicy<AlwaysSleepRNGPolicy>);
+
+// Sleep duration
+static_assert(IsAllowedPolicy<OpponentOptimizedSleepStatusPolicy>);
+
+// Speed advantage
+static_assert(IsAllowedPolicy<OpponentOptimizedSpeedAdvantagePolicy>);
+
+// Stat changes
+static_assert(IsAllowedPolicy<OpponentOptimizedStatChangePolicy>);
+
+// Logging
+static_assert(IsAllowedPolicy<NoLogging>);
+static_assert(IsAllowedPolicy<DebugLogging>);
 
 
 #endif //GEN_IV_BATTLE_FRONTIER_ANALYZER_POLICIES_H

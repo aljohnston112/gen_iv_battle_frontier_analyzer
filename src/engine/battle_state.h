@@ -87,11 +87,12 @@ enum class MoveStatusWithStage {
     MoveDisabled,
     MetronomeActive,
     Charging,
+    BehindSubstitute,
     MoveStatusWithStageCount
 };
 
 struct MoveStatusStage {
-    int8_t stage;
+    uint8_t stage;
     Move move;
 };
 
@@ -318,7 +319,7 @@ public:
         if (!has_move_status_with_stage(status)) {
             return 0;
         }
-        return static_cast<uint8_t>(move_status_stages[to_int(status)].stage);
+        return move_status_stages[to_int(status)].stage;
     }
 
     [[nodiscard]] Move get_move_status_move(
@@ -432,7 +433,9 @@ public:
         return current_status_condition;
     }
 
-    void try_set_status_condition(const StatusCondition status_condition) {
+    void try_set_status_condition(
+        const StatusCondition status_condition
+    ) {
         if (current_status_condition == StatusCondition::NoCondition &&
             !(status_condition == StatusCondition::Burn &&
                 has_type(PokemonType::Fire))

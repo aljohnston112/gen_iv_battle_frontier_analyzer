@@ -58,6 +58,7 @@ TEST(MoveExecution, ParalysisPreventsAttackOnTrueRoll) {
     roll_paralysis(
         always_paralyze_policy_container,
         battle_state.player,
+        Who::Player,
         0
     );
     EXPECT_EQ(
@@ -94,6 +95,7 @@ TEST(MoveExecution, ParalysisDoesNotPreventMoveOnFalseRoll) {
     roll_paralysis(
         always_paralyze_policy_container,
         battle_state.player,
+        Who::Player,
         0
     );
     EXPECT_EQ(
@@ -128,6 +130,7 @@ TEST(MoveExecution, ParalysisDropsSpeed) {
     roll_paralysis(
         always_paralyze_policy_container,
         state,
+        Who::Player,
         0
     );
     EXPECT_EQ(
@@ -151,6 +154,7 @@ TEST(MoveExecution, SpeedReturnsToNormalAfterParalysisIsCured) {
     roll_paralysis(
         always_paralyze_policy_container,
         state,
+        Who::Player,
         0
     );
 

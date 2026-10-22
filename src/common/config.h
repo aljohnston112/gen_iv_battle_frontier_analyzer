@@ -6,3 +6,4 @@ constexpr bool MULTI_THREADED = false;
 constexpr bool CHECK_UNIMPLEMENTED = true;
 
 constexpr uint8_t LEVEL = 50;
+constexpr uint8_t MAX_DEPTH = 7;

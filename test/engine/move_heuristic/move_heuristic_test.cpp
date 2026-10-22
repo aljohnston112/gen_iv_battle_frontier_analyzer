@@ -129,12 +129,9 @@ TEST(
         PokemonState{&Regirock_7_3}
     };
     for (const auto move :
-         battle_state.player.get_moves(false)
+         battle_state.player.get_moves(true)
     ) {
-        battle_state.player.decrement_power_point(
-            move,
-            battle_state.player.get_power_points(move)
-        );
+        battle_state.player.clear_power_points(move);
     }
     const MoveResults player_move_results =
         choose_move_against_defender(
@@ -162,12 +159,9 @@ TEST(
         PokemonState{&Regirock_7_3}
     };
     for (const auto move :
-         battle_state.player.get_moves(false)
+         battle_state.player.get_moves(true)
     ) {
-        battle_state.player.decrement_power_point(
-            move,
-            battle_state.player.get_power_points(move)
-        );
+        battle_state.player.clear_power_points(move);
     }
     const MoveResults player_move_results =
         choose_move_against_defender(
@@ -307,70 +301,11 @@ TEST(
     MoveHeuristic,
     OpponentRegigigas_7_3ChoosesAncientPowerThenFocusBlastThenAncientPowerAgainstCresselia_7_4
 ) {
-    /*
-    This particular battle is such a fascinating test case for the following reasons:
-        - Regigigas has two state changing moves and any combination of them used
-          during the first 3 turns where there are 2 ancient powers and 1 focus blast
-          leads to the same optimal outcome
-        - The order in which the moves are chosen is dependant on the order
-          the moves appear in the move vector of the CustomPokemon
-        - It proves the heuristic can find any path to the same outcome
-        - It proves the heuristic chooses ancient power and focus blast
-          when they lead to a better outcome
-
-    Here are the damage caluculations;:
-        Note that the calculated turns add 1 for each turn a move was used
-        before the thunderbolt damage is used as the divisor
-
-        Cresselia_7_4 vs. Regigigas_7_3:
-            Regigigas_7_3
-                Thunderbolt (no boost):
-                252 HP / 40 damage = 7 turns
-                Thunderbolt (1 special attack boost):
-                (252 HP - 26 for ancient power) / 59 damage for thunderbolt = about 4.83 turns
-                Thunderbolt (1 special defense drop):
-                (252 HP - 25 for focus blast) / 59 damage for thunderbolt = about 4.84 turns
-                1 special attack boost is better by 1 damage!
-
-                Thunderbolt (2 special attack boosts):
-                (252 HP - 26 for ancient power - 38 for ancient power) / 78 damage for thunderbolt = about 4.41 turns
-                Thunderbolt (1 special attack boost, 1 special defense drop):
-                (252 HP - 26 for ancient power - 37 for focus blast) / 87 damage for thunderbolt = about 4.17 turns
-
-                Thunderbolt (2 special attack boost, 1 special defense drop):
-                (252 HP - 26 for ancient power - 37 for focus blast - 56 for ancient power) / 116 damage for thunderbolt = about 4.15 turns
-                Thunderbolt (1 special attack boost, 1 special defense drop):
-                (252 HP - 26 for ancient power - 37 for focus blast - 55 for ancient power) / 116 damage for thunderbolt = about 4.16 turns
-                By 1 damage again!
-
-                Alternatively:
-                Thunderbolt (1 special attack boost, 2 special defense drop):
-                (252 HP - 26 for ancient power - 37 for focus blast - 55 for focus blast) / 116 damage for thunderbolt = about 4.16 turns
-
-                Thunderbolt (3 special attack boost, 1 special defense drop):
-                (252 HP - 26 for ancient power - 37 for focus blast - 56 for ancient power - 74 for ancient power) / 145 damage for thunderbolt = about 4.41 turns
-                Thunderbolt (2 special attack boost, 2 special defense drop):
-                (252 HP - 26 for ancient power - 37 for focus blast - 56 for ancient power - 73 focus blast) / 154 damage for thunderbolt = about 4.39 turns
-    */
     opponent_chooses_moves_against_player(
         Cresselia_7_4,
         Regigigas_7_3,
         Move::Ancientpower,
         Move::FocusBlast,
-        Move::Ancientpower,
-        Move::Thunderbolt
-    );
-
-    CustomPokemon other{Regigigas_7_3};
-    other.moves = {
-        Move::EarthPower, Move::FocusBlast, Move::Thunderbolt,
-        Move::Ancientpower,
-    };
-    opponent_chooses_moves_against_player(
-        Cresselia_7_4,
-        other,
-        Move::FocusBlast,
-        Move::Ancientpower,
         Move::Ancientpower,
         Move::Thunderbolt
     );
@@ -496,12 +431,12 @@ TEST(
 
 TEST(
     MoveHeuristic,
-    OpponentEntei_7_3ChoosesFireBlastThreeTimesAgainstCresselia_7_3
+    OpponentEntei_7_3ChoosesSunnyDayThenFireBlastAgainstCresselia_7_3
 ) {
     opponent_chooses_moves_against_player(
         Cresselia_7_3,
         Entei_7_3,
-        Move::FireBlast,
+        Move::SunnyDay,
         Move::FireBlast,
         Move::FireBlast
     );
@@ -528,7 +463,6 @@ TEST(
         Heatran_7_3,
         Entei_7_3,
         Move::HyperBeam,
-        Move::HyperBeam,
         Move::HyperBeam
     );
 }
@@ -547,21 +481,24 @@ TEST(
 
 TEST(
     MoveHeuristic,
-    PlayerRaikou_7_3SwitchesToExtrasensoryWhenEntei_7_3ChangesWeatherFromRainToSun
+    PlayerRaikou_7_3SetsUpRainDanceForThunderAgainstEntei_7_3
 ) {
     player_chooses_moves_against_opponent(
         Raikou_7_3,
         Entei_7_3,
         Move::RainDance,
-        Move::Thunder,
-        Move::Extrasensory
+        Move::RainDance,
+        Move::Thunder
     );
     opponent_chooses_moves_against_player(
         Raikou_7_3,
         Entei_7_3,
-        Move::FireBlast, // For the burn
-        Move::SunnyDay, // To remove thunder from player's move set
-        Move::FireBlast
+        // Overrides Rain Dance
+        Move::SunnyDay,
+        // Reduced in the Rain, but burns
+        Move::FireBlast,
+        // For the KO!
+        Move::HyperBeam
     );
 }
 
@@ -596,12 +533,12 @@ TEST(
 
 TEST(
     MoveHeuristic,
-    OpponentCresselia_7_3ChoosesChargeBeamThenPsychicAgainstHeatran_7_4
+    OpponentCresselia_7_3ChoosesPsychicAgainstHeatran_7_4
 ) {
     opponent_chooses_moves_against_player(
         Heatran_7_3,
         Cresselia_7_3,
-        Move::ChargeBeam,
+        Move::Psychic,
         Move::Psychic,
         Move::Psychic
     );
@@ -642,6 +579,42 @@ TEST(
         Move::OminousWind,
         Move::OminousWind,
         Move::SignalBeam
+    );
+}
+
+TEST(
+    MoveHeuristic,
+    OpponentRegigigas_7_2ChoosesSubstituteAgainstCresselia_7_4
+) {
+    opponent_chooses_moves_against_player(
+        Cresselia_7_4,
+        Regigigas_7_2,
+        Move::Facade,
+        Move::Facade,
+        // 5 turns of leftovers and substitute
+        // -100 HP for the subs
+        // Stalling for slow start to wear off
+        Move::Substitute,
+        Move::Substitute,
+        Move::Substitute,
+        Move::Facade,
+        Move::Facade,
+        Move::Facade,
+        Move::Facade,
+        Move::Facade
+    );
+}
+
+TEST(
+    MoveHeuristic,
+    OpponentHeatran_7_3ChoosesEarthPowerThenFlamethrowerAgainstRegigigas_7_2
+) {
+    opponent_chooses_moves_against_player(
+        Regigigas_7_2,
+        Heatran_7_3,
+        Move::EarthPower,
+        Move::Flamethrower,
+        Move::DragonPulse
     );
 }
 

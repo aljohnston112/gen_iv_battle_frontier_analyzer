@@ -433,39 +433,41 @@ SerebiiPokemon parse_pokemon(std::ifstream& input_stream) {
     return serebii_pokemon;
 }
 
-inline std::unordered_map<std::string, SerebiiPokemon>&
-get_serebii_pokemon_map() {
-    static auto SEREBII_PLAYER_POKEMON_MAP =
-        std::unordered_map<std::string, SerebiiPokemon>();
-    static std::once_flag flag;
-    std::call_once(flag, [] {
-        std::ifstream input_stream("./data/fresh/all_pokemon.json");
-        if (!input_stream) {
-            throw std::runtime_error(
-                "Failed to open data/fresh/all_pokemon.json");
-        }
-        std::string line;
-        // Leading {
-        std::getline(input_stream, line);
-        // Index_number : {
-        while (std::getline(input_stream, line)) {
-            if (line.find('{') != std::string::npos) {
-                auto pokemon = parse_pokemon(input_stream);
-                SEREBII_PLAYER_POKEMON_MAP[pokemon.name] = std::move(pokemon);
+namespace {
+    inline std::unordered_map<std::string, SerebiiPokemon>&
+    get_serebii_pokemon_map() {
+        static auto SEREBII_PLAYER_POKEMON_MAP =
+            std::unordered_map<std::string, SerebiiPokemon>();
+        static std::once_flag flag;
+        std::call_once(flag, [] {
+            std::ifstream input_stream("./data/fresh/all_pokemon.json");
+            if (!input_stream) {
+                throw std::runtime_error(
+                    "Failed to open data/fresh/all_pokemon.json");
             }
-        }
-        MOVE_INFO_MAP[to_int(Move::MoveCount)] = MoveInfo{
-            .name = "MoveCount",
-            .move = Move::MoveCount,
-            .type = PokemonType::NoType,
-            .category = Category::NO_CATEGORY,
-            .power = 0,
-            .accuracy = 0,
-            .power_points = 0,
-            .effect_percent = 0
-        };
-    });
-    return SEREBII_PLAYER_POKEMON_MAP;
+            std::string line;
+            // Leading {
+            std::getline(input_stream, line);
+            // Index_number : {
+            while (std::getline(input_stream, line)) {
+                if (line.find('{') != std::string::npos) {
+                    auto pokemon = parse_pokemon(input_stream);
+                    SEREBII_PLAYER_POKEMON_MAP[pokemon.name] = std::move(pokemon);
+                }
+            }
+            MOVE_INFO_MAP[to_int(Move::MoveCount)] = MoveInfo{
+                .name = "MoveCount",
+                .move = Move::MoveCount,
+                .type = PokemonType::NoType,
+                .category = Category::NO_CATEGORY,
+                .power = 0,
+                .accuracy = 0,
+                .power_points = 0,
+                .effect_percent = 0
+            };
+        });
+        return SEREBII_PLAYER_POKEMON_MAP;
+    }
 }
 
 const std::array<MoveInfo, to_int(Move::MoveCount) + 1>& get_all_moves() {

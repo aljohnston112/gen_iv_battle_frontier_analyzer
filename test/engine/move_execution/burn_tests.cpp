@@ -16,8 +16,8 @@ TEST(MoveExecution, FalseRollDoesNotBurn) {
     roll_burn(
         policy_container,
         defender,
-        10,
-        Who::Player
+        Who::Player,
+        10
     );
     EXPECT_NE(
         StatusCondition::Burn,
@@ -35,9 +35,9 @@ TEST(MoveExecution, TrueRollDoesBurn) {
     roll_burn(
         policy_container,
         defender,
-        10,
-        Who::Player
-    );
+        Who::Player,
+        10
+        );
     EXPECT_EQ(
         StatusCondition::Burn,
         defender.get_current_status_condition()
@@ -50,9 +50,9 @@ TEST(MoveExecution, EndOfTurnBurnDamageIsCorrect) {
     roll_burn(
         ALWAYS_BURN_POLICY_CONTAINER,
         defender,
-        10,
-        Who::Player
-    );
+        Who::Player,
+        10
+        );
     EXPECT_EQ(
         StatusCondition::Burn,
         defender.get_current_status_condition()

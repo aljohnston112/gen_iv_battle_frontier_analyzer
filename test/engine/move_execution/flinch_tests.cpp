@@ -222,7 +222,7 @@ namespace {
         static constexpr std::array<bool, sizeof...(Rolls)> rolls{Rolls...};
         mutable size_t next_roll = 0;
 
-        constexpr bool roll_for_flinch_impl(const int8_t) const {
+        constexpr bool roll_for_flinch_impl(const int8_t, const Who) const {
             if (next_roll >= rolls.size()) {
                 throw std::runtime_error("No more rolls for you");
             }
@@ -234,6 +234,7 @@ namespace {
             return rolls.size() - next_roll;
         }
     };
+    static_assert(IsAllowedPolicy<FlinchSequencePolicy<false, false>>);
 }
 
 TEST(MoveExecution, TwisterWithKingsRockDoesNotCauseFlinchOnTwoFalseRolls) {
@@ -244,7 +245,7 @@ TEST(MoveExecution, TwisterWithKingsRockDoesNotCauseFlinchOnTwoFalseRolls) {
 
     EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
 
-    auto container =
+    const auto container =
         FLINCH_POLICY_CONTAINER<FlinchSequencePolicy<false, false>>;
     execute_move(
         container,
@@ -268,7 +269,7 @@ TEST(
 
     EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
 
-    auto container =
+    const auto container =
         FLINCH_POLICY_CONTAINER<FlinchSequencePolicy<false, true>>;
     execute_move(
         container,
@@ -292,7 +293,7 @@ TEST(
 
     EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
 
-    auto container =
+    const auto container =
         FLINCH_POLICY_CONTAINER<FlinchSequencePolicy<true, false>>;
     execute_move(
         container,
@@ -313,7 +314,7 @@ TEST(MoveExecution, TwisterWithKingsRockCausesFlinchOnTwoTrueRolls) {
 
     EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
 
-    auto container =
+    const auto container =
         FLINCH_POLICY_CONTAINER<FlinchSequencePolicy<true, true>>;
     execute_move(
         container,
@@ -324,4 +325,40 @@ TEST(MoveExecution, TwisterWithKingsRockCausesFlinchOnTwoTrueRolls) {
 
     EXPECT_EQ(0, container.rolls_left());
     EXPECT_TRUE(battle_state.player.has_status(Status::Flinched));
+}
+
+TEST(MoveExecution, ZenHeadbuttCausesFlinchOnTrueRoll) {
+    BattleState battle_state{
+        PokemonState{&Heatran_7_3},
+        PokemonState{&Regigigas_7_2}
+    };
+
+    EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
+
+    execute_move(
+        ALWAYS_FLINCH_POLICY_CONTAINER,
+        battle_state,
+        Who::Opponent,
+        Move::ZenHeadbutt
+    );
+
+    EXPECT_TRUE(battle_state.player.has_status(Status::Flinched));
+}
+
+TEST(MoveExecution, ZenHeadbuttDoesNotCauseFlinchOnFalseRoll) {
+    BattleState battle_state{
+        PokemonState{&Heatran_7_3},
+        PokemonState{&Regigigas_7_2}
+    };
+
+    EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
+
+    execute_move(
+        NEVER_FLINCH_POLICY_CONTAINER,
+        battle_state,
+        Who::Opponent,
+        Move::ZenHeadbutt
+    );
+
+    EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
 }

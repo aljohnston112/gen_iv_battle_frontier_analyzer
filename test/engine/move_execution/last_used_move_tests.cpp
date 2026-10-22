@@ -202,3 +202,106 @@ TEST(MoveExecution, LastUsedMoveIsInvalidatedInBattleStateByChargeTurn) {
 
     EXPECT_EQ(Move::MoveCount, battle_state.get_last_used_move());
 }
+
+TEST(MoveExecution, LastUsedMoveIsInvalidatedWhenAttackerFlinches) {
+    BattleState battle_state{
+        PokemonState{&Regirock_7_3},
+        PokemonState{&Regirock_7_3}
+    };
+    constexpr auto policy_container =
+        DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING;
+    execute_move(
+        policy_container,
+        battle_state,
+        Who::Player,
+        Move::Curse
+    );
+
+    EXPECT_EQ(Move::Curse, battle_state.get_last_used_move());
+    EXPECT_EQ(Move::Curse, battle_state.player.get_last_used_move());
+
+    battle_state.player.set_status(Status::Flinched);
+
+    EXPECT_EQ(
+        0,
+        execute_move(
+            policy_container,
+            battle_state,
+            Who::Player,
+            Move::Rest
+        )
+    );
+    EXPECT_EQ(Move::MoveCount, battle_state.get_last_used_move());
+    EXPECT_EQ(Move::MoveCount, battle_state.player.get_last_used_move());
+}
+
+TEST(MoveExecution, LastUsedMoveIsInvalidatedWhenAttackerIsParalyzed) {
+    BattleState battle_state{
+        PokemonState{&Regirock_7_3},
+        PokemonState{&Regirock_7_3}
+    };
+    constexpr auto policy_container = ALWAYS_PARALYZE_POLICY_CONTAINER;
+    execute_move(
+        policy_container,
+        battle_state,
+        Who::Player,
+        Move::Curse
+    );
+
+    EXPECT_EQ(Move::Curse, battle_state.get_last_used_move());
+    EXPECT_EQ(Move::Curse, battle_state.player.get_last_used_move());
+
+    battle_state.player.try_set_status_condition(StatusCondition::Paralysis);
+
+    EXPECT_TRUE(
+        battle_state.player.has_status_condition(StatusCondition::Paralysis)
+    );
+    EXPECT_EQ(
+        0,
+        execute_move(
+            policy_container,
+            battle_state,
+            Who::Player,
+            Move::Rest
+        )
+    );
+    EXPECT_EQ(Move::MoveCount, battle_state.get_last_used_move());
+    EXPECT_EQ(Move::MoveCount, battle_state.player.get_last_used_move());
+}
+
+TEST(MoveExecution, LastUsedMoveIsInvalidatedWhenAttackerIsAsleep) {
+    BattleState battle_state{
+        PokemonState{&Regirock_7_3},
+        PokemonState{&Regirock_7_3}
+    };
+    constexpr auto policy_container =
+        ALWAYS_SLEEP_HIGH_RANDOM_SLEEP_POLICY_CONTAINER;
+    execute_move(
+        policy_container,
+        battle_state,
+        Who::Player,
+        Move::Curse
+    );
+
+    EXPECT_EQ(Move::Curse, battle_state.get_last_used_move());
+    EXPECT_EQ(Move::Curse, battle_state.player.get_last_used_move());
+
+    // Clear Lum Berry
+    battle_state.player.set_status_with_stage(StatusWithStage::Asleep, 5);
+    battle_state.player.set_status_with_stage(StatusWithStage::Asleep, 5);
+
+    EXPECT_TRUE(
+        battle_state.player.has_status_with_stage(StatusWithStage::Asleep)
+    );
+    EXPECT_EQ(
+        0,
+        execute_move(
+            policy_container,
+            battle_state,
+            Who::Player,
+            Move::Rest
+        )
+    );
+    EXPECT_EQ(Move::MoveCount, battle_state.get_last_used_move());
+    EXPECT_EQ(Move::MoveCount, battle_state.player.get_last_used_move());
+}

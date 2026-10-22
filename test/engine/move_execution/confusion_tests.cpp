@@ -109,14 +109,14 @@ TEST(MoveExecution, BeingConfusedPreventsAttackingOnTrueRoll) {
 namespace {
     template <typename T>
     concept IsConfusionTestCase = requires {
-        requires IsConfusionStatusPolicy<typename T::ConfusionStatusPolicyType>;
+        requires IsConfusionStatusDamagePolicy<typename T::ConfusionStatusPolicyType>;
         requires IsConfusionStatusRNGPolicy<typename
             T::ConfusionStatusRNGPolicyType>;
         { +T::ExpectedValue } -> std::same_as<int32_t>;
     };
 
     template <
-        IsConfusionStatusPolicy ConfusionStatusPolicy,
+        IsConfusionStatusDamagePolicy ConfusionStatusPolicy,
         IsConfusionStatusRNGPolicy ConfusionStatusRNGPolicy,
         int32_t Value
     >
@@ -181,7 +181,7 @@ TEST(MoveExecution, RandomConfusionDamageIsCorrect) {
 }
 
 namespace {
-    template <IsConfusionStatusPolicy T>
+    template <IsConfusionStatusDamagePolicy T>
     void confused_damage_is_correct_on_true_roll(
         BattleState&& battle_state
     ) {
@@ -220,7 +220,7 @@ namespace {
     }
 }
 
-template <IsConfusionStatusPolicy... Policies>
+template <IsConfusionStatusDamagePolicy... Policies>
 static void confused_damage_is_correct_on_true_roll() {
     (
         confused_damage_is_correct_on_true_roll<Policies>(

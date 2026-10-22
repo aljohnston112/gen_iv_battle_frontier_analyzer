@@ -1,14 +1,11 @@
 #pragma once
-#include <ranges>
 #include <vector>
 
 #include "battle_state.h"
-#include "move_execution.h"
 #include "move_heuristic.h"
 #include "pokemon.h"
 #include "policies.h"
 #include "thread_pool.h"
-#include "serebii_pokemon_data_source.h"
 
 template <typename... Policies>
 class BattleEngine {
@@ -48,7 +45,7 @@ inline BattleResultEntry single_battle(
             PolicyContainer<
                 NeverMissAccuracyEvasionFactorPolicy,
                 OnlyOpponentCanUseLessAccurateMovesPolicy,
-                OpponentOptimizedConfusionStatusPolicy,
+                OpponentOptimizedConfusionStatusDamagePolicy,
                 NeverConfuseRNGPolicy,
                 NeverCritRNGPolicy,
                 OpponentOptimizedRandomFactorPolicy,

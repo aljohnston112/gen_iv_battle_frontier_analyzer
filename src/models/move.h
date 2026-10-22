@@ -1076,6 +1076,7 @@ enum class MoveFlag {
     CANT_BE_USED_DURING_GRAVITY,
     POWERS_IRON_FIST,
     TARGETS_SELF,
+    BYPASSES_SUBSTITUTE,
     COUNT
 };
 
@@ -1089,12 +1090,12 @@ inline constexpr std::array<
         flag.fill(false);
     }
 
+    // @formatter:off
     flags[to_int(Move::BulletPunch)][to_int(MoveFlag::POWERS_IRON_FIST)] = true;
     flags[to_int(Move::CometPunch)][to_int(MoveFlag::POWERS_IRON_FIST)] = true;
     flags[to_int(Move::DizzyPunch)][to_int(MoveFlag::POWERS_IRON_FIST)] = true;
     flags[to_int(Move::DrainPunch)][to_int(MoveFlag::POWERS_IRON_FIST)] = true;
-    flags[to_int(Move::Dynamicpunch)][to_int(MoveFlag::POWERS_IRON_FIST)] =
-        true;
+    flags[to_int(Move::Dynamicpunch)][to_int(MoveFlag::POWERS_IRON_FIST)] = true;
     flags[to_int(Move::FirePunch)][to_int(MoveFlag::POWERS_IRON_FIST)] = true;
     flags[to_int(Move::FocusPunch)][to_int(MoveFlag::POWERS_IRON_FIST)] = true;
     flags[to_int(Move::HammerArm)][to_int(MoveFlag::POWERS_IRON_FIST)] = true;
@@ -1102,8 +1103,7 @@ inline constexpr std::array<
     flags[to_int(Move::MachPunch)][to_int(MoveFlag::POWERS_IRON_FIST)] = true;
     flags[to_int(Move::ShadowPunch)][to_int(MoveFlag::POWERS_IRON_FIST)] = true;
     flags[to_int(Move::SkyUppercut)][to_int(MoveFlag::POWERS_IRON_FIST)] = true;
-    flags[to_int(Move::ThunderPunch)][to_int(MoveFlag::POWERS_IRON_FIST)] =
-        true;
+    flags[to_int(Move::ThunderPunch)][to_int(MoveFlag::POWERS_IRON_FIST)] = true;
 
     flags[to_int(Move::Pound)][to_int(MoveFlag::HAS_POWER)] = true;
     flags[to_int(Move::DoubleSlap)][to_int(MoveFlag::HAS_POWER)] = true;
@@ -1330,6 +1330,7 @@ inline constexpr std::array<
     flags[to_int(Move::OminousWind)][to_int(MoveFlag::HAS_POWER)] = true;
     flags[to_int(Move::ShadowForce)][to_int(MoveFlag::HAS_POWER)] = true;
     flags[to_int(Move::UTurn)][to_int(MoveFlag::HAS_POWER)] = true;
+    flags[to_int(Move::Facade)][to_int(MoveFlag::HAS_POWER)] = true;
 
     flags[to_int(Move::Absorb)][to_int(MoveFlag::HEALS_ATTACKER)] = true;
     flags[to_int(Move::MegaDrain)][to_int(MoveFlag::HEALS_ATTACKER)] = true;
@@ -1345,312 +1346,163 @@ inline constexpr std::array<
     flags[to_int(Move::DrainPunch)][to_int(MoveFlag::HEALS_ATTACKER)] = true;
     flags[to_int(Move::HealOrder)][to_int(MoveFlag::HEALS_ATTACKER)] = true;
 
-    flags[to_int(Move::Recover)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::Softboiled)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::MilkDrink)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::MorningSun)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::Synthesis)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::Moonlight)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::SlackOff)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::HealOrder)][to_int(MoveFlag::TARGETS_SELF)] = true;
-
-    flags[to_int(Move::SwordsDance)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
-        true;
+    flags[to_int(Move::SwordsDance)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
     flags[to_int(Move::Growth)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
-    flags[to_int(Move::Meditate)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
-        true;
+    flags[to_int(Move::Meditate)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
     flags[to_int(Move::Agility)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
-    flags[to_int(Move::DoubleTeam)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
-        true;
+    flags[to_int(Move::DoubleTeam)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
     flags[to_int(Move::Harden)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
-    flags[to_int(Move::Minimize)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
-        true;
-    flags[to_int(Move::Withdraw)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
-        true;
+    flags[to_int(Move::Minimize)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
+    flags[to_int(Move::Withdraw)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
     flags[to_int(Move::Amnesia)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
-    flags[to_int(Move::AcidArmor)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
-        true;
+    flags[to_int(Move::AcidArmor)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
     flags[to_int(Move::Sharpen)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
-    flags[to_int(Move::TailGlow)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
-        true;
-    flags[to_int(Move::CosmicPower)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
-        true;
-    flags[to_int(Move::IronDefense)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
-        true;
+    flags[to_int(Move::TailGlow)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
+    flags[to_int(Move::CosmicPower)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
+    flags[to_int(Move::IronDefense)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
     flags[to_int(Move::Howl)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
     flags[to_int(Move::BulkUp)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
-    flags[to_int(Move::CalmMind)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
-        true;
-    flags[to_int(Move::DragonDance)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
-        true;
-    flags[to_int(Move::RockPolish)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
-        true;
-    flags[to_int(Move::NastyPlot)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
-        true;
-    flags[to_int(Move::DefendOrder)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] =
-        true;
+    flags[to_int(Move::CalmMind)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
+    flags[to_int(Move::DragonDance)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
+    flags[to_int(Move::RockPolish)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
+    flags[to_int(Move::NastyPlot)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
+    flags[to_int(Move::DefendOrder)][to_int(MoveFlag::BOOSTS_ATTACKER_STAT)] = true;
 
-    flags[to_int(Move::SwordsDance)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::Growth)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::Meditate)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::Agility)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::DoubleTeam)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::Harden)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::Minimize)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::Withdraw)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::Amnesia)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::AcidArmor)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::Sharpen)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::TailGlow)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::CosmicPower)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::IronDefense)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::Howl)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::BulkUp)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::CalmMind)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::DragonDance)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::RockPolish)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::NastyPlot)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::DefendOrder)][to_int(MoveFlag::TARGETS_SELF)] = true;
-
-    flags[to_int(Move::SwordsDance)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)]
-        = true;
-    flags[to_int(Move::Meditate)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)] =
-        true;
-    flags[to_int(Move::Sharpen)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)] =
-        true;
-    flags[to_int(Move::BellyDrum)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)] =
-        true;
-    flags[to_int(Move::MetalClaw)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)] =
-        true;
-    flags[to_int(Move::MeteorMash)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)] =
-        true;
+    flags[to_int(Move::SwordsDance)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)] = true;
+    flags[to_int(Move::Meditate)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)] = true;
+    flags[to_int(Move::Sharpen)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)] = true;
+    flags[to_int(Move::BellyDrum)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)] = true;
+    flags[to_int(Move::MetalClaw)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)] = true;
+    flags[to_int(Move::MeteorMash)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)] = true;
     flags[to_int(Move::Howl)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)] = true;
-    flags[to_int(Move::BulkUp)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)] =
-        true;
-    flags[to_int(Move::DragonDance)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)]
-        = true;
+    flags[to_int(Move::BulkUp)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)] = true;
+    flags[to_int(Move::DragonDance)][to_int(MoveFlag::BOOSTS_ATTACKERS_ATTACK)] = true;
 
-    flags[to_int(Move::Superpower)][to_int(MoveFlag::LOWERS_ATTACKERS_ATTACK)] =
-        true;
+    flags[to_int(Move::Superpower)][to_int(MoveFlag::LOWERS_ATTACKERS_ATTACK)] = true;
 
-    flags[to_int(Move::Harden)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)] =
-        true;
-    flags[to_int(Move::Withdraw)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)] =
-        true;
-    flags[to_int(Move::SkullBash)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)] =
-        true;
-    flags[to_int(Move::AcidArmor)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)] =
-        true;
-    flags[to_int(Move::SteelWing)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE_ONE_STAGE_10)] =
-        true;
-    flags[to_int(Move::CosmicPower)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)]
-        = true;
-    flags[to_int(Move::IronDefense)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)]
-        = true;
-    flags[to_int(Move::BulkUp)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)] =
-        true;
-    flags[to_int(Move::DefendOrder)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)]
-        = true;
+    flags[to_int(Move::Harden)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)] = true;
+    flags[to_int(Move::Withdraw)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)] = true;
+    flags[to_int(Move::SkullBash)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)] = true;
+    flags[to_int(Move::AcidArmor)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)] = true;
+    flags[to_int(Move::SteelWing)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE_ONE_STAGE_10)] = true;
+    flags[to_int(Move::CosmicPower)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)]= true;
+    flags[to_int(Move::IronDefense)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)]= true;
+    flags[to_int(Move::BulkUp)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)] = true;
+    flags[to_int(Move::DefendOrder)][to_int(MoveFlag::BOOSTS_ATTACKERS_DEFENSE)]= true;
 
-    flags[to_int(Move::Superpower)][to_int(MoveFlag::LOWERS_ATTACKERS_DEFENSE)]
-        = true;
-    flags[to_int(Move::CloseCombat)][to_int(MoveFlag::LOWERS_ATTACKERS_DEFENSE)]
-        = true;
+    flags[to_int(Move::Superpower)][to_int(MoveFlag::LOWERS_ATTACKERS_DEFENSE)] = true;
+    flags[to_int(Move::CloseCombat)][to_int(MoveFlag::LOWERS_ATTACKERS_DEFENSE)] = true;
 
-    flags[to_int(Move::Overheat)][to_int(
-        MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK)] = true;
-    flags[to_int(Move::PsychoBoost)][to_int(
-        MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK)] = true;
-    flags[to_int(Move::DracoMeteor)][to_int(
-        MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK_TWO_STAGES)] = true;
-    flags[to_int(Move::LeafStorm)][to_int(
-        MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK)] = true;
+    flags[to_int(Move::Overheat)][to_int(MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK)] = true;
+    flags[to_int(Move::PsychoBoost)][to_int(MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK)] = true;
+    flags[to_int(Move::DracoMeteor)][to_int(MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK_TWO_STAGES)] = true;
+    flags[to_int(Move::LeafStorm)][to_int(MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK)] = true;
 
-    flags[to_int(Move::Growth)][to_int(
-        MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK)] = true;
-    flags[to_int(Move::TailGlow)][to_int(
-        MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK)] = true;
-    flags[to_int(Move::CalmMind)][to_int(
-        MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK)] = true;
-    flags[to_int(Move::NastyPlot)][to_int(
-        MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK)] = true;
-    flags[to_int(Move::ChargeBeam)][to_int(
-        MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_70)] = true;
+    flags[to_int(Move::Growth)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK)] = true;
+    flags[to_int(Move::TailGlow)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK)] = true;
+    flags[to_int(Move::CalmMind)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK)] = true;
+    flags[to_int(Move::NastyPlot)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK)] = true;
+    flags[to_int(Move::ChargeBeam)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_70)] = true;
 
-    flags[to_int(Move::Amnesia)][to_int(
-        MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE)] = true;
-    flags[to_int(Move::CosmicPower)][to_int(
-        MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE)] = true;
-    flags[to_int(Move::CalmMind)][to_int(
-        MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE)] = true;
-    flags[to_int(Move::DefendOrder)][to_int(
-        MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE)] = true;
+    flags[to_int(Move::Amnesia)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE)] = true;
+    flags[to_int(Move::CosmicPower)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE)] = true;
+    flags[to_int(Move::CalmMind)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE)] = true;
+    flags[to_int(Move::DefendOrder)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE)] = true;
 
-    flags[to_int(Move::CloseCombat)][to_int(
-        MoveFlag::LOWERS_ATTACKERS_SPECIAL_DEFENSE)] = true;
+    flags[to_int(Move::CloseCombat)][to_int(MoveFlag::LOWERS_ATTACKERS_SPECIAL_DEFENSE)] = true;
 
-    flags[to_int(Move::Agility)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPEED)] =
-        true;
-    flags[to_int(Move::DragonDance)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPEED)] =
-        true;
-    flags[to_int(Move::RockPolish)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPEED)] =
-        true;
+    flags[to_int(Move::Agility)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPEED)] = true;
+    flags[to_int(Move::DragonDance)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPEED)] = true;
+    flags[to_int(Move::RockPolish)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPEED)] = true;
 
-    flags[to_int(Move::HammerArm)][to_int(
-            MoveFlag::LOWERS_ATTACKERS_SPEED_ONE_STAGE)] =
-        true;
+    flags[to_int(Move::HammerArm)][to_int(MoveFlag::LOWERS_ATTACKERS_SPEED_ONE_STAGE)] = true;
 
-    flags[to_int(Move::DoubleTeam)][to_int(MoveFlag::BOOSTS_ATTACKERS_EVASION)]
-        = true;
-    flags[to_int(Move::Minimize)][to_int(MoveFlag::BOOSTS_ATTACKERS_EVASION)] =
-        true;
+    flags[to_int(Move::DoubleTeam)][to_int(MoveFlag::BOOSTS_ATTACKERS_EVASION)] = true;
+    flags[to_int(Move::Minimize)][to_int(MoveFlag::BOOSTS_ATTACKERS_EVASION)] = true;
 
-    flags[to_int(Move::FocusEnergy)][to_int(
-        MoveFlag::BOOSTS_ATTACKERS_CRIT_RATE)] = true;
+    flags[to_int(Move::FocusEnergy)][to_int(MoveFlag::BOOSTS_ATTACKERS_CRIT_RATE)] = true;
 
-    flags[to_int(Move::FocusEnergy)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Ancientpower)][to_int(MoveFlag::OMNI_BOOSTS_ATTACKER)] = true;
+    flags[to_int(Move::SilverWind)][to_int(MoveFlag::OMNI_BOOSTS_ATTACKER)] = true;
+    flags[to_int(Move::OminousWind)][to_int(MoveFlag::OMNI_BOOSTS_ATTACKER)] = true;
 
-    flags[to_int(Move::Ancientpower)][to_int(MoveFlag::OMNI_BOOSTS_ATTACKER)] =
-        true;
-    flags[to_int(Move::SilverWind)][to_int(MoveFlag::OMNI_BOOSTS_ATTACKER)] =
-        true;
-    flags[to_int(Move::OminousWind)][to_int(MoveFlag::OMNI_BOOSTS_ATTACKER)] =
-        true;
-
-    flags[to_int(Move::Swagger)][to_int(MoveFlag::RAISES_DEFENDER_ATTACK)] =
-        true;
+    flags[to_int(Move::Swagger)][to_int(MoveFlag::RAISES_DEFENDER_ATTACK)] = true;
 
     flags[to_int(Move::Growl)][to_int(MoveFlag::LOWERS_DEFENDER_ATTACK)] = true;
-    flags[to_int(Move::AuroraBeam)][to_int(MoveFlag::LOWERS_DEFENDER_ATTACK)] =
-        true;
+    flags[to_int(Move::AuroraBeam)][to_int(MoveFlag::LOWERS_DEFENDER_ATTACK)] = true;
     flags[to_int(Move::Charm)][to_int(MoveFlag::LOWERS_DEFENDER_ATTACK)] = true;
-    flags[to_int(Move::Memento)][to_int(MoveFlag::LOWERS_DEFENDER_ATTACK)] =
-        true;
-    flags[to_int(Move::Featherdance)][to_int(MoveFlag::LOWERS_DEFENDER_ATTACK)]
-        = true;
-    flags[to_int(Move::Tickle)][to_int(MoveFlag::LOWERS_DEFENDER_ATTACK)] =
-        true;
+    flags[to_int(Move::Memento)][to_int(MoveFlag::LOWERS_DEFENDER_ATTACK)] = true;
+    flags[to_int(Move::Featherdance)][to_int(MoveFlag::LOWERS_DEFENDER_ATTACK)] = true;
+    flags[to_int(Move::Tickle)][to_int(MoveFlag::LOWERS_DEFENDER_ATTACK)] = true;
 
-    flags[to_int(Move::Flatter)][to_int(
-        MoveFlag::RAISES_DEFENDER_SPECIAL_ATTACK)] = true;
+    flags[to_int(Move::Flatter)][to_int(MoveFlag::RAISES_DEFENDER_SPECIAL_ATTACK)] = true;
 
-    flags[to_int(Move::Memento)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK)] = true;
-    flags[to_int(Move::MistBall)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK_ONE_STAGE_50)] = true;
+    flags[to_int(Move::Memento)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK)] = true;
+    flags[to_int(Move::MistBall)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK_ONE_STAGE_50)] = true;
 
-    flags[to_int(Move::TailWhip)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] =
-        true;
+    flags[to_int(Move::TailWhip)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] = true;
     flags[to_int(Move::Leer)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] = true;
-    flags[to_int(Move::Screech)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] =
-        true;
-    flags[to_int(Move::IronTail)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] =
-        true;
-    flags[to_int(Move::Crunch)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] =
-        true;
-    flags[to_int(Move::RockSmash)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] =
-        true;
-    flags[to_int(Move::CrushClaw)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] =
-        true;
-    flags[to_int(Move::Tickle)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] =
-        true;
+    flags[to_int(Move::Screech)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] = true;
+    flags[to_int(Move::IronTail)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] = true;
+    flags[to_int(Move::Crunch)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] = true;
+    flags[to_int(Move::RockSmash)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] = true;
+    flags[to_int(Move::CrushClaw)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] = true;
+    flags[to_int(Move::Tickle)][to_int(MoveFlag::LOWERS_DEFENDER_DEFENSE)] = true;
 
-    flags[to_int(Move::Acid)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)]
-        = true;
-    flags[to_int(Move::Psychic)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
-    flags[to_int(Move::ShadowBall)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_20)] = true;
-    flags[to_int(Move::LusterPurge)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
-    flags[to_int(Move::FakeTears)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
-    flags[to_int(Move::MetalSound)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
-    flags[to_int(Move::BugBuzz)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
-    flags[to_int(Move::FocusBlast)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
-    flags[to_int(Move::EnergyBall)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
-    flags[to_int(Move::EarthPower)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
-    flags[to_int(Move::FlashCannon)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
-    flags[to_int(Move::SeedFlare)][to_int(
-        MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
+    flags[to_int(Move::Acid)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
+    flags[to_int(Move::Psychic)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
+    flags[to_int(Move::ShadowBall)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_20)] = true;
+    flags[to_int(Move::LusterPurge)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
+    flags[to_int(Move::FakeTears)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
+    flags[to_int(Move::MetalSound)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
+    flags[to_int(Move::BugBuzz)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
+    flags[to_int(Move::FocusBlast)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
+    flags[to_int(Move::EnergyBall)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
+    flags[to_int(Move::EarthPower)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
+    flags[to_int(Move::FlashCannon)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
+    flags[to_int(Move::SeedFlare)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
 
-    flags[to_int(Move::Bubblebeam)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] =
-        true;
-    flags[to_int(Move::StringShot)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] =
-        true;
-    flags[to_int(Move::Constrict)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] =
-        true;
+    flags[to_int(Move::Bubblebeam)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
+    flags[to_int(Move::StringShot)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
+    flags[to_int(Move::Constrict)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
     flags[to_int(Move::Bubble)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
-    flags[to_int(Move::CottonSpore)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] =
-        true;
-    flags[to_int(Move::ScaryFace)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] =
-        true;
-    flags[to_int(Move::IcyWind)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] =
-        true;
-    flags[to_int(Move::RockTomb)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] =
-        true;
-    flags[to_int(Move::MudShot)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] =
-        true;
+    flags[to_int(Move::CottonSpore)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
+    flags[to_int(Move::ScaryFace)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
+    flags[to_int(Move::IcyWind)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
+    flags[to_int(Move::RockTomb)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
+    flags[to_int(Move::MudShot)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
 
-    flags[to_int(Move::SandAttack)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)]
-        = true;
-    flags[to_int(Move::Smokescreen)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)]
-        = true;
-    flags[to_int(Move::Kinesis)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)] =
-        true;
-    flags[to_int(Move::Flash)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)] =
-        true;
-    flags[to_int(Move::MudSlap)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)] =
-        true;
-    flags[to_int(Move::Octazooka)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)] =
-        true;
-    flags[to_int(Move::MuddyWater)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)]
-        = true;
-    flags[to_int(Move::MudBomb)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)] =
-        true;
-    flags[to_int(Move::MirrorShot)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)]
-        = true;
+    flags[to_int(Move::SandAttack)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)] = true;
+    flags[to_int(Move::Smokescreen)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)] = true;
+    flags[to_int(Move::Kinesis)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)] = true;
+    flags[to_int(Move::Flash)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)] = true;
+    flags[to_int(Move::MudSlap)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)] = true;
+    flags[to_int(Move::Octazooka)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)] = true;
+    flags[to_int(Move::MuddyWater)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)] = true;
+    flags[to_int(Move::MudBomb)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)] = true;
+    flags[to_int(Move::MirrorShot)][to_int(MoveFlag::LOWERS_DEFENDER_ACCURACY)] = true;
 
-    flags[to_int(Move::SweetScent)][to_int(MoveFlag::LOWERS_DEFENDER_EVASION)] =
-        true;
+    flags[to_int(Move::SweetScent)][to_int(MoveFlag::LOWERS_DEFENDER_EVASION)] = true;
 
     flags[to_int(Move::Swift)][to_int(MoveFlag::BYPASSES_ACCURACY)] = true;
-    flags[to_int(Move::FaintAttack)][to_int(MoveFlag::BYPASSES_ACCURACY)] =
-        true;
+    flags[to_int(Move::FaintAttack)][to_int(MoveFlag::BYPASSES_ACCURACY)] = true;
     flags[to_int(Move::VitalThrow)][to_int(MoveFlag::BYPASSES_ACCURACY)] = true;
-    flags[to_int(Move::ShadowPunch)][to_int(MoveFlag::BYPASSES_ACCURACY)] =
-        true;
+    flags[to_int(Move::ShadowPunch)][to_int(MoveFlag::BYPASSES_ACCURACY)] = true;
     flags[to_int(Move::AerialAce)][to_int(MoveFlag::BYPASSES_ACCURACY)] = true;
-    flags[to_int(Move::MagicalLeaf)][to_int(MoveFlag::BYPASSES_ACCURACY)] =
-        true;
+    flags[to_int(Move::MagicalLeaf)][to_int(MoveFlag::BYPASSES_ACCURACY)] = true;
     flags[to_int(Move::ShockWave)][to_int(MoveFlag::BYPASSES_ACCURACY)] = true;
     flags[to_int(Move::AuraSphere)][to_int(MoveFlag::BYPASSES_ACCURACY)] = true;
     flags[to_int(Move::MagnetBomb)][to_int(MoveFlag::BYPASSES_ACCURACY)] = true;
 
-    flags[to_int(Move::Bounce)][to_int(MoveFlag::CANT_BE_USED_DURING_GRAVITY)] =
-        true;
-    flags[to_int(Move::Fly)][to_int(MoveFlag::CANT_BE_USED_DURING_GRAVITY)] =
-        true;
-    flags[to_int(Move::HighJumpKick)][to_int(
-        MoveFlag::CANT_BE_USED_DURING_GRAVITY)] = true;
-    flags[to_int(Move::JumpKick)][to_int(MoveFlag::CANT_BE_USED_DURING_GRAVITY)]
-        = true;
-    flags[to_int(Move::MagnetRise)][to_int(
-        MoveFlag::CANT_BE_USED_DURING_GRAVITY)] = true;
-    flags[to_int(Move::Splash)][to_int(MoveFlag::CANT_BE_USED_DURING_GRAVITY)] =
-        true;
+    flags[to_int(Move::Bounce)][to_int(MoveFlag::CANT_BE_USED_DURING_GRAVITY)] = true;
+    flags[to_int(Move::Fly)][to_int(MoveFlag::CANT_BE_USED_DURING_GRAVITY)] = true;
+    flags[to_int(Move::HighJumpKick)][to_int(MoveFlag::CANT_BE_USED_DURING_GRAVITY)] = true;
+    flags[to_int(Move::JumpKick)][to_int(MoveFlag::CANT_BE_USED_DURING_GRAVITY)] = true;
+    flags[to_int(Move::MagnetRise)][to_int(MoveFlag::CANT_BE_USED_DURING_GRAVITY)] = true;
+    flags[to_int(Move::Splash)][to_int(MoveFlag::CANT_BE_USED_DURING_GRAVITY)] = true;
 
     flags[to_int(Move::Detect)][to_int(MoveFlag::PROTECTS_USER)] = true;
     flags[to_int(Move::Protect)][to_int(MoveFlag::PROTECTS_USER)] = true;
-
-    flags[to_int(Move::Detect)][to_int(MoveFlag::TARGETS_SELF)] = true;
-    flags[to_int(Move::Protect)][to_int(MoveFlag::TARGETS_SELF)] = true;
 
     flags[to_int(Move::Disable)][to_int(MoveFlag::IS_OTHER)] = true;
     flags[to_int(Move::Mist)][to_int(MoveFlag::IS_OTHER)] = true;
@@ -1808,7 +1660,39 @@ inline constexpr std::array<
     flags[to_int(Move::BugBite)][to_int(MoveFlag::IS_OTHER)] = true;
     flags[to_int(Move::LunarDance)][to_int(MoveFlag::IS_OTHER)] = true;
     flags[to_int(Move::CrushGrip)][to_int(MoveFlag::IS_OTHER)] = true;
-    
+
+    flags[to_int(Move::Recover)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Softboiled)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::MilkDrink)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::MorningSun)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Synthesis)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Moonlight)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::SlackOff)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::HealOrder)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::SwordsDance)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Growth)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Meditate)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Agility)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::DoubleTeam)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Harden)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Minimize)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Withdraw)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Amnesia)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::AcidArmor)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Sharpen)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::TailGlow)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::CosmicPower)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::IronDefense)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Howl)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::BulkUp)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::CalmMind)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::DragonDance)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::RockPolish)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::NastyPlot)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::DefendOrder)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::FocusEnergy)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Detect)][to_int(MoveFlag::TARGETS_SELF)] = true;
+    flags[to_int(Move::Protect)][to_int(MoveFlag::TARGETS_SELF)] = true;
     flags[to_int(Move::Teleport)][to_int(MoveFlag::TARGETS_SELF)] = true;
     flags[to_int(Move::DefenseCurl)][to_int(MoveFlag::TARGETS_SELF)] = true;
     flags[to_int(Move::Barrier)][to_int(MoveFlag::TARGETS_SELF)] = true;
@@ -1854,77 +1738,44 @@ inline constexpr std::array<
     flags[to_int(Move::Fissure)][to_int(MoveFlag::KOS_IN_ONE_HIT)] = true;
     flags[to_int(Move::SheerCold)][to_int(MoveFlag::KOS_IN_ONE_HIT)] = true;
 
-    flags[to_int(Move::Selfdestruct)][to_int(MoveFlag::MAKES_ATTACKER_FAINT)] =
-        true;
-    flags[to_int(Move::Explosion)][to_int(MoveFlag::MAKES_ATTACKER_FAINT)] =
-        true;
+    flags[to_int(Move::Selfdestruct)][to_int(MoveFlag::MAKES_ATTACKER_FAINT)] = true;
+    flags[to_int(Move::Explosion)][to_int(MoveFlag::MAKES_ATTACKER_FAINT)] = true;
     flags[to_int(Move::Memento)][to_int(MoveFlag::MAKES_ATTACKER_FAINT)] = true;
 
-    flags[to_int(Move::KarateChop)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)]
-        = true;
-    flags[to_int(Move::RazorWind)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)]
-        = true;
-    flags[to_int(Move::RazorLeaf)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)]
-        = true;
-    flags[to_int(Move::SkyAttack)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)]
-        = true;
-    flags[to_int(Move::Crabhammer)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)]
-        = true;
-    flags[to_int(Move::Slash)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] =
-        true;
-    flags[to_int(Move::Aeroblast)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)]
-        = true;
-    flags[to_int(Move::CrossChop)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)]
-        = true;
-    flags[to_int(Move::BlazeKick)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)]
-        = true;
-    flags[to_int(Move::AirCutter)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)]
-        = true;
-    flags[to_int(Move::PoisonTail)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)]
-        = true;
-    flags[to_int(Move::LeafBlade)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)]
-        = true;
-    flags[to_int(Move::NightSlash)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)]
-        = true;
-    flags[to_int(Move::ShadowClaw)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)]
-        = true;
-    flags[to_int(Move::PsychoCut)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)]
-        = true;
-    flags[to_int(Move::CrossPoison)][
-        to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
-    flags[to_int(Move::StoneEdge)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)]
-        = true;
-    flags[to_int(Move::AttackOrder)][
-        to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
-    flags[to_int(Move::SpacialRend)][
-        to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::KarateChop)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::RazorWind)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::RazorLeaf)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::SkyAttack)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::Crabhammer)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::Slash)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::Aeroblast)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::CrossChop)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::BlazeKick)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::AirCutter)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::PoisonTail)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::LeafBlade)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::NightSlash)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::ShadowClaw)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::PsychoCut)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::CrossPoison)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::StoneEdge)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::AttackOrder)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
+    flags[to_int(Move::SpacialRend)][to_int(MoveFlag::HAS_INCREASED_CRIT_CHANCE)] = true;
 
-    flags[to_int(Move::RazorWind)][to_int(MoveFlag::REQUIRES_CHARGING_TURN)] =
-        true;
-    flags[to_int(Move::SolarBeam)][to_int(MoveFlag::REQUIRES_CHARGING_TURN)] =
-        true;
-    flags[to_int(Move::SkullBash)][to_int(MoveFlag::REQUIRES_CHARGING_TURN)] =
-        true;
-    flags[to_int(Move::SkyAttack)][to_int(MoveFlag::REQUIRES_CHARGING_TURN)] =
-        true;
+    flags[to_int(Move::RazorWind)][to_int(MoveFlag::REQUIRES_CHARGING_TURN)] = true;
+    flags[to_int(Move::SolarBeam)][to_int(MoveFlag::REQUIRES_CHARGING_TURN)] = true;
+    flags[to_int(Move::SkullBash)][to_int(MoveFlag::REQUIRES_CHARGING_TURN)] = true;
+    flags[to_int(Move::SkyAttack)][to_int(MoveFlag::REQUIRES_CHARGING_TURN)] = true;
 
-    flags[to_int(Move::HyperBeam)][to_int(MoveFlag::REQUIRES_RECHARGE_TURN)] =
-        true;
-    flags[to_int(Move::BlastBurn)][to_int(MoveFlag::REQUIRES_RECHARGE_TURN)] =
-        true;
-    flags[to_int(Move::HydroCannon)][to_int(MoveFlag::REQUIRES_RECHARGE_TURN)] =
-        true;
-    flags[to_int(Move::FrenzyPlant)][to_int(MoveFlag::REQUIRES_RECHARGE_TURN)] =
-        true;
-    flags[to_int(Move::GigaImpact)][to_int(MoveFlag::REQUIRES_RECHARGE_TURN)] =
-        true;
-    flags[to_int(Move::RockWrecker)][to_int(MoveFlag::REQUIRES_RECHARGE_TURN)] =
-        true;
-    flags[to_int(Move::RoarOfTime)][to_int(MoveFlag::REQUIRES_RECHARGE_TURN)] =
-        true;
+    flags[to_int(Move::HyperBeam)][to_int(MoveFlag::REQUIRES_RECHARGE_TURN)] = true;
+    flags[to_int(Move::BlastBurn)][to_int(MoveFlag::REQUIRES_RECHARGE_TURN)] = true;
+    flags[to_int(Move::HydroCannon)][to_int(MoveFlag::REQUIRES_RECHARGE_TURN)] = true;
+    flags[to_int(Move::FrenzyPlant)][to_int(MoveFlag::REQUIRES_RECHARGE_TURN)] = true;
+    flags[to_int(Move::GigaImpact)][to_int(MoveFlag::REQUIRES_RECHARGE_TURN)] = true;
+    flags[to_int(Move::RockWrecker)][to_int(MoveFlag::REQUIRES_RECHARGE_TURN)] = true;
+    flags[to_int(Move::RoarOfTime)][to_int(MoveFlag::REQUIRES_RECHARGE_TURN)] = true;
 
-    flags[to_int(Move::Stomp)][to_int(MoveFlag::DEALS_DOUBLE_AFTER_MINIMIZE)] =
-        true;
+    flags[to_int(Move::Stomp)][to_int(MoveFlag::DEALS_DOUBLE_AFTER_MINIMIZE)] = true;
 
     flags[to_int(Move::Bind)][to_int(MoveFlag::CONTINUES)] = true;
     flags[to_int(Move::Wrap)][to_int(MoveFlag::CONTINUES)] = true;
@@ -1936,8 +1787,7 @@ inline constexpr std::array<
 
     flags[to_int(Move::FirePunch)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::Ember)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
-    flags[to_int(Move::Flamethrower)][to_int(MoveFlag::BURNS_DEFENDER_10)] =
-        true;
+    flags[to_int(Move::Flamethrower)][to_int(MoveFlag::BURNS_DEFENDER_10)] = true;
     flags[to_int(Move::FireBlast)][to_int(MoveFlag::BURNS_DEFENDER_10)] = true;
     flags[to_int(Move::FlameWheel)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::SacredFire)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
@@ -1954,35 +1804,27 @@ inline constexpr std::array<
     flags[to_int(Move::PowderSnow)][to_int(MoveFlag::FREEZES_DEFENDER)] = true;
     flags[to_int(Move::IceFang)][to_int(MoveFlag::FREEZES_DEFENDER)] = true;
 
-    flags[to_int(Move::ThunderPunch)][to_int(MoveFlag::PARALYZES_DEFENDER)] =
-        true;
+    flags[to_int(Move::ThunderPunch)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::BodySlam)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::StunSpore)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
-    flags[to_int(Move::Thundershock)][to_int(MoveFlag::PARALYZES_DEFENDER)] =
-        true;
-    flags[to_int(Move::Thunderbolt)][to_int(MoveFlag::PARALYZES_DEFENDER_10)] =
-        true;
-    flags[to_int(Move::ThunderWave)][to_int(MoveFlag::PARALYZES_DEFENDER)] =
-        true;
+    flags[to_int(Move::Thundershock)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
+    flags[to_int(Move::Thunderbolt)][to_int(MoveFlag::PARALYZES_DEFENDER_10)] = true;
+    flags[to_int(Move::ThunderWave)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::Thunder)][to_int(MoveFlag::PARALYZES_DEFENDER_30)] = true;
     flags[to_int(Move::Lick)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::Glare)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::ZapCannon)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::Spark)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
-    flags[to_int(Move::DragonBreath)][to_int(MoveFlag::PARALYZES_DEFENDER)] =
-        true;
+    flags[to_int(Move::DragonBreath)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::Bounce)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
-    flags[to_int(Move::VoltTackle)][to_int(MoveFlag::PARALYZES_DEFENDER)] =
-        true;
+    flags[to_int(Move::VoltTackle)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::ForcePalm)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
-    flags[to_int(Move::ThunderFang)][to_int(MoveFlag::PARALYZES_DEFENDER)] =
-        true;
+    flags[to_int(Move::ThunderFang)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::Discharge)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
 
     flags[to_int(Move::PoisonSting)][to_int(MoveFlag::POISONS_DEFENDER)] = true;
     flags[to_int(Move::Twineedle)][to_int(MoveFlag::POISONS_DEFENDER)] = true;
-    flags[to_int(Move::PoisonPowder)][to_int(MoveFlag::POISONS_DEFENDER)] =
-        true;
+    flags[to_int(Move::PoisonPowder)][to_int(MoveFlag::POISONS_DEFENDER)] = true;
     flags[to_int(Move::Smog)][to_int(MoveFlag::POISONS_DEFENDER)] = true;
     flags[to_int(Move::Sludge)][to_int(MoveFlag::POISONS_DEFENDER)] = true;
     flags[to_int(Move::PoisonGas)][to_int(MoveFlag::POISONS_DEFENDER)] = true;
@@ -1996,17 +1838,12 @@ inline constexpr std::array<
     flags[to_int(Move::PoisonFang)][to_int(MoveFlag::BADLY_POISONS)] = true;
 
     flags[to_int(Move::Sing)][to_int(MoveFlag::MAKES_DEFENDER_SLEEP)] = true;
-    flags[to_int(Move::SleepPowder)][to_int(MoveFlag::MAKES_DEFENDER_SLEEP)] =
-        true;
-    flags[to_int(Move::Hypnosis)][to_int(MoveFlag::MAKES_DEFENDER_SLEEP)] =
-        true;
-    flags[to_int(Move::LovelyKiss)][to_int(MoveFlag::MAKES_DEFENDER_SLEEP)] =
-        true;
+    flags[to_int(Move::SleepPowder)][to_int(MoveFlag::MAKES_DEFENDER_SLEEP)] = true;
+    flags[to_int(Move::Hypnosis)][to_int(MoveFlag::MAKES_DEFENDER_SLEEP)] = true;
+    flags[to_int(Move::LovelyKiss)][to_int(MoveFlag::MAKES_DEFENDER_SLEEP)] = true;
     flags[to_int(Move::Spore)][to_int(MoveFlag::MAKES_DEFENDER_SLEEP)] = true;
-    flags[to_int(Move::Grasswhistle)][to_int(MoveFlag::MAKES_DEFENDER_SLEEP)] =
-        true;
-    flags[to_int(Move::DarkVoid)][to_int(MoveFlag::MAKES_DEFENDER_SLEEP)] =
-        true;
+    flags[to_int(Move::Grasswhistle)][to_int(MoveFlag::MAKES_DEFENDER_SLEEP)] = true;
+    flags[to_int(Move::DarkVoid)][to_int(MoveFlag::MAKES_DEFENDER_SLEEP)] = true;
 
     flags[to_int(Move::Supersonic)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
     flags[to_int(Move::Psybeam)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
@@ -2015,19 +1852,15 @@ inline constexpr std::array<
     flags[to_int(Move::DizzyPunch)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
     flags[to_int(Move::SweetKiss)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
     flags[to_int(Move::Swagger)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
-    flags[to_int(Move::Dynamicpunch)][to_int(MoveFlag::CONFUSES_DEFENDER)] =
-        true;
+    flags[to_int(Move::Dynamicpunch)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
     flags[to_int(Move::Flatter)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
-    flags[to_int(Move::TeeterDance)][to_int(MoveFlag::CONFUSES_DEFENDER)] =
-        true;
-    flags[to_int(Move::SignalBeam)][to_int(MoveFlag::CONFUSES_DEFENDER_10)] =
-        true;
+    flags[to_int(Move::TeeterDance)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
+    flags[to_int(Move::SignalBeam)][to_int(MoveFlag::CONFUSES_DEFENDER_10)] = true;
     flags[to_int(Move::WaterPulse)][to_int(MoveFlag::CONFUSES_DEFENDER_20)] = true;
     flags[to_int(Move::RockClimb)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
 
     flags[to_int(Move::Stomp)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
-    flags[to_int(Move::RollingKick)][to_int(MoveFlag::FLINCHES_DEFENDER)] =
-        true;
+    flags[to_int(Move::RollingKick)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::Headbutt)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::Bite)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::BoneClub)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
@@ -2037,18 +1870,14 @@ inline constexpr std::array<
     flags[to_int(Move::Twister)][to_int(MoveFlag::FLINCHES_DEFENDER_20)] = true;
     flags[to_int(Move::NeedleArm)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::Astonish)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
-    flags[to_int(Move::Extrasensory)][to_int(MoveFlag::FLINCHES_DEFENDER_10)] =
-        true;
-    flags[to_int(Move::DarkPulse)][to_int(MoveFlag::FLINCHES_DEFENDER_20)] =
-        true;
+    flags[to_int(Move::Extrasensory)][to_int(MoveFlag::FLINCHES_DEFENDER_10)] = true;
+    flags[to_int(Move::DarkPulse)][to_int(MoveFlag::FLINCHES_DEFENDER_20)] = true;
     flags[to_int(Move::AirSlash)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::DragonRush)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
-    flags[to_int(Move::ThunderFang)][to_int(MoveFlag::FLINCHES_DEFENDER)] =
-        true;
+    flags[to_int(Move::ThunderFang)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::IceFang)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::FireFang)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
-    flags[to_int(Move::ZenHeadbutt)][to_int(MoveFlag::FLINCHES_DEFENDER)] =
-        true;
+    flags[to_int(Move::ZenHeadbutt)][to_int(MoveFlag::FLINCHES_DEFENDER_20)] = true;
     flags[to_int(Move::IronHead)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
 
     flags[to_int(Move::JumpKick)][to_int(MoveFlag::HAS_RECOIL)] = true;
@@ -2063,40 +1892,25 @@ inline constexpr std::array<
     flags[to_int(Move::WoodHammer)][to_int(MoveFlag::HAS_RECOIL)] = true;
     flags[to_int(Move::HeadSmash)][to_int(MoveFlag::HAS_RECOIL)] = true;
 
-    flags[to_int(Move::DoubleSlap)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] =
-        true;
-    flags[to_int(Move::CometPunch)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] =
-        true;
-    flags[to_int(Move::DoubleKick)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] =
-        true;
-    flags[to_int(Move::FuryAttack)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] =
-        true;
-    flags[to_int(Move::Twineedle)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] =
-        true;
-    flags[to_int(Move::PinMissile)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] =
-        true;
-    flags[to_int(Move::SpikeCannon)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] =
-        true;
+    flags[to_int(Move::DoubleSlap)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
+    flags[to_int(Move::CometPunch)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
+    flags[to_int(Move::DoubleKick)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
+    flags[to_int(Move::FuryAttack)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
+    flags[to_int(Move::Twineedle)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
+    flags[to_int(Move::PinMissile)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
+    flags[to_int(Move::SpikeCannon)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
     flags[to_int(Move::Barrage)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
-    flags[to_int(Move::FuryAttack)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] =
-        true;
-    flags[to_int(Move::Bonemerang)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] =
-        true;
+    flags[to_int(Move::FuryAttack)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
+    flags[to_int(Move::Bonemerang)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
     flags[to_int(Move::BoneRush)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
-    flags[to_int(Move::ArmThrust)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] =
-        true;
-    flags[to_int(Move::BulletSeed)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] =
-        true;
-    flags[to_int(Move::IcicleSpear)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] =
-        true;
-    flags[to_int(Move::RockBlast)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] =
-        true;
-    flags[to_int(Move::DoubleHit)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] =
-        true;
+    flags[to_int(Move::ArmThrust)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
+    flags[to_int(Move::BulletSeed)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
+    flags[to_int(Move::IcicleSpear)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
+    flags[to_int(Move::RockBlast)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
+    flags[to_int(Move::DoubleHit)][to_int(MoveFlag::HITS_MULTIPLE_TIMES)] = true;
 
     flags[to_int(Move::Thrash)][to_int(MoveFlag::LASTS_MULTIPLE_TURNS)] = true;
-    flags[to_int(Move::PetalDance)][to_int(MoveFlag::LASTS_MULTIPLE_TURNS)] =
-        true;
+    flags[to_int(Move::PetalDance)][to_int(MoveFlag::LASTS_MULTIPLE_TURNS)] = true;
     flags[to_int(Move::Outrage)][to_int(MoveFlag::LASTS_MULTIPLE_TURNS)] = true;
 
     flags[to_int(Move::SonicBoom)][to_int(MoveFlag::HAS_FIXED_DAMAGE)] = true;
@@ -2108,26 +1922,20 @@ inline constexpr std::array<
     flags[to_int(Move::Fly)][to_int(MoveFlag::GOES_INTO_AIR)] = true;
 
     flags[to_int(Move::Gust)][to_int(MoveFlag::HITS_DEFENDER_IN_AIR)] = true;
-    flags[to_int(Move::SkyUppercut)][to_int(MoveFlag::HITS_DEFENDER_IN_AIR)] =
-        true;
+    flags[to_int(Move::SkyUppercut)][to_int(MoveFlag::HITS_DEFENDER_IN_AIR)] = true;
     flags[to_int(Move::Thunder)][to_int(MoveFlag::HITS_DEFENDER_IN_AIR)] = true;
     flags[to_int(Move::Twister)][to_int(MoveFlag::HITS_DEFENDER_IN_AIR)] = true;
 
     flags[to_int(Move::Dig)][to_int(MoveFlag::GOES_UNDER_GROUND)] = true;
 
-    flags[to_int(Move::Earthquake)][
-        to_int(MoveFlag::HITS_DEFENDER_UNDER_GROUND)] = true;
-    flags[to_int(Move::Magnitude)][to_int(MoveFlag::HITS_DEFENDER_UNDER_GROUND)]
-        = true;
-    flags[to_int(Move::Fissure)][to_int(MoveFlag::HITS_DEFENDER_UNDER_GROUND)] =
-        true;
+    flags[to_int(Move::Earthquake)][to_int(MoveFlag::HITS_DEFENDER_UNDER_GROUND)] = true;
+    flags[to_int(Move::Magnitude)][to_int(MoveFlag::HITS_DEFENDER_UNDER_GROUND)] = true;
+    flags[to_int(Move::Fissure)][to_int(MoveFlag::HITS_DEFENDER_UNDER_GROUND)] = true;
 
     flags[to_int(Move::Dive)][to_int(MoveFlag::GOES_UNDER_WATER)] = true;
 
-    flags[to_int(Move::Surf)][to_int(MoveFlag::HITS_DEFENDER_UNDER_WATER)] =
-        true;
-    flags[to_int(Move::Whirlpool)][to_int(MoveFlag::HITS_DEFENDER_UNDER_WATER)]
-        = true;
+    flags[to_int(Move::Surf)][to_int(MoveFlag::HITS_DEFENDER_UNDER_WATER)] = true;
+    flags[to_int(Move::Whirlpool)][to_int(MoveFlag::HITS_DEFENDER_UNDER_WATER)] = true;
 
     flags[to_int(Move::ShadowForce)][to_int(MoveFlag::GOES_INTO_VOID)] = true;
 
@@ -2299,96 +2107,51 @@ inline constexpr std::array<
     flags[to_int(Move::Feint)][to_int(MoveFlag::BREAKS_PROTECT)] = true;
     flags[to_int(Move::ShadowForce)][to_int(MoveFlag::BREAKS_PROTECT)] = true;
 
-    flags[to_int(Move::Attract)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Block)][
-        to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Captivate)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Charm)][
-        to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::ConfuseRay)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::CottonSpore)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::DarkVoid)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::FakeTears)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Featherdance)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Flash)][
-        to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Flatter)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::GastroAcid)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Glare)][
-        to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Grasswhistle)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Growl)][
-        to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Hypnosis)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Kinesis)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::LeechSeed)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Leer)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)]
-        = true;
-    flags[to_int(Move::LovelyKiss)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::MeanLook)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::MetalSound)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::PoisonGas)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::PoisonPowder)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::SandAttack)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::ScaryFace)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Screech)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Sing)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)]
-        = true;
-    flags[to_int(Move::SleepPowder)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Smokescreen)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::SpiderWeb)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Spore)][
-        to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::StringShot)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::StunSpore)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Supersonic)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Swagger)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::SweetKiss)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::SweetScent)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::TailWhip)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::ThunderWave)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Tickle)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Toxic)][
-        to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::WillOWisp)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::WorrySeed)][to_int(
-        MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
-    flags[to_int(Move::Yawn)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)]
-        = true;
+    flags[to_int(Move::Attract)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Block)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Captivate)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Charm)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::ConfuseRay)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::CottonSpore)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::DarkVoid)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::FakeTears)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Featherdance)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Flash)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Flatter)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::GastroAcid)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Glare)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Grasswhistle)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Growl)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Hypnosis)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Kinesis)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::LeechSeed)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Leer)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::LovelyKiss)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::MeanLook)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::MetalSound)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::PoisonGas)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::PoisonPowder)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::SandAttack)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::ScaryFace)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Screech)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Sing)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::SleepPowder)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Smokescreen)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::SpiderWeb)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Spore)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::StringShot)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::StunSpore)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Supersonic)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Swagger)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::SweetKiss)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::SweetScent)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::TailWhip)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::ThunderWave)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Tickle)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Toxic)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::WillOWisp)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::WorrySeed)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
+    flags[to_int(Move::Yawn)][to_int(MoveFlag::CAN_BE_REFLECTED_BY_MIRROR_MOVE)] = true;
 
     flags[to_int(Move::AcidArmor)][to_int(MoveFlag::CAN_BE_SNATCHED)] = true;
     flags[to_int(Move::Acupressure)][to_int(MoveFlag::CAN_BE_SNATCHED)] = true;
@@ -2442,383 +2205,204 @@ inline constexpr std::array<
     flags[to_int(Move::Tailwind)][to_int(MoveFlag::CAN_BE_SNATCHED)] = true;
     flags[to_int(Move::Withdraw)][to_int(MoveFlag::CAN_BE_SNATCHED)] = true;
 
-    flags[to_int(Move::AerialAce)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Aeroblast)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::AirCutter)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::AirSlash)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::AquaJet)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::AquaTail)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::ArmThrust)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Assurance)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::AttackOrder)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::AuraSphere)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Avalanche)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Barrage)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::BeatUp)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::AerialAce)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Aeroblast)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::AirCutter)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::AirSlash)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::AquaJet)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::AquaTail)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::ArmThrust)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Assurance)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::AttackOrder)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::AuraSphere)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Avalanche)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Barrage)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::BeatUp)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Bide)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Bind)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
-    flags[to_int(Move::BlastBurn)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::BoneRush)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Bonemerang)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Bounce)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::BraveBird)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::BrickBreak)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::BlastBurn)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::BoneRush)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Bonemerang)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Bounce)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::BraveBird)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::BrickBreak)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Brine)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
-    flags[to_int(Move::BugBite)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::BulletPunch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::BulletSeed)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::ChargeBeam)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::BugBite)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::BulletPunch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::BulletSeed)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::ChargeBeam)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Clamp)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
-    flags[to_int(Move::CloseCombat)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::CometPunch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Crabhammer)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::CrossChop)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::CrossPoison)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::CrushGrip)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::CloseCombat)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::CometPunch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Crabhammer)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::CrossChop)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::CrossPoison)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::CrushGrip)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Cut)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
-    flags[to_int(Move::DarkPulse)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::DarkPulse)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Dig)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
-    flags[to_int(Move::Discharge)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::Discharge)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Dive)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
-    flags[to_int(Move::DoubleHit)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::DoubleKick)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::DoubleSlap)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::DoubleEdge)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::DracoMeteor)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::DragonBreath)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)]
-        = true;
-    flags[to_int(Move::DragonClaw)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::DragonPulse)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::DragonRush)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::DrainPunch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::DrillPeck)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::EarthPower)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Earthquake)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::EggBomb)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Endeavor)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Eruption)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Explosion)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::ExtremeSpeed)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)]
-        = true;
-    flags[to_int(Move::FalseSwipe)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::FaintAttack)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::FireFang)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::FireSpin)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::DoubleHit)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::DoubleKick)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::DoubleSlap)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::DoubleEdge)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::DracoMeteor)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::DragonBreath)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::DragonClaw)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::DragonPulse)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::DragonRush)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::DrainPunch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::DrillPeck)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::EarthPower)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Earthquake)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::EggBomb)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Endeavor)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Eruption)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Explosion)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::ExtremeSpeed)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::FalseSwipe)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::FaintAttack)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::FireFang)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::FireSpin)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Flail)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
-    flags[to_int(Move::FlashCannon)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::FlashCannon)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Fly)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
-    flags[to_int(Move::ForcePalm)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::FrenzyPlant)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Frustration)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::FuryAttack)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::FuryCutter)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::FurySwipes)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::GigaImpact)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::GrassKnot)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::GunkShot)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::GyroBall)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::HammerArm)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::HeadSmash)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::HiddenPower)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::HighJumpKick)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)]
-        = true;
-    flags[to_int(Move::HornAttack)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::HydroCannon)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::HydroPump)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::HyperBeam)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::IceBall)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::IceFang)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::IceShard)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::IcicleSpear)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::IronHead)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Judgment)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::JumpKick)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::KarateChop)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::LastResort)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::LavaPlume)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::LeafBlade)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::LeafStorm)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::LowKick)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::MachPunch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::MagicalLeaf)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::MagmaStorm)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::MagnetBomb)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Magnitude)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::MegaKick)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::MegaPunch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Megahorn)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::MeteorMash)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::MirrorCoat)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::MirrorShot)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::MudBomb)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::MudShot)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::MuddyWater)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::NightShade)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::NightSlash)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::OminousWind)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Outrage)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Overheat)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::PayDay)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Payback)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::ForcePalm)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::FrenzyPlant)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Frustration)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::FuryAttack)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::FuryCutter)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::FurySwipes)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::GigaImpact)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::GrassKnot)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::GunkShot)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::GyroBall)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::HammerArm)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::HeadSmash)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::HiddenPower)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::HighJumpKick)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::HornAttack)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::HydroCannon)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::HydroPump)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::HyperBeam)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::IceBall)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::IceFang)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::IceShard)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::IcicleSpear)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::IronHead)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Judgment)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::JumpKick)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::KarateChop)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::LastResort)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::LavaPlume)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::LeafBlade)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::LeafStorm)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::LowKick)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::MachPunch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::MagicalLeaf)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::MagmaStorm)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::MagnetBomb)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Magnitude)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::MegaKick)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::MegaPunch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Megahorn)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::MeteorMash)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::MirrorCoat)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::MirrorShot)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::MudBomb)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::MudShot)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::MuddyWater)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::NightShade)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::NightSlash)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::OminousWind)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Outrage)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Overheat)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::PayDay)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Payback)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Peck)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
-    flags[to_int(Move::PetalDance)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::PinMissile)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::PetalDance)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::PinMissile)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Pluck)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
-    flags[to_int(Move::PoisonJab)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::PoisonTail)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::PowerGem)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::PowerWhip)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::PsychoBoost)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::PsychoCut)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Psywave)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Punishment)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::QuickAttack)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::PoisonJab)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::PoisonTail)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::PowerGem)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::PowerWhip)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::PsychoBoost)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::PsychoCut)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Psywave)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Punishment)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::QuickAttack)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Rage)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
-    flags[to_int(Move::RapidSpin)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::RazorLeaf)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::RazorWind)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Return)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Revenge)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Reversal)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::RoarOfTime)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::RockBlast)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::RockClimb)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::RockThrow)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::RockWrecker)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::RollingKick)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Rollout)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::SandTomb)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Scratch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::SeedBomb)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::SeedFlare)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::SeismicToss)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::ShadowClaw)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::ShadowForce)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::ShadowPunch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::ShadowSneak)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::ShockWave)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::SignalBeam)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::SilverWind)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::SkullBash)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::SkyAttack)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::SkyUppercut)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::RapidSpin)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::RazorLeaf)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::RazorWind)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Return)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Revenge)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Reversal)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::RoarOfTime)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::RockBlast)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::RockClimb)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::RockThrow)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::RockWrecker)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::RollingKick)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Rollout)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::SandTomb)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Scratch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::SeedBomb)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::SeedFlare)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::SeismicToss)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::ShadowClaw)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::ShadowForce)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::ShadowPunch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::ShadowSneak)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::ShockWave)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::SignalBeam)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::SilverWind)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::SkullBash)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::SkyAttack)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::SkyUppercut)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Slam)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Slash)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Snore)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
-    flags[to_int(Move::SolarBeam)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::SonicBoom)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::SpacialRend)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::SpikeCannon)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::SpitUp)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::SteelWing)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::StoneEdge)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Strength)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Struggle)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Submission)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::SuckerPunch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::SolarBeam)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::SonicBoom)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::SpacialRend)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::SpikeCannon)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::SpitUp)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::SteelWing)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::StoneEdge)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Strength)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Struggle)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Submission)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::SuckerPunch)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Surf)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Swift)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
-    flags[to_int(Move::Tackle)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::TakeDown)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Thrash)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::ThunderFang)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::TripleKick)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::TrumpCard)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Twister)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::Tackle)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::TakeDown)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Thrash)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::ThunderFang)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::TripleKick)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::TrumpCard)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Twister)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::UTurn)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
-    flags[to_int(Move::Uproar)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::VacuumWave)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::ViceGrip)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::VineWhip)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::VitalThrow)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::VoltTackle)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::WakeUpSlap)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::WaterGun)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::WaterPulse)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Waterfall)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::WeatherBall)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::Whirlpool)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::WingAttack)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::WoodHammer)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::Uproar)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::VacuumWave)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::ViceGrip)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::VineWhip)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::VitalThrow)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::VoltTackle)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::WakeUpSlap)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::WaterGun)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::WaterPulse)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Waterfall)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::WeatherBall)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::Whirlpool)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::WingAttack)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::WoodHammer)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
     flags[to_int(Move::Wrap)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
-    flags[to_int(Move::WringOut)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
-    flags[to_int(Move::XScissor)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] =
-        true;
+    flags[to_int(Move::WringOut)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
+    flags[to_int(Move::XScissor)][to_int(MoveFlag::AFFECTED_BY_KINGS_ROCK)] = true;
 
     flags[to_int(Move::Growl)][to_int(MoveFlag::IS_SOUND_BASED)] = true;
     flags[to_int(Move::Roar)][to_int(MoveFlag::IS_SOUND_BASED)] = true;
@@ -2835,12 +2419,40 @@ inline constexpr std::array<
     flags[to_int(Move::Howl)][to_int(MoveFlag::IS_SOUND_BASED)] = true;
     flags[to_int(Move::BugBuzz)][to_int(MoveFlag::IS_SOUND_BASED)] = true;
     flags[to_int(Move::Chatter)][to_int(MoveFlag::IS_SOUND_BASED)] = true;
+
+    flags[to_int(Move::Aromatherapy)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::Attract)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::Defog)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::Disable)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::Encore)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::Foresight)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::GuardSwap)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::Haze)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::HealBell)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::HeartSwap)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::HelpingHand)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::Imprison)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::MeFirst)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::MiracleEye)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::OdorSleuth)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::PerishSong)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::PowerSwap)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::PsychUp)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::Roar)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::RolePlay)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::SkillSwap)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::Spite)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::Taunt)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::Torment)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::Transform)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    flags[to_int(Move::Whirlwind)][to_int(MoveFlag::BYPASSES_SUBSTITUTE)] = true;
+    // @formatter:on
+
     return flags;
 }();
 
 inline bool move_has_flag(const Move move, const MoveFlag move_flag) {
-    return move != Move::MoveCount && MOVE_FLAGS[to_int(move)][
-        to_int(move_flag)];
+    return move != Move::MoveCount && MOVE_FLAGS[to_int(move)][to_int(move_flag)];
 }
 
 constexpr auto IMPLEMENTED_MOVES = [] {
@@ -2882,6 +2494,10 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::UTurn)] = true;
     implemented_moves[to_int(Move::OminousWind)] = true;
     implemented_moves[to_int(Move::WaterPulse)] = true;
+    implemented_moves[to_int(Move::ZenHeadbutt)] = true;
+    implemented_moves[to_int(Move::DoubleTeam)] = true;
+    implemented_moves[to_int(Move::Substitute)] = true;
+    implemented_moves[to_int(Move::Facade)] = true;
 
     return implemented_moves;
 }();

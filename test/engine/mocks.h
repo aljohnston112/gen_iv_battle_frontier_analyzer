@@ -162,6 +162,23 @@ const CustomPokemon Regirock_7_3_NoItem{
     .pounds = 507.1
 };
 
+const CustomPokemon Regigigas_7_2{
+    .unique_id = "Regigias_7_2",
+    .name = Pokemon::Regigigas,
+    .ability = Ability::SlowStart,
+    .level = 50,
+    .item = Item::Leftovers,
+    .types = {PokemonType::Normal, PokemonType::NoType},
+    .moves = {
+        Move::DoubleTeam,
+        Move::Substitute,
+        Move::Facade,
+        Move::ZenHeadbutt
+    },
+    .stats = {203, 177, 148, 87, 162, 117},
+    .pounds = 925.9
+};
+
 const CustomPokemon Regigigas_7_3{
     .unique_id = "Regigias_7_3",
     .name = Pokemon::Regigigas,

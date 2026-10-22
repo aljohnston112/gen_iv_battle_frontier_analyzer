@@ -18,6 +18,7 @@ TEST(MoveExecution, FalseRollDoesNotFreeze) {
             policy_container,
             static_cast<Weather>(i),
             defender,
+            Who::Player,
             0
         );
         EXPECT_NE(
@@ -40,6 +41,7 @@ TEST(MoveExecution, TrueRollFreezes) {
                 policy_container,
                 static_cast<Weather>(i),
                 defender,
+                Who::Player,
                 0
             );
             EXPECT_EQ(
@@ -130,6 +132,7 @@ TEST(MoveExecution, TrueRollDoesNotFreezeInSun) {
         policy_container,
         Weather::Sun,
         defender,
+        Who::Player,
         0
     );
     EXPECT_NE(
@@ -152,6 +155,7 @@ TEST(MoveExecution, ThawsOnTrueRoll) {
         always_freeze_policy_container,
         Weather::Clear,
         battle_state.player,
+        Who::Player,
         0
     );
     EXPECT_EQ(
@@ -189,6 +193,7 @@ TEST(MoveExecution, DoesNotMoveWhenFrozen) {
         always_freeze_policy_container,
         Weather::Clear,
         battle_state.player,
+        Who::Player,
         0
     );
     EXPECT_EQ(

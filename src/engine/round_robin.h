@@ -114,11 +114,11 @@ std::vector<PokemonBattleEntries> get_battle_entries(
                  opponent_pokemon
              ] : std::views::enumerate(all_opponent_pokemon)
         ) {
-            if(true
-                // player_index == 1
-                // || player_index == 4 || player_index == 5)
-                // && opponent_index == 7
-                ) {
+            if (true
+                // && ((player_index == 3 && opponent_index == 11)
+                // || (player_index == 11 && opponent_index == 4)
+                // )
+            ) {
                 battles_for_player.emplace_back(
                     BattleEntry{
                         .player_index = static_cast<size_t>(player_index),

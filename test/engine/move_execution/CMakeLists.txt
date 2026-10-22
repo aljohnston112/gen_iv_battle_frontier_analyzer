@@ -31,6 +31,8 @@ add_library(
         rain_dance_tests.cpp
         weather_damage_tests.cpp
         twister_tests.cpp
+        facade_tests.cpp
+        substitute_tests.cpp
 )
 
 target_link_libraries(
