@@ -5,16 +5,6 @@
 #include "item.h"
 #include "policies.h"
 
-// TODO tests
-// Smeargle, sketch a low PP move, get a life orb, and test struggle damage with and without the life orb
-// Same with metronome
-
-// Get Pickachu confused, test hit damage with and without Light Ball
-// Get Cubone/Marowak confused, test hit damage with and without Thick Club
-
-// TODO
-// A frozen Sky Forme Shaymin will revert to its Land Forme.
-
 inline std::array<int16_t, LEVEL + 1> DAMAGE_CACHE = [] {
     std::array<int16_t, LEVEL + 1> array{};
     array.fill(-1);
@@ -249,26 +239,10 @@ uint16_t get_damage_of_move(
     return static_cast<uint16_t>(damage);
 }
 
-template <typename... Policies>
-uint16_t execute_power_move(
-    const PolicyContainer<Policies...>& policy_container,
-    BattleState& battle_state,
-    const MoveInfo* move,
-    const Who who_attacker_is
+inline void try_apply_damage_to_defender(
+    PokemonState& defender,
+    const uint16_t damage
 ) {
-    const bool is_player_attacker = who_attacker_is == Who::Player;
-    PokemonState& defender =
-        is_player_attacker
-            ? battle_state.opponent
-            : battle_state.player;
-
-    const uint16_t hp_before = defender.get_current_stat(Stat::Health);
-    const uint16_t damage = get_damage_of_move(
-        policy_container,
-        battle_state,
-        move,
-        who_attacker_is
-    );
     if (!defender.has_move_status_with_stage(
             MoveStatusWithStage::BehindSubstitute
         )
@@ -292,6 +266,30 @@ uint16_t execute_power_move(
             );
         }
     }
+}
+
+template <typename... Policies>
+uint16_t execute_power_move(
+    const PolicyContainer<Policies...>& policy_container,
+    BattleState& battle_state,
+    const MoveInfo* move,
+    const Who who_attacker_is
+) {
+    const bool is_player_attacker = who_attacker_is == Who::Player;
+    PokemonState& defender =
+        is_player_attacker
+            ? battle_state.opponent
+            : battle_state.player;
+
+    const uint16_t hp_before = defender.get_current_stat(Stat::Health);
+    const uint16_t damage = get_damage_of_move(
+        policy_container,
+        battle_state,
+        move,
+        who_attacker_is
+    );
+
+    try_apply_damage_to_defender(defender, damage);
 
     const auto defender_item = defender.get_current_item_for_effect();
     if (get_effectiveness(defender.get_types(), move->type) > 16 &&
@@ -458,6 +456,16 @@ inline bool move_always_hits(
     )[[unlikely]] {
         return true;
     }
+
+    const bool is_player_attacker = who_attacker_is == Who::Player;
+    const PokemonState defender_state =
+        is_player_attacker
+            ? battle_state.opponent
+            : battle_state.player;
+    if (move == Move::AerialAce && !defender_state.is_semi_invulnerable()) {
+        return true;
+    }
+
     return false;
 }
 
@@ -511,13 +519,12 @@ bool move_does_nothing(
         return true;
     }
 
-    if (attacker_move == Move::Twister &&
-        defender_state->is_semi_invulnerable() &&
-        !defender_state->has_move_status_with_stage(
-            MoveStatusWithStage::SkyHigh
-        )
+    if ((attacker_move == Move::Twister || attacker_move == Move::Thunder) &&
+        defender_state->is_semi_invulnerable()
     ) [[unlikely]] {
-        return true;
+        return !defender_state->has_move_status_with_stage(
+            MoveStatusWithStage::SkyHigh
+        );
     }
 
     if (((attacker_move == Move::Blizzard &&
@@ -552,6 +559,11 @@ bool move_does_nothing(
         attacker_state->get_current_stat(Stat::Health) ==
         attacker_state->get_original_stat(Stat::Health)
     ) {
+        return true;
+    }
+
+    // All cases where this is false should be above
+    if (defender_state->is_semi_invulnerable()) {
         return true;
     }
 
@@ -641,44 +653,6 @@ uint16_t execute_struggle(
     PokemonState& defender,
     const Who who_attacker_is
 ) {
-    // TODO all of the comments before the code
-
-    // Used when all moves are blocked by the moves
-    // Disable, Gravity, Heal Block, Imprison, Taunt, or Torment,
-    // or by the user's held choice item.
-
-    // If a Pokémon is forced to use a single move by Encore
-    // but that move runs out of PP, Encore's effect ends;
-    // otherwise, if the move affected by Encore is unavailable for other reasons,
-    // it will use Struggle.
-
-    // Struggle can hit through Wonder Guard.
-
-    // Struggle does not gain a boost from Reckless even though the user takes recoil damage.
-    // The user still takes recoil damage even if its Ability is Magic Guard or Rock Head.
-
-    // Struggle cannot be called by
-    // Assist, Me First, Metronome, or Sleep Talk, copied by Mimic, Sketch, Transform,
-    // repeated by a Pokémon as a result of Encore, Copycat, or a held choice item.
-
-    // Struggle cannot be blocked by means such as Disable, Imprison,
-    // or prevented from use multiple times in a row by Torment.
-
-    // Struggle deals typeless damage
-
-    // Self-inflicted recoil damage from Struggle from the previous turn
-    // can be countered if the opponent did not make a move on the following turn.
-
-    // The user will take recoil damage even if Struggle breaks a substitute.
-
-    // Struggle now bypasses accuracy checks to always hit,
-    // unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.
-
-    // Struggle will activate a target's held Chilan Berry.
-
-    // Despite having a base power of 50 in every generation,
-    // Struggle's power is not boosted by Technician in Generation IV.
-
     uint16_t damage = get_struggle_damage(
         policy_container,
         attacker,
@@ -692,8 +666,16 @@ uint16_t execute_struggle(
     }
 
     const uint16_t hp_before = defender.get_current_stat(Stat::Health);
-    defender.add_damage(damage);
 
+    if (!move_does_nothing(
+            policy_container,
+            battle_state,
+            get_move_info(Move::Struggle),
+            who_attacker_is
+        )
+    ) {
+        try_apply_damage_to_defender(defender, damage);
+    }
     attacker.add_damage(attacker.get_original_stat(Stat::Health) / 4);
 
     return hp_before - defender.get_current_stat(Stat::Health);

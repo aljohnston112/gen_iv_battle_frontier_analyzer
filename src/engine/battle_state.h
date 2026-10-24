@@ -444,7 +444,7 @@ public:
             current_status_condition = status_condition;
             if (status_condition == StatusCondition::Paralysis) {
                 set_stat_based_on_current_state<Stat::Speed>();
-            } else  if (status_condition == StatusCondition::BadlyPoisoned) {
+            } else if (status_condition == StatusCondition::BadlyPoisoned) {
                 set_status_with_stage(StatusWithStage::BadlyPoisoned, 1);
             }
         }
@@ -504,7 +504,11 @@ public:
     void decrement_power_point(const Move move, const bool pressure) {
         if (
             power_points[to_int(move)] < 1 &&
-            !(move == Move::Struggle && !has_power_points())
+            !(move == Move::Struggle &&
+                (current_moves.size() == 1 &&
+                    current_accurate_moves.size() == 1 &&
+                    current_moves[0] == Move::Struggle &&
+                    current_accurate_moves[0] == Move::Struggle))
         ) [[unlikely]] {
             throw std::runtime_error{
                 "Out of PP or struggled depsite having PP"
@@ -541,6 +545,12 @@ public:
                 throw std::runtime_error{"Accurate moves out of sync"};
             }
             current_accurate_moves.emplace_back(Move::Struggle);
+        }
+    }
+
+    void clear_power_points() {
+        for (const Move move : pokemon->moves) {
+            clear_power_points(move);
         }
     }
 

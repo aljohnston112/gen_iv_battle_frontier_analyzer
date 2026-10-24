@@ -97,6 +97,23 @@ const CustomPokemon Heatran_7_3{
     .pounds = 948
 };
 
+const CustomPokemon Latias_7_2{
+    .unique_id = "Latias_7_2",
+    .name = Pokemon::Latias,
+    .ability = Ability::Levitate,
+    .level = 50,
+    .item = Item::ExpertBelt,
+    .types = {PokemonType::Psychic, PokemonType::Dragon},
+    .moves = {
+        Move::AerialAce,
+        Move::DragonClaw,
+        Move::ZenHeadbutt,
+        Move::Earthquake
+    },
+    .stats = {152, 140, 107, 114, 147, 158},
+    .pounds = 88.2
+};
+
 const CustomPokemon Latias_7_4{
     .unique_id = "Latias_7_4",
     .name = Pokemon::Latias,

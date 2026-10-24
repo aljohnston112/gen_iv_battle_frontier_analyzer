@@ -64,10 +64,10 @@ inline void apply_end_of_turn_6(PokemonState& pokemon_state) {
     if (pokemon_state.has_status_condition(StatusCondition::BadlyPoisoned)) {
         const uint8_t n =
             pokemon_state.get_status_stage(StatusWithStage::BadlyPoisoned);
-        pokemon_state.add_damage(n * (max_hp / 16));
+        pokemon_state.add_damage(static_cast<int16_t>(n * (max_hp / 16)));
         pokemon_state.set_status_with_stage(
             StatusWithStage::BadlyPoisoned,
-            n + 1
+            static_cast<uint8_t>(n + 1)
         );
     }
     // 6.6 Flame Orb activation, Toxic Orb activation

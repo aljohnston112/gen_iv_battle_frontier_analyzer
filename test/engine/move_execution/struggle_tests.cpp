@@ -1,6 +1,7 @@
 #include "../mocks.h"
 #include "../test_policies.h"
 
+#include "damage_util.h"
 #include "move_execution.h"
 
 #include "gtest/gtest.h"
@@ -49,10 +50,8 @@ TEST(MoveExecution, StruggleDoesTheRightAmountOfRecoil) {
         PokemonState{&Cresselia_7_4}
     };
 
-    constexpr PolicyContainer<
-        HighDamageRandomFactorPolicy,
-        NeverCritRNGPolicy
-    > policy_container{};
+    constexpr auto policy_container =
+        HIGH_RANDOM_DAMAGE_FACTOR_POLICY_CONTAINER;
 
     execute_struggle(
         policy_container,
@@ -67,5 +66,68 @@ TEST(MoveExecution, StruggleDoesTheRightAmountOfRecoil) {
     EXPECT_EQ(
         battle_state.player.get_current_stat(Stat::Health),
         original_player_health - (original_player_health / 4)
+    );
+}
+
+TEST(
+    MoveExecution,
+    AttackerTakesRecoilWhenDamageExceedsSubstitutesHPWhenUsingStruggle
+) {
+    BattleState battle_state{
+        PokemonState{&Latias_7_2},
+        PokemonState{&Regigigas_7_2}
+    };
+    const auto original_player_health =
+        battle_state.player.get_original_stat(Stat::Health);
+    constexpr uint16_t expected_damage = 22;
+    constexpr auto policy_container =
+        HIGH_RANDOM_DAMAGE_FACTOR_POLICY_CONTAINER;
+    execute_move(
+        policy_container,
+        battle_state,
+        Who::Opponent,
+        Move::Substitute
+    );
+    battle_state.opponent.set_move_status_with_stage(
+        MoveStatusWithStage::BehindSubstitute,
+        Move::Substitute,
+        expected_damage
+    );
+
+    execute_struggle(
+        policy_container,
+        battle_state,
+        battle_state.player,
+        battle_state.opponent,
+        Who::Player
+    );
+
+    EXPECT_FALSE(
+        battle_state.opponent.has_move_status_with_stage(
+            MoveStatusWithStage::BehindSubstitute
+        )
+    );
+    EXPECT_EQ(
+        battle_state.player.get_current_stat(Stat::Health),
+        original_player_health - (original_player_health / 4)
+    );
+}
+
+TEST(MoveExecution, StruggleMissesWhenDefenderIsSemiInvulnerable) {
+    move_does_no_damage_when_defender_is_semi_invulnerable<Move::Struggle>(
+        &Latias_7_2,
+        MoveStatusWithStage::Concealed
+    );
+    move_does_no_damage_when_defender_is_semi_invulnerable<Move::Struggle>(
+        &Latias_7_2,
+        MoveStatusWithStage::SkyHigh
+    );
+    move_does_no_damage_when_defender_is_semi_invulnerable<Move::Struggle>(
+        &Latias_7_2,
+        MoveStatusWithStage::Submerged
+    );
+    move_does_no_damage_when_defender_is_semi_invulnerable<Move::Struggle>(
+        &Latias_7_2,
+        MoveStatusWithStage::Underground
     );
 }

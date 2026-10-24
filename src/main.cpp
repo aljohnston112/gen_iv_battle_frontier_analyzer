@@ -44,7 +44,7 @@ int main() {
 
     std::cout << "RR Start Time Recorded; Starting Battles" << std::endl;
 
-    constexpr size_t n = 13;
+    constexpr size_t n = 14;
     const auto pokemon_to_battle_result_entries =
         do_round_robin(
             std::span(

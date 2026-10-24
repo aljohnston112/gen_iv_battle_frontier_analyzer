@@ -1,4 +1,44 @@
 TODO
+
+    Smeargle, sketch a low PP move, get a life orb, and test struggle damage with and without the life orb
+    Same with metronome
+
+    Get Pickachu confused, test hit damage with and without Light Ball
+    Get Cubone/Marowak confused, test hit damage with and without Thick Club
+
+    Struggle
+        Used when all moves are blocked by the moves
+        Disable, Gravity, Heal Block, Imprison, Taunt, or Torment,
+        or by the user's held choice item.
+
+        If a Pokémon is forced to use a single move by Encore
+        but that move runs out of PP, Encore's effect ends;
+        otherwise, if the move affected by Encore is unavailable for other reasons,
+        it will use Struggle.
+
+        Struggle can hit through Wonder Guard.
+
+        Struggle does not gain a boost from Reckless even though the user takes recoil damage.
+        The user still takes recoil damage even if its Ability is Magic Guard or Rock Head.
+
+        Struggle cannot be called by Assist, Me First, Metronome, or Sleep Talk,
+        copied by Mimic, Sketch, Transform, repeated by a Pokémon as a result of Encore,
+        Copycat, or a held choice item.
+
+        Struggle cannot be blocked by means such as Disable, Imprison,
+        or prevented from use multiple times in a row by Torment.
+
+        Struggle deals typeless damage
+
+        Self-inflicted recoil damage from Struggle from the previous turn
+        can be countered if the opponent did not make a move on the following turn.
+
+        Struggle will activate a target's held Chilan Berry.
+
+        Despite having a base power of 50 in every generation,
+        Struggle's power is not boosted by Technician in Generation IV.
+
+
     These moves clear freeze when used while frozen
         FlameWheel
         FlareBlitz
@@ -20,7 +60,7 @@ TODO
     Hammer Arm is chosen when its boost leads to better outcome
     Draco Meteor is chosen when, depsite the special attack drop, it leads to better outcome
 
-    Flash fire is not activated by a Poison
+    Flash fire is not activated by a poison type move
     Flash fire makes physical fire move use attack stat * 1.5
     Flash fire makes physical fire move use attack stat * 1.5 with stat stages included
 
@@ -135,4 +175,4 @@ TODO
     Haze turns bad poison into regular poison
     Toxic does not affect steel type Pokémon
 
-
+    A frozen Sky Forme Shaymin will revert to its Land Forme
