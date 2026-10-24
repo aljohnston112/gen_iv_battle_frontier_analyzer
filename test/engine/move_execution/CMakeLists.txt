@@ -35,6 +35,7 @@ add_library(
         substitute_tests.cpp
         toxic_tests.cpp
         aerial_ace_tests.cpp
+        avalanche_tests.cpp
 )
 
 target_link_libraries(

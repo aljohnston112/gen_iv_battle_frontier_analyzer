@@ -26,7 +26,8 @@ inline void apply_end_of_turn_3(
         !pokemon_state.has_type(PokemonType::Ice)
     ) {
         pokemon_state.add_damage(
-            pokemon_state.get_original_stat(Stat::Health) / 16
+            pokemon_state.get_original_stat(Stat::Health) / 16,
+            DamageSource::DontCare
         );
     }
 }
@@ -59,12 +60,12 @@ inline void apply_end_of_turn_6(PokemonState& pokemon_state) {
     // 6.4 Leech Seed: "pokémon's health is sapped by leech seed"
     // 6.5 Burn, Nightmare, Poison Heal, Poison: "pokémon is hurt by poison"
     if (pokemon_state.has_status_condition(StatusCondition::Burn)) {
-        pokemon_state.add_damage(max_hp / 8);
+        pokemon_state.add_damage(max_hp / 8, DamageSource::DontCare);
     }
     if (pokemon_state.has_status_condition(StatusCondition::BadlyPoisoned)) {
         const uint8_t n =
             pokemon_state.get_status_stage(StatusWithStage::BadlyPoisoned);
-        pokemon_state.add_damage(static_cast<int16_t>(n * (max_hp / 16)));
+        pokemon_state.add_damage(static_cast<int16_t>(n * (max_hp / 16)), DamageSource::DontCare);
         pokemon_state.set_status_with_stage(
             StatusWithStage::BadlyPoisoned,
             static_cast<uint8_t>(n + 1)
@@ -73,7 +74,7 @@ inline void apply_end_of_turn_6(PokemonState& pokemon_state) {
     // 6.6 Flame Orb activation, Toxic Orb activation
     // 6.7 Curse (from a Ghost)
     if (pokemon_state.has_status(Status::Cursed)) {
-        pokemon_state.add_damage(max_hp / 4);
+        pokemon_state.add_damage(max_hp / 4, DamageSource::DontCare);
     }
     // 6.8 Bind, Clamp, Fire Spin, Magma Storm, Sand Tomb, Whirlpool, Wrap
     // 6.9 Bad Dreams Damage

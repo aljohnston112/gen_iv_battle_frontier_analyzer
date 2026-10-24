@@ -10,7 +10,7 @@ TEST(MoveExecution, RestCauseSleepForTwoTurns) {
         PokemonState{&Regirock_7_3_NoItem},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.player.add_damage(1);
+    battle_state.player.add_damage(1, DamageSource::DontCare);
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
         battle_state,
@@ -69,7 +69,7 @@ TEST(MoveExecution, RestMakesHPOfUserFull) {
         PokemonState{&Regirock_7_3_NoItem},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.player.add_damage(1);
+    battle_state.player.add_damage(1, DamageSource::DontCare);
 
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -109,7 +109,7 @@ TEST(BattleEngine, RestMakesUserFallAsleepAfterChestoBerryIsConsumed) {
         battle_state.player.has_status_with_stage(StatusWithStage::Asleep));
     EXPECT_EQ(Item::NoItem, battle_state.player.get_current_item_for_effect());
 
-    battle_state.player.add_damage(1);
+    battle_state.player.add_damage(1, DamageSource::DontCare);
 
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -128,7 +128,7 @@ TEST(MoveExecution, RestClearsPoison) {
         PokemonState{&Regirock_7_3_NoItem},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.player.add_damage(1);
+    battle_state.player.add_damage(1, DamageSource::DontCare);
     battle_state.player.try_set_status_condition(StatusCondition::PoisonStatus);
 
     EXPECT_EQ(
@@ -158,7 +158,7 @@ TEST(MoveExecution, RestClearsBadPoison) {
         PokemonState{&Regirock_7_3_NoItem},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.player.add_damage(1);
+    battle_state.player.add_damage(1, DamageSource::DontCare);
     battle_state.player.
                  try_set_status_condition(StatusCondition::BadlyPoisoned);
 
@@ -189,7 +189,7 @@ TEST(MoveExecution, RestClearsBadPoisonCounter) {
         PokemonState{&Regirock_7_3_NoItem},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.player.add_damage(1);
+    battle_state.player.add_damage(1, DamageSource::DontCare);
     battle_state.player.try_set_status_condition(
         StatusCondition::BadlyPoisoned
     );
@@ -279,7 +279,7 @@ TEST(MoveExecution, RestClearsParalysis) {
         PokemonState{&Regirock_7_3_NoItem},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.player.add_damage(1);
+    battle_state.player.add_damage(1, DamageSource::DontCare);
     battle_state.player.try_set_status_condition(StatusCondition::Paralysis);
 
     EXPECT_EQ(
@@ -309,7 +309,7 @@ TEST(MoveExecution, RestClearsBurn) {
         PokemonState{&Regirock_7_3_NoItem},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.player.add_damage(1);
+    battle_state.player.add_damage(1, DamageSource::DontCare);
     battle_state.player.try_set_status_condition(StatusCondition::Burn);
 
     EXPECT_EQ(
@@ -357,7 +357,7 @@ TEST(MoveExecution, RestFailsIfUproarIsInEffect) {
         PokemonState{&Regirock_7_3_NoItem},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.player.add_damage(1);
+    battle_state.player.add_damage(1, DamageSource::DontCare);
     battle_state.set_field_status(FieldStatus::UproarActive);
 
     execute_move(
@@ -377,7 +377,7 @@ TEST(MoveExecution, RestFailsIfUserIsHealBlocked) {
         PokemonState{&Regirock_7_3_NoItem},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.player.add_damage(1);
+    battle_state.player.add_damage(1, DamageSource::DontCare);
     battle_state.player.set_status_with_stage(
         StatusWithStage::HealBlocked,
         5
@@ -403,7 +403,7 @@ TEST(
         PokemonState{&Regirock_7_3_NoItem},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.player.add_damage(1);
+    battle_state.player.add_damage(1, DamageSource::DontCare);
     battle_state.player.set_status_with_stage(
         StatusWithStage::HealBlocked,
         5
@@ -436,7 +436,7 @@ TEST(MoveExecution, RestWorksWithSafeguardInEffect) {
         PokemonState{&Regirock_7_3_NoItem},
         PokemonState{&Cresselia_7_4}
     };
-    battle_state.player.add_damage(1);
+    battle_state.player.add_damage(1, DamageSource::DontCare);
     battle_state.player.set_status_with_stage(
         StatusWithStage::Safeguarding,
         5

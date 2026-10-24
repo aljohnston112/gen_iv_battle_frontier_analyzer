@@ -13,7 +13,7 @@ namespace {
         };
 
         const uint32_t max_hp = battle_state.player.get_original_stat(Stat::Health);
-        battle_state.player.add_damage(static_cast<uint16_t>(max_hp - 1));
+        battle_state.player.add_damage(static_cast<uint16_t>(max_hp - 1), DamageSource::DontCare);
         EXPECT_EQ(battle_state.player.get_current_stat(Stat::Health), 1);
 
         uint16_t expected_hp_gained = 0;
@@ -76,7 +76,7 @@ TEST(MoveExecution, MoonlightDoesNotOverheal) {
     };
 
     const uint16_t max_hp = battle_state.player.get_original_stat(Stat::Health);
-    battle_state.player.add_damage(1);
+    battle_state.player.add_damage(1, DamageSource::DontCare);
     EXPECT_EQ(battle_state.player.get_current_stat(Stat::Health), max_hp - 1);
 
     execute_moonlight(

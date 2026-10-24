@@ -84,7 +84,10 @@ uint16_t get_damage_of_move(
     ) [[unlikely]] {
         power *= 2;
     }
-
+    if (move == Move::Avalanche && attacker.took_damage_this_turn()
+    ) [[unlikely]] {
+        power *= 2;
+    }
     const bool is_special = move_info->category == Category::SPECIAL;
     const Stat attack_category =
         is_special ? Stat::SpecialAttack : Stat::Attack;
@@ -247,7 +250,7 @@ inline void try_apply_damage_to_defender(
             MoveStatusWithStage::BehindSubstitute
         )
     ) [[unlikely]] {
-        defender.add_damage(damage);
+        defender.add_damage(damage, DamageSource::OtherPokemon);
     } else {
         const uint8_t substitute_hp = defender.get_move_status_stage(
             MoveStatusWithStage::BehindSubstitute
@@ -356,7 +359,8 @@ void hit_from_confusion(
             policy_container,
             attacker,
             who_attacker_is
-        )
+        ),
+        DamageSource::DontCare
     );
 }
 
@@ -676,7 +680,7 @@ uint16_t execute_struggle(
     ) {
         try_apply_damage_to_defender(defender, damage);
     }
-    attacker.add_damage(attacker.get_original_stat(Stat::Health) / 4);
+    attacker.add_damage(attacker.get_original_stat(Stat::Health) / 4, DamageSource::DontCare);
 
     return hp_before - defender.get_current_stat(Stat::Health);
 }
@@ -998,7 +1002,8 @@ uint16_t execute_move(
         if (attacker.has_type(PokemonType::Ghost)) {
             if (!defender.is_semi_invulnerable()) {
                 attacker.add_damage(
-                    attacker.get_original_stat(Stat::Health) / 2
+                    attacker.get_original_stat(Stat::Health) / 2,
+                    DamageSource::DontCare
                 );
                 defender.set_status(Status::Cursed);
             }
@@ -1120,7 +1125,7 @@ uint16_t execute_move(
         const uint8_t substitute_hp =
             static_cast<uint8_t>(attacker.get_original_stat(Stat::Health) / 4);
         if (attacker.get_current_stat(Stat::Health) > substitute_hp) {
-            attacker.add_damage(substitute_hp);
+            attacker.add_damage(substitute_hp, DamageSource::DontCare);
             attacker.set_move_status_with_stage(
                 MoveStatusWithStage::BehindSubstitute,
                 Move::Substitute,

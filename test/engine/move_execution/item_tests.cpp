@@ -147,3 +147,17 @@ TEST(
         DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 172>
     >(battle_state, Move::DragonClaw);
 }
+
+TEST(
+    MoveExecution,
+    ExpertBeltDoesNotIncreaseDamageOfNonSuperEffectiveMovesByTwentyPercent
+) {
+    const BattleState battle_state{
+        PokemonState{&Latias_7_2},
+        PokemonState{&Latias_7_2}
+    };
+    random_does_correct_damage_for_attack<
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 30>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 36>
+    >(battle_state, Move::AerialAce);
+}

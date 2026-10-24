@@ -120,6 +120,11 @@ enum class StatDropSource {
     StatDropSourceCount
 };
 
+enum class DamageSource {
+    OtherPokemon,
+    DontCare
+};
+
 class PokemonState {
     const CustomPokemon* pokemon;
 
@@ -150,6 +155,7 @@ class PokemonState {
 
     std::array<PokemonType, 2> current_types;
     Move last_used_move = Move::MoveCount;
+    bool was_damaged_this_turn = false;
     // If any fields are added, UPDATE THE HASH
 
     void set_stat(const Stat stat, const uint16_t new_stat) {
@@ -244,7 +250,10 @@ public:
         );
     }
 
-    void add_damage(const int16_t hp_lost) {
+    void add_damage(const int16_t hp_lost, const DamageSource damage_source) {
+        if (damage_source == DamageSource::OtherPokemon) {
+            was_damaged_this_turn = true;
+        }
         current_stats[to_int(Stat::Health)] =
             static_cast<uint16_t>(
                 std::max(
@@ -555,6 +564,7 @@ public:
     }
 
     void apply_end_of_turn() {
+        was_damaged_this_turn = false;
         if (has_status_with_stage(StatusWithStage::SlowStarting)) [[unlikely]] {
             decrement_status_with_stage_value(StatusWithStage::SlowStarting);
         }
@@ -581,6 +591,10 @@ public:
 
     void set_last_used_move(const Move move) {
         last_used_move = move;
+    }
+
+    bool took_damage_this_turn() const {
+        return was_damaged_this_turn;
     }
 
     friend struct std::hash<PokemonState>;
@@ -640,7 +654,8 @@ struct std::hash<PokemonState> {
             hash_array(state.power_points),
             hash_vector_of_enums(state.current_moves),
             hash_array_of_enums(state.current_types),
-            std::hash<int>{}(to_int(state.last_used_move))
+            std::hash<int>{}(to_int(state.last_used_move)),
+            std::hash<bool>{}(state.was_damaged_this_turn)
         );
     }
 };

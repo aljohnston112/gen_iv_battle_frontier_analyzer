@@ -84,6 +84,9 @@ MoveResult get_move_result(
         hits_to_ko = static_cast<uint16_t>(
             std::ceil(static_cast<double>(defender_hp) / damage)
         );
+        if (attacker_move == Move::Avalanche) {
+            hits_to_ko = std::max(0, *hits_to_ko - 1);
+        }
     }
 
     MoveResult best{};
@@ -103,7 +106,7 @@ inline bool is_further_evaluation_needed(
     const BattleState& battle_state,
     const Move attacker_move,
     const Who who_attacker_is,
-    const Move defender_move
+    const MoveResult& defender_move_result
 ) {
     const bool is_player_attacker = who_attacker_is == Who::Player;
     const PokemonState& attacker =
@@ -114,6 +117,7 @@ inline bool is_further_evaluation_needed(
         is_player_attacker
             ? battle_state.opponent
             : battle_state.player;
+    const Move defender_move = defender_move_result.evaluated_move;
 
     if (attacker.has_status_with_stage(StatusWithStage::Asleep)) {
         return false;
@@ -206,6 +210,14 @@ inline bool is_further_evaluation_needed(
 
     if (move_has_flag(attacker_move, MoveFlag::BADLY_POISONS) &&
         !defender.has_status_condition(StatusCondition::BadlyPoisoned)
+    ) {
+        return true;
+    }
+
+    if (attacker_move == Move::Avalanche &&
+        defender_move_result.line_size > 0 &&
+        defender_move_result.line[0].damage >
+        attacker.get_current_stat(Stat::Health)
     ) {
         return true;
     }
@@ -601,7 +613,7 @@ MoveResults get_best_move_result(
                     battle_state,
                     move,
                     who_attacker_is,
-                    best_defender_move.evaluated_move
+                    best_defender_move
                 ) &&
                 attacker.get_moves(
                     policy_container.can_use_less_accurate_moves(

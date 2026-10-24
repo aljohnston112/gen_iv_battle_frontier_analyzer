@@ -1331,6 +1331,7 @@ inline constexpr std::array<
     flags[to_int(Move::ShadowForce)][to_int(MoveFlag::HAS_POWER)] = true;
     flags[to_int(Move::UTurn)][to_int(MoveFlag::HAS_POWER)] = true;
     flags[to_int(Move::Facade)][to_int(MoveFlag::HAS_POWER)] = true;
+    flags[to_int(Move::Avalanche)][to_int(MoveFlag::HAS_POWER)] = true;
 
     flags[to_int(Move::Absorb)][to_int(MoveFlag::HEALS_ATTACKER)] = true;
     flags[to_int(Move::MegaDrain)][to_int(MoveFlag::HEALS_ATTACKER)] = true;
@@ -1649,7 +1650,6 @@ inline constexpr std::array<
     flags[to_int(Move::AquaRing)][to_int(MoveFlag::IS_OTHER)] = true;
     flags[to_int(Move::MagnetRise)][to_int(MoveFlag::IS_OTHER)] = true;
     flags[to_int(Move::Switcheroo)][to_int(MoveFlag::IS_OTHER)] = true;
-    flags[to_int(Move::Avalanche)][to_int(MoveFlag::IS_OTHER)] = true;
     flags[to_int(Move::Defog)][to_int(MoveFlag::IS_OTHER)] = true;
     flags[to_int(Move::TrickRoom)][to_int(MoveFlag::IS_OTHER)] = true;
     flags[to_int(Move::Captivate)][to_int(MoveFlag::IS_OTHER)] = true;
@@ -2455,6 +2455,58 @@ inline bool move_has_flag(const Move move, const MoveFlag move_flag) {
     return move != Move::MoveCount && MOVE_FLAGS[to_int(move)][to_int(move_flag)];
 }
 
+static constexpr std::array<
+    int8_t,
+static_cast<int>(Move::MoveCount)
+> MOVE_PRIORITIES =
+    [] {
+        std::array<int8_t, static_cast<int>(Move::MoveCount)> array{};
+        array[static_cast<int>(Move::HelpingHand)] = 5;
+
+        array[static_cast<int>(Move::MagicCoat)] = 4;
+        array[static_cast<int>(Move::Snatch)] = 4;
+
+        array[static_cast<int>(Move::Detect)] = 3;
+        array[static_cast<int>(Move::Endure)] = 3;
+        array[static_cast<int>(Move::FollowMe)] = 3;
+        array[static_cast<int>(Move::Protect)] = 3;
+
+        array[static_cast<int>(Move::Feint)] = 2;
+
+        array[static_cast<int>(Move::AquaJet)] = 1;
+        array[static_cast<int>(Move::Bide)] = 1;
+        array[static_cast<int>(Move::BulletPunch)] = 1;
+        array[static_cast<int>(Move::ExtremeSpeed)] = 1;
+        array[static_cast<int>(Move::FakeOut)] = 1;
+        array[static_cast<int>(Move::IceShard)] = 1;
+        array[static_cast<int>(Move::MachPunch)] = 1;
+        array[static_cast<int>(Move::QuickAttack)] = 1;
+        array[static_cast<int>(Move::ShadowSneak)] = 1;
+        array[static_cast<int>(Move::SuckerPunch)] = 1;
+        array[static_cast<int>(Move::VacuumWave)] = 1;
+
+        array[static_cast<int>(Move::VitalThrow)] = -1;
+
+        array[static_cast<int>(Move::FocusPunch)] = -3;
+
+        array[static_cast<int>(Move::Avalanche)] = -4;
+        array[static_cast<int>(Move::Revenge)] = -4;
+
+        array[static_cast<int>(Move::Counter)] = -5;
+        array[static_cast<int>(Move::MirrorCoat)] = -5;
+
+        array[static_cast<int>(Move::Roar)] = -6;
+        array[static_cast<int>(Move::Whirlwind)] = -6;
+
+        array[static_cast<int>(Move::TrickRoom)] = -7;
+
+        return array;
+}();
+
+inline int8_t get_move_priority(const Move move) {
+    return MOVE_PRIORITIES[to_int(move)];
+}
+
 constexpr auto IMPLEMENTED_MOVES = [] {
     std::array<bool, to_int(Move::MoveCount)> implemented_moves{};
     implemented_moves[to_int(Move::Moonlight)] = true;
@@ -2502,6 +2554,7 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::DragonClaw)] = true;
     implemented_moves[to_int(Move::Earthquake)] = true;
     implemented_moves[to_int(Move::AerialAce)] = true;
+    implemented_moves[to_int(Move::Avalanche)] = true;
 
     return implemented_moves;
 }();

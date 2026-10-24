@@ -169,7 +169,7 @@ TEST(MoveExecution, SubstituteFailsIfAttackerDoesNotHaveEnoughHP) {
     };
     const uint16_t max_hp = battle_state.player.get_original_stat(Stat::Health);
 
-    battle_state.player.add_damage(max_hp - (max_hp / 4));
+    battle_state.player.add_damage(max_hp - (max_hp / 4), DamageSource::DontCare);
 
     EXPECT_EQ(
         max_hp / 4,

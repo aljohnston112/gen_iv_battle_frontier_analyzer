@@ -163,6 +163,20 @@ const CustomPokemon Raikou_7_3{
     .pounds = 392.4
 };
 
+const CustomPokemon Regice_7_2{
+    .unique_id = "Regice_7_2",
+    .name = Pokemon::Regice,
+    .ability = Ability::ClearBody,
+    .level = 50,
+    .item = Item::Leftovers,
+    .types = {PokemonType::Ice, PokemonType::NoType},
+    .moves = {
+        Move::DoubleTeam, Move::HammerArm, Move::Avalanche, Move::Curse
+    },
+    .stats = {183, 67, 162, 105, 217, 67},
+    .pounds = 385.8
+};
+
 const CustomPokemon Regirock_7_3{
     .unique_id = "Regirock_7_3",
     .name = Pokemon::Regirock,

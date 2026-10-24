@@ -15,11 +15,15 @@ Who who_goes_first(
 ) {
     const bool player_faster =
         policy_container.is_player_faster(battle_state);
-    if (player_faster) {
-        return Who::Player;
-    } else {
-        return Who::Opponent;
+
+    const int8_t player_move_priority = get_move_priority(player_move);
+    const int8_t opponent_move_priority = get_move_priority(opponent_move);
+    if (player_move_priority != opponent_move_priority) {
+        return player_move_priority > opponent_move_priority
+            ? Who::Player
+            : Who::Opponent;
     }
+    return player_faster ? Who::Player : Who::Opponent;
 }
 
 template <typename... Policies, typename State>
