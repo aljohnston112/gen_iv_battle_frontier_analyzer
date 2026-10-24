@@ -42,6 +42,7 @@ inline void apply_end_of_turn_5([[maybe_unused]] PokemonState& pokemon_state) {
 inline void apply_end_of_turn_6(PokemonState& pokemon_state) {
     const Item item = pokemon_state.get_current_item_for_effect();
     const bool ko = pokemon_state.get_current_stat(Stat::Health) == 0;
+    const uint16_t max_hp = pokemon_state.get_original_stat(Stat::Health);
 
     // 6.0 Ingrain
     // 6.1 Aqua Ring
@@ -51,21 +52,29 @@ inline void apply_end_of_turn_6(PokemonState& pokemon_state) {
         const uint16_t hp_gained =
             std::max(
                 static_cast<uint16_t>(1),
-                static_cast<uint16_t>(
-                    pokemon_state.get_original_stat(Stat::Health) / 16
-                )
+                static_cast<uint16_t>(max_hp / 16)
             );
         pokemon_state.add_hp(hp_gained);
     }
     // 6.4 Leech Seed: "pokémon's health is sapped by leech seed"
     // 6.5 Burn, Nightmare, Poison Heal, Poison: "pokémon is hurt by poison"
     if (pokemon_state.has_status_condition(StatusCondition::Burn)) {
-        pokemon_state.add_damage(
-            pokemon_state.get_original_stat(Stat::Health) / 8
+        pokemon_state.add_damage(max_hp / 8);
+    }
+    if (pokemon_state.has_status_condition(StatusCondition::BadlyPoisoned)) {
+        const uint8_t n =
+            pokemon_state.get_status_stage(StatusWithStage::BadlyPoisoned);
+        pokemon_state.add_damage(n * (max_hp / 16));
+        pokemon_state.set_status_with_stage(
+            StatusWithStage::BadlyPoisoned,
+            n + 1
         );
     }
     // 6.6 Flame Orb activation, Toxic Orb activation
     // 6.7 Curse (from a Ghost)
+    if (pokemon_state.has_status(Status::Cursed)) {
+        pokemon_state.add_damage(max_hp / 4);
+    }
     // 6.8 Bind, Clamp, Fire Spin, Magma Storm, Sand Tomb, Whirlpool, Wrap
     // 6.9 Bad Dreams Damage
     // 6.10 End of Outrage, Petal Dance, Thrash, Uproar: "pokémon caused an uproar" & "pokémon calmed down"

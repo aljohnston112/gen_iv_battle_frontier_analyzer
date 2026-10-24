@@ -618,3 +618,17 @@ TEST(
     );
 }
 
+TEST(
+    MoveHeuristic,
+    OpponentCresselia_7_2ChoosesToxicThenPsychicAgainstCresselia_7_4
+) {
+    opponent_chooses_moves_against_player(
+        Cresselia_7_4,
+        Cresselia_7_2,
+        Move::Toxic,
+        Move::Psychic,
+        Move::Psychic,
+        Move::Psychic,
+        Move::Psychic
+    );
+}

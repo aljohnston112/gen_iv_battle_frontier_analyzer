@@ -56,6 +56,11 @@ TEST(MoveExecution,
         PokemonState{&Cresselia_7_4}
     };
 
+    BattleState battle_state6{
+        PokemonState{&Zapdos_7_3},
+        PokemonState{&Cresselia_7_4}
+    };
+
     // Normal
     EXPECT_EQ(
         51,
@@ -92,7 +97,17 @@ TEST(MoveExecution,
     );
     battle_state.opponent.add_hp(38);
 
-    // Flying TODO
+    // Flying
+    EXPECT_EQ(
+        40,
+        execute_move(
+            DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+            battle_state6,
+            Who::Player,
+            Move::DrillPeck
+        )
+    );
+    battle_state.opponent.add_hp(40);
 
     // Grass
     EXPECT_EQ(
@@ -216,5 +231,15 @@ TEST(MoveExecution,
     );
     battle_state.opponent.add_hp(70);
 
-    // Steel TODO
+    // Steel
+    EXPECT_EQ(
+        23,
+        execute_move(
+            DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+            battle_state6,
+            Who::Player,
+            Move::SteelWing
+        )
+    );
+    battle_state.opponent.add_hp(23);
 }

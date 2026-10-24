@@ -184,6 +184,96 @@ TEST(MoveExecution, RestClearsBadPoison) {
     );
 }
 
+TEST(MoveExecution, RestClearsBadPoisonCounter) {
+    BattleState battle_state{
+        PokemonState{&Regirock_7_3_NoItem},
+        PokemonState{&Cresselia_7_4}
+    };
+    battle_state.player.add_damage(1);
+    battle_state.player.try_set_status_condition(
+        StatusCondition::BadlyPoisoned
+    );
+
+    EXPECT_TRUE(
+        battle_state.player.has_status_with_stage(
+            StatusWithStage::BadlyPoisoned
+        )
+    );
+    EXPECT_EQ(
+        1,
+        battle_state.player.get_status_stage(
+            StatusWithStage::BadlyPoisoned
+        )
+    );
+    EXPECT_EQ(
+        StatusCondition::BadlyPoisoned,
+        battle_state.player.get_current_status_condition()
+    );
+
+    apply_end_of_turn(
+        DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+        battle_state
+    );
+
+    EXPECT_TRUE(
+        battle_state.player.has_status_with_stage(
+            StatusWithStage::BadlyPoisoned
+        )
+    );
+    EXPECT_EQ(
+        2,
+        battle_state.player.get_status_stage(
+            StatusWithStage::BadlyPoisoned
+        )
+    );
+    EXPECT_EQ(
+        StatusCondition::BadlyPoisoned,
+        battle_state.player.get_current_status_condition()
+    );
+
+    execute_move(
+        DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+        battle_state,
+        Who::Player,
+        Move::Rest
+    );
+
+    EXPECT_TRUE(
+        battle_state.player.has_status_with_stage(StatusWithStage::Asleep)
+    );
+
+    EXPECT_EQ(
+        StatusCondition::NoCondition,
+        battle_state.player.get_current_status_condition()
+    );
+    EXPECT_EQ(
+        0,
+        battle_state.player.get_status_stage(
+            StatusWithStage::BadlyPoisoned
+        )
+    );
+
+    battle_state.player.try_set_status_condition(
+        StatusCondition::BadlyPoisoned
+    );
+
+    EXPECT_TRUE(
+        battle_state.player.has_status_with_stage(
+            StatusWithStage::BadlyPoisoned
+        )
+    );
+    EXPECT_EQ(
+        1,
+        battle_state.player.get_status_stage(
+            StatusWithStage::BadlyPoisoned
+        )
+    );
+    EXPECT_EQ(
+        StatusCondition::BadlyPoisoned,
+        battle_state.player.get_current_status_condition()
+    );
+}
+
 TEST(MoveExecution, RestClearsParalysis) {
     BattleState battle_state{
         PokemonState{&Regirock_7_3_NoItem},

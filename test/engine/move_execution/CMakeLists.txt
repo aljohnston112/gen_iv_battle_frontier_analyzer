@@ -33,6 +33,7 @@ add_library(
         twister_tests.cpp
         facade_tests.cpp
         substitute_tests.cpp
+        toxic_tests.cpp
 )
 
 target_link_libraries(

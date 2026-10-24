@@ -75,6 +75,7 @@ enum class StatusWithStage {
     LuckyChanted,
     Accuracy,
     Evasion,
+    BadlyPoisoned,
     StatusWithStageCount
 };
 
@@ -443,6 +444,8 @@ public:
             current_status_condition = status_condition;
             if (status_condition == StatusCondition::Paralysis) {
                 set_stat_based_on_current_state<Stat::Speed>();
+            } else  if (status_condition == StatusCondition::BadlyPoisoned) {
+                set_status_with_stage(StatusWithStage::BadlyPoisoned, 1);
             }
         }
         if (get_current_item_for_effect() == Item::LumBerry) {
@@ -454,9 +457,13 @@ public:
     void clear_status_condition() {
         const bool was_paralysis =
             current_status_condition == StatusCondition::Paralysis;
+        const bool was_badly_poisoned =
+            current_status_condition == StatusCondition::BadlyPoisoned;
         current_status_condition = StatusCondition::NoCondition;
         if (was_paralysis) {
             set_stat_based_on_current_state<Stat::Speed>();
+        } else if (was_badly_poisoned) {
+            clear_status_with_stage(StatusWithStage::BadlyPoisoned);
         }
     }
 
@@ -547,9 +554,6 @@ public:
         }
         if (has_status_with_stage(StatusWithStage::Asleep)) {
             decrement_status_with_stage_value(StatusWithStage::Asleep);
-        }
-        if (has_status(Status::Cursed)) {
-            add_damage(get_original_stat(Stat::Health) / 4);
         }
     }
 

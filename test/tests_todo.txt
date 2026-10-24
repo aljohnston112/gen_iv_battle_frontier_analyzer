@@ -20,7 +20,7 @@ TODO
     Hammer Arm is chosen when its boost leads to better outcome
     Draco Meteor is chosen when, depsite the special attack drop, it leads to better outcome
 
-    Flash fire is not activated by a Flying, Poison, or Steel move
+    Flash fire is not activated by a Poison
     Flash fire makes physical fire move use attack stat * 1.5
     Flash fire makes physical fire move use attack stat * 1.5 with stat stages included
 
@@ -32,7 +32,7 @@ TODO
     Razor Fang with non-affected move does not cause flinch on true roll
     Each strike of a multistrike move has an independent chance of causing the target to flinch from Razor Fang
 
-    Non-ground move can do damage to a defender with Levitate: steel, flying, poison
+    Non-ground move can do damage to a defender with Levitate: poison
 
     Clear body prevents stat stage drop from an opponent's ability
     Clear body does not prevent the stat reductions from items
@@ -129,3 +129,10 @@ TODO
     Shell Bell does not restore defender's HP when a move hits it's substitute
     Confusion inducing berries do not affect holder with substitute
     If a Pokémon with a substitute has used Rage and then selects a different move other than Substitute, it will no longer have the substitute
+
+    Toxic does not affect poison type defenders
+    Toxic does not affect defenders with Immunity
+    Haze turns bad poison into regular poison
+    Toxic does not affect steel type Pokémon
+
+

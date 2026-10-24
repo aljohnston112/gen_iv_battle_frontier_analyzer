@@ -115,6 +115,13 @@ TEST(BattleEngine, FlashFireIsNotActivatedAfterBeingHitWithNonFireMoves) {
 
     EXPECT_FALSE(battle_state5.player.has_status(Status::FlashFired));
 
+    BattleState battle_state6{
+        PokemonState{&Heatran_7_3},
+        PokemonState{&Zapdos_7_3}
+    };
+
+    EXPECT_FALSE(battle_state5.player.has_status(Status::FlashFired));
+
     // Normal
     execute_move(
         DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
@@ -145,7 +152,15 @@ TEST(BattleEngine, FlashFireIsNotActivatedAfterBeingHitWithNonFireMoves) {
 
     EXPECT_FALSE(battle_state3.player.has_status(Status::FlashFired));
 
-    // Flying TODO
+    // Flying
+    execute_move(
+        DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+        battle_state6,
+        Who::Opponent,
+        Move::DrillPeck
+    );
+
+    EXPECT_FALSE(battle_state6.player.has_status(Status::FlashFired));
 
     // Grass
     execute_move(
@@ -249,7 +264,15 @@ TEST(BattleEngine, FlashFireIsNotActivatedAfterBeingHitWithNonFireMoves) {
 
     EXPECT_FALSE(battle_state2.player.has_status(Status::FlashFired));
 
-    // Steel TODO
+    // Steel
+    execute_move(
+        DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+        battle_state6,
+        Who::Opponent,
+        Move::SteelWing
+    );
+
+    EXPECT_FALSE(battle_state6.player.has_status(Status::FlashFired));
 }
 
 TEST(BattleEngine, FlashFireMakesPhysicalFireAttackUseBoostedAttackStat) {

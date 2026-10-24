@@ -17,6 +17,20 @@ const CustomPokemon Articuno_7_3{
     .pounds = 122.1
 };
 
+const CustomPokemon Cresselia_7_2{
+    .unique_id = "Cresselia_7_2",
+    .name = Pokemon::Cresselia,
+    .ability = Ability::Levitate,
+    .level = 50,
+    .item = Item::LumBerry,
+    .types = {PokemonType::Psychic, PokemonType::NoType},
+    .moves = {
+        Move::Psychic, Move::Moonlight, Move::Toxic, Move::DoubleTeam
+    },
+    .stats = {213, 78, 173, 92, 168, 102},
+    .pounds = 188.7
+};
+
 const CustomPokemon Cresselia_7_3{
     .unique_id = "Cresselia_7_3",
     .name = Pokemon::Cresselia,

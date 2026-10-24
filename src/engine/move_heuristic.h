@@ -110,10 +110,10 @@ inline bool is_further_evaluation_needed(
         is_player_attacker
             ? battle_state.player
             : battle_state.opponent;
-    // const PokemonState& defender =
-    //     is_player_attacker
-    //         ? battle_state.opponent
-    //         : battle_state.player;
+    const PokemonState& defender =
+        is_player_attacker
+            ? battle_state.opponent
+            : battle_state.player;
 
     if (attacker.has_status_with_stage(StatusWithStage::Asleep)) {
         return false;
@@ -200,6 +200,12 @@ inline bool is_further_evaluation_needed(
         // !attacker.has_move_status_with_stage(
         //     MoveStatusWithStage::BehindSubstitute
         // )
+    ) {
+        return true;
+    }
+
+    if (move_has_flag(attacker_move, MoveFlag::BADLY_POISONS) &&
+        !defender.has_status_condition(StatusCondition::BadlyPoisoned)
     ) {
         return true;
     }
@@ -456,10 +462,26 @@ inline bool first_battle_state_is_better_for_attacker(
     }
 
     // Check if first move does more
-    const uint16_t firsts_first_move_damge =
+    uint32_t firsts_first_move_damge =
         first_attacker_moves.line[0].damage;
-    const uint16_t seconds_first_move_damge =
+    if (first_attacker_moves.evaluated_move == Move::Toxic) {
+        firsts_first_move_damge = 0;
+        const uint16_t second_attacker_max_hp =
+            second_attacker.get_original_stat(Stat::Health);
+        for (uint8_t i = 0; i < first_attacker_moves.line_size; i++) {
+            firsts_first_move_damge += (i + 1) * (second_attacker_max_hp / 16);
+        }
+    }
+    uint32_t seconds_first_move_damge =
         second_attacker_moves.line[0].damage;
+    if (second_attacker_moves.evaluated_move == Move::Toxic) {
+        seconds_first_move_damge = 0;
+        const uint16_t first_attacker_max_hp =
+            first_attacker.get_original_stat(Stat::Health);
+        for (uint8_t i = 0; i < second_attacker_moves.line_size; i++) {
+            seconds_first_move_damge += (i + 1) * (first_attacker_max_hp / 16);
+        }
+    }
     if (firsts_first_move_damge > seconds_first_move_damge) {
         return true;
     }

@@ -779,6 +779,11 @@ void apply_move_effects_to_defender(
         roll_burn(policy_container, defender, who_defender_is, 10);
     }
 
+    if (move_has_flag(attacker_move, MoveFlag::BADLY_POISONS)
+    ) [[unlikely]] {
+        defender.try_set_status_condition(StatusCondition::BadlyPoisoned);
+    }
+
     if (move_has_flag(
             attacker_move,
             MoveFlag::LOWERS_DEFENDER_SPECIAL_ATTACK_ONE_STAGE_50

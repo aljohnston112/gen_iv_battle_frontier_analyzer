@@ -2498,6 +2498,7 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::DoubleTeam)] = true;
     implemented_moves[to_int(Move::Substitute)] = true;
     implemented_moves[to_int(Move::Facade)] = true;
+    implemented_moves[to_int(Move::Toxic)] = true;
 
     return implemented_moves;
 }();
