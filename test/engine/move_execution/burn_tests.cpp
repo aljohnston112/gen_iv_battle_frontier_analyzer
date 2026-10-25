@@ -6,6 +6,75 @@
 
 #include "gtest/gtest.h"
 
+namespace {
+    template <Move M>
+    void move_causes_burn_on_true_roll(const CustomPokemon& custom_pokemon) {
+        BattleState battle_state{
+            PokemonState{&Suicune_7_2},
+            PokemonState{&custom_pokemon}
+        };
+
+        EXPECT_FALSE(
+            battle_state.player.has_status_condition(StatusCondition::Burn)
+        );
+
+        execute_move(
+            ALWAYS_BURN_POLICY_CONTAINER,
+            battle_state,
+            Who::Opponent,
+            M
+        );
+
+        EXPECT_TRUE(
+            battle_state.player.has_status_condition(StatusCondition::Burn)
+        );
+    }
+
+    template <Move M>
+    void move_does_not_cause_burn_on_false_roll(
+        const CustomPokemon& custom_pokemon
+    ) {
+        BattleState battle_state{
+            PokemonState{&Suicune_7_2},
+            PokemonState{&custom_pokemon}
+        };
+
+        EXPECT_FALSE(
+            battle_state.player.has_status_condition(StatusCondition::Burn)
+        );
+
+        execute_move(
+            NEVER_BURN_POLICY_CONTAINER,
+            battle_state,
+            Who::Opponent,
+            M
+        );
+
+        EXPECT_FALSE(
+            battle_state.player.has_status_condition(StatusCondition::Burn)
+        );
+    }
+
+    template <Move M>
+    void move_does_not_burn_fire_type(const CustomPokemon& custom_pokemon) {
+        BattleState battle_state{
+            PokemonState{&Entei_7_3},
+            PokemonState{&custom_pokemon}
+        };
+
+        execute_move(
+            ALWAYS_BURN_POLICY_CONTAINER,
+            battle_state,
+            Who::Opponent,
+            M
+        );
+
+        EXPECT_FALSE(
+            battle_state.player.has_status_condition(StatusCondition::Burn)
+        );
+    }
+}
+
 TEST(MoveExecution, FalseRollDoesNotBurn) {
     auto defender = PokemonState{&Cresselia_7_4};
 
@@ -37,7 +106,7 @@ TEST(MoveExecution, TrueRollDoesBurn) {
         defender,
         Who::Player,
         10
-        );
+    );
     EXPECT_EQ(
         StatusCondition::Burn,
         defender.get_current_status_condition()
@@ -52,7 +121,7 @@ TEST(MoveExecution, EndOfTurnBurnDamageIsCorrect) {
         defender,
         Who::Player,
         10
-        );
+    );
     EXPECT_EQ(
         StatusCondition::Burn,
         defender.get_current_status_condition()
@@ -89,110 +158,51 @@ TEST(MoveExecution, BurnDoesNotAffectSpecialDamage) {
 }
 
 TEST(MoveExecution, FlamethrowerBurnsOnTrueRoll) {
-    BattleState battle_state{
-        PokemonState{&Heatran_7_3},
-        PokemonState{&Cresselia_7_3}
-    };
-
-    execute_move(
-        ALWAYS_BURN_POLICY_CONTAINER,
-        battle_state,
-        Who::Player,
-        Move::Flamethrower
-    );
-
-    EXPECT_TRUE(
-        battle_state.opponent.has_status_condition(StatusCondition::Burn)
+    move_causes_burn_on_true_roll<Move::Flamethrower>(
+        Heatran_7_3
     );
 }
 
 TEST(MoveExecution, FlamethrowerDoesNotBurnsOnFalseRoll) {
-    BattleState battle_state{
-        PokemonState{&Heatran_7_3},
-        PokemonState{&Cresselia_7_3}
-    };
-
-    execute_move(
-        NEVER_BURN_POLICY_CONTAINER,
-        battle_state,
-        Who::Player,
-        Move::Flamethrower
-    );
-
-    EXPECT_FALSE(
-        battle_state.opponent.has_status_condition(StatusCondition::Burn)
+    move_does_not_cause_burn_on_false_roll<Move::Flamethrower>(
+        Heatran_7_3
     );
 }
 
 TEST(MoveExecution, FlamethrowerDoesNotBurnFireTypeDefender) {
-    BattleState battle_state{
-        PokemonState{&Entei_7_3},
-        PokemonState{&Heatran_7_3}
-    };
-
-    execute_move(
-        ALWAYS_BURN_POLICY_CONTAINER,
-        battle_state,
-        Who::Opponent,
-        Move::Flamethrower
-    );
-
-    EXPECT_FALSE(
-        battle_state.player.has_status_condition(StatusCondition::Burn)
+    move_does_not_burn_fire_type<Move::Flamethrower>(
+        Heatran_7_3
     );
 }
 
 TEST(MoveExecution, FireBlastBurnsOnTrueRoll) {
-    BattleState battle_state{
-        PokemonState{&Entei_7_3},
-        PokemonState{&Cresselia_7_3}
-    };
-
-    execute_move(
-        ALWAYS_BURN_POLICY_CONTAINER,
-        battle_state,
-        Who::Player,
-        Move::FireBlast
-    );
-
-    EXPECT_TRUE(
-        battle_state.opponent.has_status_condition(StatusCondition::Burn)
-    );
+    move_causes_burn_on_true_roll<Move::FireBlast>(Entei_7_3);
 }
 
 TEST(MoveExecution, FireBlastDoesNotBurnsOnFalseRoll) {
-    BattleState battle_state{
-        PokemonState{&Entei_7_3},
-        PokemonState{&Cresselia_7_3}
-    };
-
-    execute_move(
-        NEVER_BURN_POLICY_CONTAINER,
-        battle_state,
-        Who::Player,
-        Move::FireBlast
-    );
-
-    EXPECT_FALSE(
-        battle_state.opponent.has_status_condition(StatusCondition::Burn)
+    move_does_not_cause_burn_on_false_roll<Move::FireBlast>(
+        Entei_7_3
     );
 }
 
 TEST(MoveExecution, FireBlastDoesNotBurnFireTypeDefender) {
-    BattleState battle_state{
-        PokemonState{&Entei_7_3},
-        PokemonState{&Entei_7_3}
-    };
-
-    execute_move(
-        ALWAYS_BURN_POLICY_CONTAINER,
-        battle_state,
-        Who::Opponent,
-        Move::FireBlast
-    );
-
-    EXPECT_FALSE(
-        battle_state.player.has_status_condition(StatusCondition::Burn)
+    move_does_not_burn_fire_type<Move::FireBlast>(
+        Entei_7_3
     );
 }
 
+TEST(MoveExecution, FireFangBurnsOnTrueRoll) {
+    move_causes_burn_on_true_roll<Move::FireFang>(Entei_7_2);
+}
+
+TEST(MoveExecution, FireFangDoesNotBurnsOnFalseRoll) {
+    move_does_not_cause_burn_on_false_roll<Move::FireFang>(
+        Entei_7_2
+    );
+}
+
+TEST(MoveExecution, FireFangDoesNotBurnFireTypeDefender) {
+    move_does_not_burn_fire_type<Move::FireFang>(
+        Entei_7_2
+    );
+}

@@ -310,41 +310,61 @@ TEST(MoveExecution, ZenHeadbuttDoesNotCauseFlinchOnFalseRoll) {
 }
 
 TEST(MoveExecution, BiteCausesFlinchOnTrueRoll) {
-    move_causes_flinch_on_true_roll<Move::Bite>(Suicune_7_2);
+    move_causes_flinch_on_true_roll<Move::Bite>(
+        Suicune_7_2_No_Item
+    );
 }
 
 TEST(MoveExecution, BiteDoesNotCauseFlinchOnFalseRoll) {
     move_does_not_cause_flinch_on_false_roll<Move::Bite>(
-        Suicune_7_2
+        Suicune_7_2_No_Item
     );
 }
 
 TEST(MoveExecution, IronHeadCausesFlinchOnTrueRoll) {
-    move_causes_flinch_on_true_roll<Move::IronHead>(Suicune_7_2);
+    move_causes_flinch_on_true_roll<Move::IronHead>(
+        Suicune_7_2_No_Item
+    );
 }
 
 TEST(MoveExecution, IronHeadDoesNotCauseFlinchOnFalseRoll) {
     move_does_not_cause_flinch_on_false_roll<Move::IronHead>(
-        Suicune_7_2
+        Suicune_7_2_No_Item
     );
 }
 
 TEST(MoveExecution, IceFangCausesFlinchOnTrueRoll) {
-    move_causes_flinch_on_true_roll<Move::IceFang>(Suicune_7_2);
+    move_causes_flinch_on_true_roll<Move::IceFang>(
+        Suicune_7_2_No_Item
+    );
 }
 
 TEST(MoveExecution, IceFangDoesNotCauseFlinchOnFalseRoll) {
     move_does_not_cause_flinch_on_false_roll<Move::IceFang>(
-        Suicune_7_2
+        Suicune_7_2_No_Item
     );
 }
 
 TEST(MoveExecution, WaterfallCausesFlinchOnTrueRoll) {
-    move_causes_flinch_on_true_roll<Move::Waterfall>(Suicune_7_2);
+    move_causes_flinch_on_true_roll<Move::Waterfall>(
+        Suicune_7_2_No_Item
+    );
 }
 
 TEST(MoveExecution, WaterfallDoesNotCauseFlinchOnFalseRoll) {
     move_does_not_cause_flinch_on_false_roll<Move::Waterfall>(
-        Suicune_7_2
+        Suicune_7_2_No_Item
+    );
+}
+
+TEST(MoveExecution, FireFangCausesFlinchOnTrueRoll) {
+    move_causes_flinch_on_true_roll<Move::FireFang>(
+        Entei_7_2_No_Item
+    );
+}
+
+TEST(MoveExecution, FireFangDoesNotCauseFlinchOnFalseRoll) {
+    move_does_not_cause_flinch_on_false_roll<Move::FireFang>(
+        Entei_7_2_No_Item
     );
 }

@@ -69,6 +69,34 @@ const CustomPokemon Cresselia_7_4_NoItem{
     .pounds = 188.7
 };
 
+const CustomPokemon Entei_7_2{
+    .unique_id = "Entei_7_2",
+    .name = Pokemon::Entei,
+    .ability = Ability::Pressure,
+    .level = 50,
+    .item = Item::KingsRock,
+    .types = {PokemonType::Fire, PokemonType::NoType},
+    .moves = {
+        Move::Bite, Move::FireFang, Move::IronHead, Move::StoneEdge
+    },
+    .stats = {187, 163, 102, 96, 92, 162},
+    .pounds = 436.5
+};
+
+const CustomPokemon Entei_7_2_No_Item{
+    .unique_id = "Entei_7_2_No_Item",
+    .name = Pokemon::Entei,
+    .ability = Ability::Pressure,
+    .level = 50,
+    .item = Item::NoItem,
+    .types = {PokemonType::Fire, PokemonType::NoType},
+    .moves = {
+        Move::Bite, Move::FireFang, Move::IronHead, Move::StoneEdge
+    },
+    .stats = {187, 163, 102, 96, 92, 162},
+    .pounds = 436.5
+};
+
 const CustomPokemon Entei_7_3{
     .unique_id = "Entei_7_3",
     .name = Pokemon::Entei,
@@ -80,7 +108,7 @@ const CustomPokemon Entei_7_3{
         Move::SunnyDay, Move::FireBlast, Move::SolarBeam, Move::HyperBeam
     },
     .stats = {187, 118, 102, 151, 92, 148},
-    .pounds = 948
+    .pounds = 436.5
 };
 
 const CustomPokemon Heatran_7_3{
@@ -245,6 +273,20 @@ const CustomPokemon Suicune_7_2{
     .ability = Ability::Pressure,
     .level = 50,
     .item = Item::KingsRock,
+    .types = {PokemonType::Water, PokemonType::NoType},
+    .moves = {
+        Move::Waterfall, Move::IceFang, Move::Bite, Move::IronHead
+    },
+    .stats = {172, 123, 132, 96, 132, 146},
+    .pounds = 412.3
+};
+
+const CustomPokemon Suicune_7_2_No_Item{
+    .unique_id = "Suicune_7_2_No_Item",
+    .name = Pokemon::Suicune,
+    .ability = Ability::Pressure,
+    .level = 50,
+    .item = Item::NoItem,
     .types = {PokemonType::Water, PokemonType::NoType},
     .moves = {
         Move::Waterfall, Move::IceFang, Move::Bite, Move::IronHead

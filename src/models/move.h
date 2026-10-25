@@ -1796,7 +1796,7 @@ inline constexpr std::array<
     flags[to_int(Move::WillOWisp)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::BlazeKick)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::FlareBlitz)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
-    flags[to_int(Move::FireFang)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
+    flags[to_int(Move::FireFang)][to_int(MoveFlag::BURNS_DEFENDER_10)] = true;
     flags[to_int(Move::LavaPlume)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
 
     flags[to_int(Move::IcePunch)][to_int(MoveFlag::FREEZES_DEFENDER)] = true;
@@ -1877,7 +1877,7 @@ inline constexpr std::array<
     flags[to_int(Move::DragonRush)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::ThunderFang)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::IceFang)][to_int(MoveFlag::FLINCHES_DEFENDER_10)] = true;
-    flags[to_int(Move::FireFang)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
+    flags[to_int(Move::FireFang)][to_int(MoveFlag::FLINCHES_DEFENDER_10)] = true;
     flags[to_int(Move::ZenHeadbutt)][to_int(MoveFlag::FLINCHES_DEFENDER_20)] = true;
     flags[to_int(Move::IronHead)][to_int(MoveFlag::FLINCHES_DEFENDER_30)] = true;
 
@@ -2560,6 +2560,7 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::IceFang)] = true;
     implemented_moves[to_int(Move::Waterfall)] = true;
     implemented_moves[to_int(Move::IronHead)] = true;
+    implemented_moves[to_int(Move::FireFang)] = true;
 
     return implemented_moves;
 }();

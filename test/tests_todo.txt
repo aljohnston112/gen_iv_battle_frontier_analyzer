@@ -176,3 +176,5 @@ TODO
     Toxic does not affect steel type Pokémon
 
     A frozen Sky Forme Shaymin will revert to its Land Forme
+
+    Fire Fang is always able to hit through Wonder Guard, even if the target does not have a weakness to Fire-type moves

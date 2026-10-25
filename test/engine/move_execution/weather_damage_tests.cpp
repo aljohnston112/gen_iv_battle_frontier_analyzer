@@ -7,7 +7,15 @@
 #include "gtest/gtest.h"
 
 TEST(MoveExecution, PhysicalWaterMoveHasHalfPowerInSun) {
-    // TODO
+    BattleState battle_state{
+        PokemonState{&Suicune_7_2},
+        PokemonState{&Suicune_7_2}
+    };
+    battle_state.set_weather(Weather::Sun, 5);
+    random_does_correct_damage_for_attack<
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 11>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 13>
+    >(battle_state, Move::Waterfall);
 }
 
 TEST(MoveExecution, SpecialWaterMoveHasHalfPowerInSun) {
@@ -23,7 +31,15 @@ TEST(MoveExecution, SpecialWaterMoveHasHalfPowerInSun) {
 }
 
 TEST(MoveExecution, PhysicalFireMoveHasHalfPowerInRain) {
-    // TODO
+    BattleState battle_state{
+        PokemonState{&Entei_7_2},
+        PokemonState{&Entei_7_2}
+    };
+    battle_state.set_weather(Weather::Rain, 5);
+    random_does_correct_damage_for_attack<
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 15>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 18>
+    >(battle_state, Move::FireFang);
 }
 
 TEST(MoveExecution, SpecialFireMoveHasHalfPowerInRain) {
@@ -39,7 +55,15 @@ TEST(MoveExecution, SpecialFireMoveHasHalfPowerInRain) {
 }
 
 TEST(MoveExecution, PhysicalFireMoveHasDoublePowerInSun) {
-    // TODO
+    BattleState battle_state{
+        PokemonState{&Entei_7_2},
+        PokemonState{&Entei_7_2}
+    };
+    battle_state.set_weather(Weather::Sun, 5);
+    random_does_correct_damage_for_attack<
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 43>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 51>
+    >(battle_state, Move::FireFang);
 }
 
 TEST(MoveExecution, SpecialFireMoveHasDoublePowerInSun) {
@@ -55,7 +79,15 @@ TEST(MoveExecution, SpecialFireMoveHasDoublePowerInSun) {
 }
 
 TEST(MoveExecution, PhysicalWaterMoveHasDoublePowerInRain) {
-    // TODO
+    BattleState battle_state{
+        PokemonState{&Suicune_7_2},
+        PokemonState{&Suicune_7_2}
+    };
+    battle_state.set_weather(Weather::Rain, 5);
+    random_does_correct_damage_for_attack<
+        DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 31>,
+        DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 37>
+    >(battle_state, Move::Waterfall);
 }
 
 TEST(MoveExecution, SpecialWaterMoveHasDoublePowerInRain) {
