@@ -239,6 +239,20 @@ const CustomPokemon Regigigas_7_3{
     .pounds = 925.9
 };
 
+const CustomPokemon Suicune_7_2{
+    .unique_id = "Suicune_7_2",
+    .name = Pokemon::Suicune,
+    .ability = Ability::Pressure,
+    .level = 50,
+    .item = Item::KingsRock,
+    .types = {PokemonType::Water, PokemonType::NoType},
+    .moves = {
+        Move::Waterfall, Move::IceFang, Move::Bite, Move::IronHead
+    },
+    .stats = {172, 123, 132, 96, 132, 146},
+    .pounds = 412.3
+};
+
 const CustomPokemon Suicune_7_3{
     .unique_id = "Suicune_7_3",
     .name = Pokemon::Suicune,

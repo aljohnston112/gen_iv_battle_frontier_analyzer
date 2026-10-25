@@ -1022,6 +1022,7 @@ enum class MoveFlag {
     FLINCHES_DEFENDER, // TODO replace
     FLINCHES_DEFENDER_10,
     FLINCHES_DEFENDER_20,
+    FLINCHES_DEFENDER_30,
     FORCES_USER_OUT,
     FREEZES_DEFENDER, // TODO replace
     FREEZES_DEFENDER_10,
@@ -1802,7 +1803,7 @@ inline constexpr std::array<
     flags[to_int(Move::IceBeam)][to_int(MoveFlag::FREEZES_DEFENDER_10)] = true;
     flags[to_int(Move::Blizzard)][to_int(MoveFlag::FREEZES_DEFENDER_10)] = true;
     flags[to_int(Move::PowderSnow)][to_int(MoveFlag::FREEZES_DEFENDER)] = true;
-    flags[to_int(Move::IceFang)][to_int(MoveFlag::FREEZES_DEFENDER)] = true;
+    flags[to_int(Move::IceFang)][to_int(MoveFlag::FREEZES_DEFENDER_10)] = true;
 
     flags[to_int(Move::ThunderPunch)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::BodySlam)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
@@ -1862,9 +1863,9 @@ inline constexpr std::array<
     flags[to_int(Move::Stomp)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::RollingKick)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::Headbutt)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
-    flags[to_int(Move::Bite)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
+    flags[to_int(Move::Bite)][to_int(MoveFlag::FLINCHES_DEFENDER_30)] = true;
     flags[to_int(Move::BoneClub)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
-    flags[to_int(Move::Waterfall)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
+    flags[to_int(Move::Waterfall)][to_int(MoveFlag::FLINCHES_DEFENDER_20)] = true;
     flags[to_int(Move::SkyAttack)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::HyperFang)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::Twister)][to_int(MoveFlag::FLINCHES_DEFENDER_20)] = true;
@@ -1875,10 +1876,10 @@ inline constexpr std::array<
     flags[to_int(Move::AirSlash)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::DragonRush)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::ThunderFang)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
-    flags[to_int(Move::IceFang)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
+    flags[to_int(Move::IceFang)][to_int(MoveFlag::FLINCHES_DEFENDER_10)] = true;
     flags[to_int(Move::FireFang)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
     flags[to_int(Move::ZenHeadbutt)][to_int(MoveFlag::FLINCHES_DEFENDER_20)] = true;
-    flags[to_int(Move::IronHead)][to_int(MoveFlag::FLINCHES_DEFENDER)] = true;
+    flags[to_int(Move::IronHead)][to_int(MoveFlag::FLINCHES_DEFENDER_30)] = true;
 
     flags[to_int(Move::JumpKick)][to_int(MoveFlag::HAS_RECOIL)] = true;
     flags[to_int(Move::TakeDown)][to_int(MoveFlag::HAS_RECOIL)] = true;
@@ -2555,6 +2556,10 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::Earthquake)] = true;
     implemented_moves[to_int(Move::AerialAce)] = true;
     implemented_moves[to_int(Move::Avalanche)] = true;
+    implemented_moves[to_int(Move::Bite)] = true;
+    implemented_moves[to_int(Move::IceFang)] = true;
+    implemented_moves[to_int(Move::Waterfall)] = true;
+    implemented_moves[to_int(Move::IronHead)] = true;
 
     return implemented_moves;
 }();

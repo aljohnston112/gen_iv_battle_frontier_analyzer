@@ -8,6 +8,48 @@
 
 #include "gtest/gtest.h"
 
+namespace {
+    template <Move M>
+    void move_causes_flinch_on_true_roll(const CustomPokemon& custom_pokemon) {
+        BattleState battle_state{
+            PokemonState{&Heatran_7_3},
+            PokemonState{&custom_pokemon}
+        };
+
+        EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
+
+        execute_move(
+            ALWAYS_FLINCH_POLICY_CONTAINER,
+            battle_state,
+            Who::Opponent,
+            M
+        );
+
+        EXPECT_TRUE(battle_state.player.has_status(Status::Flinched));
+    }
+
+    template <Move M>
+    void move_does_not_cause_flinch_on_false_roll(
+        const CustomPokemon& custom_pokemon
+    ) {
+        BattleState battle_state{
+            PokemonState{&Heatran_7_3},
+            PokemonState{&custom_pokemon}
+        };
+
+        EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
+
+        execute_move(
+            NEVER_FLINCH_POLICY_CONTAINER,
+            battle_state,
+            Who::Opponent,
+            M
+        );
+
+        EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
+    }
+}
+
 TEST(MoveExecution, FlinchedStatusOnAttackerPreventsItsMove) {
     BattleState battle_state{
         PokemonState{&Heatran_7_3},
@@ -37,87 +79,38 @@ TEST(MoveExecution, FlinchedStatusIsClearedAfterMoveFails) {
     battle_state.player.set_status(Status::Flinched);
 
     EXPECT_TRUE(battle_state.player.has_status(Status::Flinched));
-
-    execute_move(
-        DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
-        battle_state,
-        Who::Player,
-        Move::Flamethrower
+    EXPECT_EQ(
+        0,
+        execute_move(
+            DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+            battle_state,
+            Who::Player,
+            Move::Flamethrower
+        )
     );
-
     EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
 }
 
 TEST(MoveExecution, DarkPulseCausesFlinchOnTrueRoll) {
-    BattleState battle_state{
-        PokemonState{&Heatran_7_3},
-        PokemonState{&Heatran_7_3}
-    };
-
-    EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
-
-    execute_move(
-        ALWAYS_FLINCH_POLICY_CONTAINER,
-        battle_state,
-        Who::Opponent,
-        Move::DarkPulse
-    );
-
-    EXPECT_TRUE(battle_state.player.has_status(Status::Flinched));
+    move_causes_flinch_on_true_roll<Move::DarkPulse>(Heatran_7_3);
 }
 
 TEST(MoveExecution, DarkPulseDoesNotCauseFlinchOnFalseRoll) {
-    BattleState battle_state{
-        PokemonState{&Heatran_7_3},
-        PokemonState{&Heatran_7_3}
-    };
-
-    EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
-
-    execute_move(
-        NEVER_FLINCH_POLICY_CONTAINER,
-        battle_state,
-        Who::Opponent,
-        Move::DarkPulse
+    move_does_not_cause_flinch_on_false_roll<Move::DarkPulse>(
+        Heatran_7_3
     );
-
-    EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
 }
 
 TEST(MoveExecution, ExtrasensoryCausesFlinchOnTrueRoll) {
-    BattleState battle_state{
-        PokemonState{&Heatran_7_3},
-        PokemonState{&Raikou_7_3}
-    };
-
-    EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
-
-    execute_move(
-        ALWAYS_FLINCH_POLICY_CONTAINER,
-        battle_state,
-        Who::Opponent,
-        Move::Extrasensory
+    move_causes_flinch_on_true_roll<Move::Extrasensory>(
+        Raikou_7_3
     );
-
-    EXPECT_TRUE(battle_state.player.has_status(Status::Flinched));
 }
 
 TEST(MoveExecution, ExtrasensoryDoesNotCauseFlinchOnFalseRoll) {
-    BattleState battle_state{
-        PokemonState{&Heatran_7_3},
-        PokemonState{&Raikou_7_3}
-    };
-
-    EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
-
-    execute_move(
-        NEVER_FLINCH_POLICY_CONTAINER,
-        battle_state,
-        Who::Opponent,
-        Move::Extrasensory
+    move_does_not_cause_flinch_on_false_roll<Move::Extrasensory>(
+        Raikou_7_3
     );
-
-    EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
 }
 
 TEST(MoveExecution, KingsRockWithAffectedMoveCausesFlinchOnTrueRoll) {
@@ -180,39 +173,15 @@ TEST(MoveExecution, KingsRockWithNonAffectedMoveDoesNotCauseFlinchOnTrueRoll) {
 }
 
 TEST(MoveExecution, TwisterCausesFlinchOnTrueRoll) {
-    BattleState battle_state{
-        PokemonState{&Heatran_7_3},
-        PokemonState{&Zapdos_7_3}
-    };
-
-    EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
-
-    execute_move(
-        ALWAYS_FLINCH_POLICY_CONTAINER,
-        battle_state,
-        Who::Opponent,
-        Move::Twister
+    move_causes_flinch_on_true_roll<Move::Twister>(
+        Zapdos_7_3_NoItem
     );
-
-    EXPECT_TRUE(battle_state.player.has_status(Status::Flinched));
 }
 
 TEST(MoveExecution, TwisterDoesNotCauseFlinchOnFalseRoll) {
-    BattleState battle_state{
-        PokemonState{&Heatran_7_3},
-        PokemonState{&Zapdos_7_3_NoItem}
-    };
-
-    EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
-
-    execute_move(
-        NEVER_FLINCH_POLICY_CONTAINER,
-        battle_state,
-        Who::Opponent,
-        Move::Twister
+    move_does_not_cause_flinch_on_false_roll<Move::Twister>(
+        Zapdos_7_3_NoItem
     );
-
-    EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
 }
 
 namespace {
@@ -234,6 +203,7 @@ namespace {
             return rolls.size() - next_roll;
         }
     };
+
     static_assert(IsAllowedPolicy<FlinchSequencePolicy<false, false>>);
 }
 
@@ -328,37 +298,53 @@ TEST(MoveExecution, TwisterWithKingsRockCausesFlinchOnTwoTrueRolls) {
 }
 
 TEST(MoveExecution, ZenHeadbuttCausesFlinchOnTrueRoll) {
-    BattleState battle_state{
-        PokemonState{&Heatran_7_3},
-        PokemonState{&Regigigas_7_2}
-    };
-
-    EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
-
-    execute_move(
-        ALWAYS_FLINCH_POLICY_CONTAINER,
-        battle_state,
-        Who::Opponent,
-        Move::ZenHeadbutt
+    move_causes_flinch_on_true_roll<Move::ZenHeadbutt>(
+        Regigigas_7_2
     );
-
-    EXPECT_TRUE(battle_state.player.has_status(Status::Flinched));
 }
 
 TEST(MoveExecution, ZenHeadbuttDoesNotCauseFlinchOnFalseRoll) {
-    BattleState battle_state{
-        PokemonState{&Heatran_7_3},
-        PokemonState{&Regigigas_7_2}
-    };
-
-    EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
-
-    execute_move(
-        NEVER_FLINCH_POLICY_CONTAINER,
-        battle_state,
-        Who::Opponent,
-        Move::ZenHeadbutt
+    move_does_not_cause_flinch_on_false_roll<Move::ZenHeadbutt>(
+        Regigigas_7_2
     );
+}
 
-    EXPECT_FALSE(battle_state.player.has_status(Status::Flinched));
+TEST(MoveExecution, BiteCausesFlinchOnTrueRoll) {
+    move_causes_flinch_on_true_roll<Move::Bite>(Suicune_7_2);
+}
+
+TEST(MoveExecution, BiteDoesNotCauseFlinchOnFalseRoll) {
+    move_does_not_cause_flinch_on_false_roll<Move::Bite>(
+        Suicune_7_2
+    );
+}
+
+TEST(MoveExecution, IronHeadCausesFlinchOnTrueRoll) {
+    move_causes_flinch_on_true_roll<Move::IronHead>(Suicune_7_2);
+}
+
+TEST(MoveExecution, IronHeadDoesNotCauseFlinchOnFalseRoll) {
+    move_does_not_cause_flinch_on_false_roll<Move::IronHead>(
+        Suicune_7_2
+    );
+}
+
+TEST(MoveExecution, IceFangCausesFlinchOnTrueRoll) {
+    move_causes_flinch_on_true_roll<Move::IceFang>(Suicune_7_2);
+}
+
+TEST(MoveExecution, IceFangDoesNotCauseFlinchOnFalseRoll) {
+    move_does_not_cause_flinch_on_false_roll<Move::IceFang>(
+        Suicune_7_2
+    );
+}
+
+TEST(MoveExecution, WaterfallCausesFlinchOnTrueRoll) {
+    move_causes_flinch_on_true_roll<Move::Waterfall>(Suicune_7_2);
+}
+
+TEST(MoveExecution, WaterfallDoesNotCauseFlinchOnFalseRoll) {
+    move_does_not_cause_flinch_on_false_roll<Move::Waterfall>(
+        Suicune_7_2
+    );
 }

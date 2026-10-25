@@ -834,7 +834,9 @@ void apply_move_effects_to_defender(
     if ((defender_ability != Ability::InnerFocus &&
             defender_ability != Ability::ShieldDust)
     ) [[unlikely]] {
-        if (move_has_flag(attacker_move, MoveFlag::FLINCHES_DEFENDER_20)) {
+        if (move_has_flag(attacker_move, MoveFlag::FLINCHES_DEFENDER_30)) {
+            roll_flinch(policy_container, defender, who_defender_is, 30);
+        } else if (move_has_flag(attacker_move, MoveFlag::FLINCHES_DEFENDER_20)) {
             roll_flinch(policy_container, defender, who_defender_is, 20);
         } else if (
             move_has_flag(attacker_move, MoveFlag::FLINCHES_DEFENDER_10)

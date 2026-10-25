@@ -313,7 +313,7 @@ TEST(
 
 TEST(
     MoveHeuristic,
-    OpponentCresselia_7_3ChoosesThreeShadowBallsAgainstCresselia_7_4
+    OpponentCresselia_7_3ChoosesShadowBallAndEnergyBallAgainstCresselia_7_4
 ) {
     opponent_chooses_moves_against_player(
         Cresselia_7_4,
@@ -487,15 +487,12 @@ TEST(
         Raikou_7_3,
         Entei_7_3,
         Move::RainDance,
-        Move::RainDance,
         Move::Thunder
     );
     opponent_chooses_moves_against_player(
         Raikou_7_3,
         Entei_7_3,
-        // Overrides Rain Dance
-        Move::SunnyDay,
-        // Reduced in the Rain, but burns
+        // Burns
         Move::FireBlast,
         // For the KO!
         Move::HyperBeam

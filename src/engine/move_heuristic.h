@@ -530,13 +530,6 @@ MoveResults get_best_move_result(
         .total_damage = 0,
         .hits_to_ko = std::nullopt
     };
-
-    const Who who_defender_is =
-        who_attacker_is == Who::Player
-            ? Who::Opponent
-            : Who::Player;
-    // -2 * UINT16_MAX is the minimum possible diff
-    int64_t diff = static_cast<int64_t>(0) - UINT32_MAX;
     MoveResult best_defender_move{
         .evaluated_move = Move::MoveCount,
         .line = {},
@@ -544,8 +537,21 @@ MoveResults get_best_move_result(
         .total_damage = 0,
         .hits_to_ko = std::nullopt
     };
+    const Who who_defender_is =
+        who_attacker_is == Who::Player
+            ? Who::Opponent
+            : Who::Player;
+    // -2 * UINT16_MAX is the minimum possible diff
+    int64_t diff = static_cast<int64_t>(0) - UINT32_MAX;
+    MoveResult temp_defender_move{
+        .evaluated_move = Move::MoveCount,
+        .line = {},
+        .line_size = 0,
+        .total_damage = 0,
+        .hits_to_ko = std::nullopt
+    };
     if (defender_move_results) {
-        best_defender_move = *defender_move_results;
+        temp_defender_move = *defender_move_results;
     }
 
     const bool is_player_attacker = who_attacker_is == Who::Player;
@@ -590,7 +596,7 @@ MoveResults get_best_move_result(
                 // Attacker and defender are swapped
                 // in order to get the move the defender will use
                 // in response to this move
-                best_defender_move =
+                temp_defender_move =
                     choose_move_against_defender(
                         policy_container,
                         battle_state,
@@ -605,7 +611,7 @@ MoveResults get_best_move_result(
                         depth
                     ).attacker_results;
             } else {
-                best_defender_move = *defender_move_results;
+                temp_defender_move = *defender_move_results;
             }
 
             const bool further_evaluation_needed =
@@ -613,7 +619,7 @@ MoveResults get_best_move_result(
                     battle_state,
                     move,
                     who_attacker_is,
-                    best_defender_move
+                    temp_defender_move
                 ) &&
                 attacker.get_moves(
                     policy_container.can_use_less_accurate_moves(
@@ -628,7 +634,7 @@ MoveResults get_best_move_result(
                         policy_container,
                         battle_state,
                         move,
-                        best_defender_move,
+                        temp_defender_move,
                         who_attacker_is,
                         depth
                     );
@@ -638,12 +644,13 @@ MoveResults get_best_move_result(
 
             int64_t new_diff = get_hit_diff_of_move_results(
                 current_move_result,
-                best_defender_move,
+                temp_defender_move,
                 depth
             );
 
             if (best_attacker_move.evaluated_move == Move::MoveCount) {
                 best_attacker_move = current_move_result;
+                best_defender_move = temp_defender_move;
                 diff = new_diff;
                 continue;
             }
@@ -660,6 +667,7 @@ MoveResults get_best_move_result(
                 best_attacker_move.won == false;
             if (won) {
                 best_attacker_move = current_move_result;
+                best_defender_move = temp_defender_move;
                 diff = new_diff;
                 continue;
             }
@@ -667,6 +675,7 @@ MoveResults get_best_move_result(
             const bool has_better_diff = new_diff > diff;
             if (has_better_diff) {
                 best_attacker_move = current_move_result;
+                best_defender_move = temp_defender_move;
                 diff = new_diff;
                 continue;
             }
@@ -684,6 +693,7 @@ MoveResults get_best_move_result(
                     *current_move_result.hits_to_ko);
             if (has_better_hits_to_ko) {
                 best_attacker_move = current_move_result;
+                best_defender_move = temp_defender_move;
                 diff = new_diff;
                 continue;
             }
@@ -703,6 +713,7 @@ MoveResults get_best_move_result(
                 current_move_result.total_damage;
             if (has_better_damage) {
                 best_attacker_move = current_move_result;
+                best_defender_move = temp_defender_move;
                 diff = new_diff;
                 continue;
             }
@@ -722,7 +733,7 @@ MoveResults get_best_move_result(
                     policy_container,
                     battle_state,
                     best_attacker_move,
-                    best_defender_move,
+                    temp_defender_move,
                     who_attacker_is
                 );
             const BattleState temp_current_battle_state =
@@ -730,7 +741,7 @@ MoveResults get_best_move_result(
                     policy_container,
                     battle_state,
                     current_move_result,
-                    best_defender_move,
+                    temp_defender_move,
                     who_attacker_is
                 );
             if (first_battle_state_is_better_for_attacker(
@@ -743,6 +754,7 @@ MoveResults get_best_move_result(
                 )
             ) {
                 best_attacker_move = current_move_result;
+                best_defender_move = temp_defender_move;
                 diff = new_diff;
                 const PokemonState& temp_attacker =
                     is_player_attacker

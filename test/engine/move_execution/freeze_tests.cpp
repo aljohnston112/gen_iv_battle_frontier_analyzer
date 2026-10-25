@@ -120,6 +120,13 @@ TEST(MoveExecution, TrueRollFreezesWhenBlizzardIsUsed) {
     move_freezes_on_true_roll<Move::Blizzard>(&Suicune_7_3);
 }
 
+TEST(MoveExecution, FalseRollDoesNotFreezeWhenIceFangIsUsed) {
+    move_does_not_freeze_on_false_roll<Move::IceFang>(&Suicune_7_2);
+}
+
+TEST(MoveExecution, TrueRollFreezesWhenIceFangIsUsed) {
+    move_freezes_on_true_roll<Move::IceFang>(&Suicune_7_2);
+}
 
 TEST(MoveExecution, TrueRollDoesNotFreezeInSun) {
     auto defender = PokemonState{&Cresselia_7_4};
