@@ -7,41 +7,59 @@
 
 #include "gtest/gtest.h"
 
+namespace {
+    template <Move M>
+    void move_paralyzes_on_true_roll(const CustomPokemon& custom_pokemon) {
+        BattleState battle_state{
+            PokemonState{&custom_pokemon},
+            PokemonState{&Latias_7_4_No_Item}
+        };
+
+        execute_move(
+            ALWAYS_PARALYZE_POLICY_CONTAINER,
+            battle_state,
+            Who::Player,
+            M
+        );
+
+        EXPECT_EQ(
+            StatusCondition::Paralysis,
+            battle_state.opponent.get_current_status_condition()
+        );
+    }
+
+    template <Move M>
+    void move_does_not_paralyze_on_false_roll(
+        const CustomPokemon& custom_pokemon
+    ) {
+        BattleState battle_state{
+            PokemonState{&custom_pokemon},
+            PokemonState{&Latias_7_4_No_Item}
+        };
+
+        execute_move(
+            NEVER_PARALYZE_POLICY_CONTAINER,
+            battle_state,
+            Who::Player,
+            M
+        );
+
+        EXPECT_EQ(
+            StatusCondition::NoCondition,
+            battle_state.opponent.get_current_status_condition()
+        );
+    }
+}
+
 TEST(MoveExecution, ThunderBoltParalyzesOnTrueRoll) {
-    BattleState battle_state{
-        PokemonState{&LatiasNoItem},
-        PokemonState{&LatiasNoItem}
-    };
-
-    execute_move(
-        ALWAYS_PARALYZE_POLICY_CONTAINER,
-        battle_state,
-        Who::Player,
-        Move::Thunderbolt
-    );
-
-    EXPECT_EQ(
-        StatusCondition::Paralysis,
-        battle_state.opponent.get_current_status_condition()
+    move_paralyzes_on_true_roll<Move::Thunderbolt>(
+        Latias_7_4_No_Item
     );
 }
 
 TEST(MoveExecution, ThunderBoltDoesNotParalyzeOnFalseRoll) {
-    BattleState battle_state{
-        PokemonState{&LatiasNoItem},
-        PokemonState{&LatiasNoItem}
-    };
-
-    execute_move(
-        NEVER_PARALYZE_POLICY_CONTAINER,
-        battle_state,
-        Who::Player,
-        Move::Thunderbolt
-    );
-
-    EXPECT_NE(
-        StatusCondition::Paralysis,
-        battle_state.opponent.get_current_status_condition()
+    move_does_not_paralyze_on_false_roll<Move::Thunderbolt>(
+        Latias_7_4_No_Item
     );
 }
 
@@ -180,40 +198,12 @@ TEST(MoveExecution, MagicGuardPreventsParalysisOnTrueRoll) {
 }
 
 TEST(MoveExecution, ThunderParalyzesOnTrueRoll) {
-    BattleState battle_state{
-        PokemonState{&Raikou_7_3},
-        PokemonState{&LatiasNoItem}
-    };
-
-    execute_move(
-        ALWAYS_PARALYZE_POLICY_CONTAINER,
-        battle_state,
-        Who::Player,
-        Move::Thunder
-    );
-
-    EXPECT_EQ(
-        StatusCondition::Paralysis,
-        battle_state.opponent.get_current_status_condition()
-    );
+    move_paralyzes_on_true_roll<Move::Thunder>(Raikou_7_3);
 }
 
 TEST(MoveExecution, ThunderDoesNotParalyzeOnFalseRoll) {
-    BattleState battle_state{
-        PokemonState{&Raikou_7_3},
-        PokemonState{&LatiasNoItem}
-    };
-
-    execute_move(
-        NEVER_PARALYZE_POLICY_CONTAINER,
-        battle_state,
-        Who::Player,
-        Move::Thunder
-    );
-
-    EXPECT_NE(
-        StatusCondition::Paralysis,
-        battle_state.opponent.get_current_status_condition()
+    move_does_not_paralyze_on_false_roll<Move::Thunder>(
+        Raikou_7_3
     );
 }
 
@@ -233,5 +223,17 @@ TEST(MoveExecution, ThunderParalyzesElectricTypeOnTrueRoll) {
     EXPECT_EQ(
         StatusCondition::Paralysis,
         battle_state.opponent.get_current_status_condition()
+    );
+}
+
+TEST(MoveExecution, ThunderFangParalyzesOnTrueRoll) {
+    move_paralyzes_on_true_roll<Move::ThunderFang>(
+        Raikou_7_2
+    );
+}
+
+TEST(MoveExecution, ThunderFangDoesNotParalyzeOnFalseRoll) {
+    move_does_not_paralyze_on_false_roll<Move::ThunderFang>(
+        Raikou_7_2
     );
 }

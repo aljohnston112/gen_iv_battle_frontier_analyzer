@@ -680,7 +680,10 @@ uint16_t execute_struggle(
     ) {
         try_apply_damage_to_defender(defender, damage);
     }
-    attacker.add_damage(attacker.get_original_stat(Stat::Health) / 4, DamageSource::DontCare);
+    attacker.add_damage(
+        attacker.get_original_stat(Stat::Health) / 4,
+        DamageSource::DontCare
+    );
 
     return hp_before - defender.get_current_stat(Stat::Health);
 }
@@ -787,6 +790,21 @@ void apply_move_effects_to_defender(
 
     if (move_has_flag(
             attacker_move,
+            MoveFlag::LOWERS_DEFENDER_DEFENSE_ONE_STAGE_20
+        )
+    ) [[unlikely]] {
+        roll_stat_drop<Stat::Defense, Policies...>(
+            policy_container,
+            defender,
+            who_defender_is,
+            1,
+            20,
+            StatDropSource::OtherMove
+        );
+    }
+
+    if (move_has_flag(
+            attacker_move,
             MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10
         )
     ) [[unlikely]] {
@@ -836,7 +854,11 @@ void apply_move_effects_to_defender(
     ) [[unlikely]] {
         if (move_has_flag(attacker_move, MoveFlag::FLINCHES_DEFENDER_30)) {
             roll_flinch(policy_container, defender, who_defender_is, 30);
-        } else if (move_has_flag(attacker_move, MoveFlag::FLINCHES_DEFENDER_20)) {
+        } else if (move_has_flag(
+                attacker_move,
+                MoveFlag::FLINCHES_DEFENDER_20
+            )
+        ) {
             roll_flinch(policy_container, defender, who_defender_is, 20);
         } else if (
             move_has_flag(attacker_move, MoveFlag::FLINCHES_DEFENDER_10)

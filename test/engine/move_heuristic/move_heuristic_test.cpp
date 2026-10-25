@@ -42,7 +42,7 @@ TEST(
 ) {
     const BattleState battle_state{
         PokemonState{&Cresselia_7_4},
-        PokemonState{&LatiasNoItem}
+        PokemonState{&Latias_7_4_No_Item}
     };
     const MoveResults player_move_results =
         choose_move_against_defender(

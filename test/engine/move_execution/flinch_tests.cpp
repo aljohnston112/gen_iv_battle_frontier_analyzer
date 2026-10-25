@@ -368,3 +368,15 @@ TEST(MoveExecution, FireFangDoesNotCauseFlinchOnFalseRoll) {
         Entei_7_2_No_Item
     );
 }
+
+TEST(MoveExecution, ThunderFangCausesFlinchOnTrueRoll) {
+    move_causes_flinch_on_true_roll<Move::ThunderFang>(
+        Raikou_7_2_No_Item
+    );
+}
+
+TEST(MoveExecution, ThunderFangDoesNotCauseFlinchOnFalseRoll) {
+    move_does_not_cause_flinch_on_false_roll<Move::ThunderFang>(
+    Raikou_7_2_No_Item
+    );
+}

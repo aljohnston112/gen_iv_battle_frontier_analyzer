@@ -6,6 +6,9 @@ TODO
     Get Pickachu confused, test hit damage with and without Light Ball
     Get Cubone/Marowak confused, test hit damage with and without Thick Club
 
+    Are Return and Frustration maxed out in Battle Factory?
+        Consensus is yes
+
     Struggle
         Used when all moves are blocked by the moves
         Disable, Gravity, Heal Block, Imprison, Taunt, or Torment,

@@ -6,7 +6,7 @@
 
 #include "gtest/gtest.h"
 
-static void move_does_not_boost_attackers_stat_past_six_on_true_roll(
+static void move_does_not_boost_players_stat_past_six_on_true_roll(
     BattleState& battle_state,
     const Move move,
     const Stat stat,
@@ -30,7 +30,7 @@ static void move_does_not_boost_attackers_stat_past_six_on_true_roll(
     }
 }
 
-static void move_does_not_boost_attackers_stat_on_false_roll(
+static void move_does_not_boost_players_stat_on_false_roll(
     BattleState& battle_state,
     const Move move,
     const Stat stat
@@ -52,7 +52,7 @@ static void move_does_not_boost_attackers_stat_on_false_roll(
 }
 
 
-static void move_drops_targets_stat_on_true_roll(
+static void move_drops_players_stat_on_true_roll(
     BattleState& battle_state,
     const Move move,
     const Stat stat,
@@ -78,7 +78,7 @@ static void move_drops_targets_stat_on_true_roll(
     }
 }
 
-static void move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
+static void move_does_not_drop_players_stat_past_negative_six_on_true_roll(
     BattleState& battle_state,
     const Move move,
     const Stat stat,
@@ -105,7 +105,7 @@ static void move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
     }
 }
 
-static void move_does_not_drop_targets_stat_on_false_roll(
+static void move_does_not_drop_opponents_stat_on_false_roll(
     BattleState& battle_state,
     const Move move,
     const Stat stat
@@ -301,7 +301,7 @@ TEST(MoveExecution, SteelWingDefenseBoostDoesNotGoPastSix) {
         PokemonState{&Cresselia_7_3}
     };
 
-    move_does_not_boost_attackers_stat_past_six_on_true_roll(
+    move_does_not_boost_players_stat_past_six_on_true_roll(
         battle_state,
         Move::SteelWing,
         Stat::Defense,
@@ -315,13 +315,41 @@ TEST(MoveExecution, SteelWingDoesNotBoostDefenseOnFalseRoll) {
         PokemonState{&Cresselia_7_3}
     };
 
-    move_does_not_boost_attackers_stat_on_false_roll(
+    move_does_not_boost_players_stat_on_false_roll(
         battle_state,
         Move::SteelWing,
         Stat::Defense
     );
 }
 
+// Defense Drop
+// =============================================================================
+TEST(MoveExecution, CrunchDefenseDropDoesNotGoPastNegativeSix) {
+    BattleState battle_state{
+        PokemonState{&Zapdos_7_3},
+        PokemonState{&Raikou_7_2}
+    };
+
+    move_does_not_drop_players_stat_past_negative_six_on_true_roll(
+        battle_state,
+        Move::Crunch,
+        Stat::Defense,
+        1
+    );
+}
+
+TEST(MoveExecution, CrunchDoesNotDropOpponentDefenseOnFalseRoll) {
+    BattleState battle_state{
+        PokemonState{&Raikou_7_2},
+        PokemonState{&Zapdos_7_3}
+    };
+
+    move_does_not_drop_opponents_stat_on_false_roll(
+        battle_state,
+        Move::Crunch,
+        Stat::Defense
+    );
+}
 
 // Special Attack Boost
 // =============================================================================
@@ -331,7 +359,7 @@ TEST(MoveExecution, ChargeBeamSpecialAttackBoostDoesNotGoPastSix) {
         PokemonState{&Cresselia_7_3}
     };
 
-    move_does_not_boost_attackers_stat_past_six_on_true_roll(
+    move_does_not_boost_players_stat_past_six_on_true_roll(
         battle_state,
         Move::ChargeBeam,
         Stat::SpecialAttack,
@@ -345,7 +373,7 @@ TEST(MoveExecution, ChargeBeamDoesNotBoostSpecialAttackOnFalseRoll) {
         PokemonState{&Cresselia_7_3}
     };
 
-    move_does_not_boost_attackers_stat_on_false_roll(
+    move_does_not_boost_players_stat_on_false_roll(
         battle_state,
         Move::ChargeBeam,
         Stat::SpecialAttack
@@ -357,11 +385,11 @@ TEST(MoveExecution, ChargeBeamDoesNotBoostSpecialAttackOnFalseRoll) {
 // =============================================================================
 TEST(MoveExecution, MistBallDropsSpecialAttackOnTrueRoll) {
     BattleState battle_state{
-        PokemonState{&LatiasNoItem},
-        PokemonState{&LatiasNoItem}
+        PokemonState{&Latias_7_4_No_Item},
+        PokemonState{&Latias_7_4_No_Item}
     };
 
-    move_drops_targets_stat_on_true_roll(
+    move_drops_players_stat_on_true_roll(
         battle_state,
         Move::MistBall,
         Stat::SpecialAttack,
@@ -371,11 +399,11 @@ TEST(MoveExecution, MistBallDropsSpecialAttackOnTrueRoll) {
 
 TEST(MoveExecution, MistBallSpecialAttackDropDoesNotGoBelowNegativeSix) {
     BattleState battle_state{
-        PokemonState{&LatiasNoItem},
-        PokemonState{&LatiasNoItem}
+        PokemonState{&Latias_7_4_No_Item},
+        PokemonState{&Latias_7_4_No_Item}
     };
 
-    move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
+    move_does_not_drop_players_stat_past_negative_six_on_true_roll(
         battle_state,
         Move::MistBall,
         Stat::SpecialAttack,
@@ -389,7 +417,7 @@ TEST(MoveExecution, MistBallDoesNotDropSpecialAttackOnFalseRoll) {
         PokemonState{&Latias_7_4}
     };
 
-    move_does_not_drop_targets_stat_on_false_roll(
+    move_does_not_drop_opponents_stat_on_false_roll(
         battle_state,
         Move::MistBall,
         Stat::SpecialAttack
@@ -398,8 +426,8 @@ TEST(MoveExecution, MistBallDoesNotDropSpecialAttackOnFalseRoll) {
 
 TEST(MoveExecution, DracoMeteorDropsSpecialAtttack) {
     BattleState battle_state{
-        PokemonState{&LatiasNoItem},
-        PokemonState{&LatiasNoItem}
+        PokemonState{&Latias_7_4_No_Item},
+        PokemonState{&Latias_7_4_No_Item}
     };
 
     execute_move(
@@ -497,7 +525,7 @@ TEST(MoveExecution, PsychicDropsSpecialDefenseOnTrueRoll) {
         PokemonState{&Cresselia_7_4}
     };
 
-    move_drops_targets_stat_on_true_roll(
+    move_drops_players_stat_on_true_roll(
         battle_state,
         Move::Psychic,
         Stat::SpecialDefense,
@@ -511,7 +539,7 @@ TEST(MoveExecution, PsychicSpecialDefenseDropDoesNotGoBelowNegativeSix) {
         PokemonState{&Cresselia_7_4}
     };
 
-    move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
+    move_does_not_drop_players_stat_past_negative_six_on_true_roll(
         battle_state,
         Move::Psychic,
         Stat::SpecialDefense,
@@ -525,7 +553,7 @@ TEST(MoveExecution, PsychicDoesNotDropSpecialDefenseOnFalseRoll) {
         PokemonState{&Cresselia_7_4}
     };
 
-    move_does_not_drop_targets_stat_on_false_roll(
+    move_does_not_drop_opponents_stat_on_false_roll(
         battle_state,
         Move::Psychic,
         Stat::SpecialDefense
@@ -538,7 +566,7 @@ TEST(MoveExecution, EarthPowerMakesSpecialDefenseStageOfOpponentDropByOne) {
         PokemonState{&Regigigas_7_3}
     };
 
-    move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
+    move_does_not_drop_players_stat_past_negative_six_on_true_roll(
         battle_state,
         Move::EarthPower,
         Stat::SpecialDefense,
@@ -552,7 +580,7 @@ TEST(MoveExecution, EarthPowerDoesNotDropSpecialDefenseOnFalseRoll) {
         PokemonState{&Regigigas_7_3}
     };
 
-    move_does_not_drop_targets_stat_on_false_roll(
+    move_does_not_drop_opponents_stat_on_false_roll(
         battle_state,
         Move::EarthPower,
         Stat::SpecialDefense
@@ -565,7 +593,7 @@ TEST(MoveExecution, ShadowBallMakesSpecialDefenseStageOfOpponentDropByOne) {
         PokemonState{&Cresselia_7_3}
     };
 
-    move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
+    move_does_not_drop_players_stat_past_negative_six_on_true_roll(
         battle_state,
         Move::ShadowBall,
         Stat::SpecialDefense,
@@ -579,7 +607,7 @@ TEST(MoveExecution, ShadowBallDoesNotDropSpecialDefenseOnFalseRoll) {
         PokemonState{&Cresselia_7_3}
     };
 
-    move_does_not_drop_targets_stat_on_false_roll(
+    move_does_not_drop_opponents_stat_on_false_roll(
         battle_state,
         Move::ShadowBall,
         Stat::SpecialDefense
@@ -592,7 +620,7 @@ TEST(MoveExecution, EnergyBallMakesSpecialDefenseStageOfOpponentDropByOne) {
         PokemonState{&Cresselia_7_3}
     };
 
-    move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
+    move_does_not_drop_players_stat_past_negative_six_on_true_roll(
         battle_state,
         Move::EnergyBall,
         Stat::SpecialDefense,
@@ -606,7 +634,7 @@ TEST(MoveExecution, EnergyBallDoesNotDropSpecialDefenseOnFalseRoll) {
         PokemonState{&Cresselia_7_3}
     };
 
-    move_does_not_drop_targets_stat_on_false_roll(
+    move_does_not_drop_opponents_stat_on_false_roll(
         battle_state,
         Move::EnergyBall,
         Stat::SpecialDefense
@@ -619,7 +647,7 @@ TEST(MoveExecution, FocusBlastMakesSpecialDefenseStageOfOpponentDropByOne) {
         PokemonState{&Regigigas_7_3}
     };
 
-    move_does_not_drop_targets_stat_past_negative_six_on_true_roll(
+    move_does_not_drop_players_stat_past_negative_six_on_true_roll(
         battle_state,
         Move::FocusBlast,
         Stat::SpecialDefense,
@@ -633,7 +661,7 @@ TEST(MoveExecution, FocusBlastDoesNotDropSpecialDefenseOnFalseRoll) {
         PokemonState{&Regigigas_7_3}
     };
 
-    move_does_not_drop_targets_stat_on_false_roll(
+    move_does_not_drop_opponents_stat_on_false_roll(
         battle_state,
         Move::FocusBlast,
         Stat::SpecialDefense

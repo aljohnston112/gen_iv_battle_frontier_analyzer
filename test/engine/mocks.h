@@ -159,8 +159,8 @@ const CustomPokemon Latias_7_4{
     .pounds = 88.2
 };
 
-const CustomPokemon LatiasNoItem{
-    .unique_id = "Latias_7_4_NO_ITEM",
+const CustomPokemon Latias_7_4_No_Item{
+    .unique_id = "Latias_7_4_No_Item",
     .name = Pokemon::Latias,
     .ability = Ability::Levitate,
     .level = 50,
@@ -174,6 +174,36 @@ const CustomPokemon LatiasNoItem{
     },
     .stats = {152, 87, 107, 173, 147, 158},
     .pounds = 88.2
+};
+
+const CustomPokemon Raikou_7_2{
+    .unique_id = "Raikou_7_2",
+    .name = Pokemon::Raikou,
+    .ability = Ability::Pressure,
+    .level = 50,
+    .item = Item::KingsRock,
+    .types = {PokemonType::Electric, PokemonType::NoType},
+    .moves = {
+        Move::ThunderFang, Move::Crunch, Move::Return,
+        Move::IronHead
+    },
+    .stats = {162, 133, 92, 118, 117, 179},
+    .pounds = 392.4
+};
+
+const CustomPokemon Raikou_7_2_No_Item{
+    .unique_id = "Raikou_7_2_No_Item",
+    .name = Pokemon::Raikou,
+    .ability = Ability::Pressure,
+    .level = 50,
+    .item = Item::NoItem,
+    .types = {PokemonType::Electric, PokemonType::NoType},
+    .moves = {
+        Move::ThunderFang, Move::Crunch, Move::Return,
+        Move::IronHead
+    },
+    .stats = {162, 133, 92, 118, 117, 179},
+    .pounds = 392.4
 };
 
 const CustomPokemon Raikou_7_3{

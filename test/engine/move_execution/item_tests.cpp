@@ -56,7 +56,7 @@ TEST(MoveExecution, LeftoversHealsTheCorrectAmountOfHPAtTurnEnd) {
 TEST(MoveExecution, DracoMeteorActivatesWhiteHerb) {
     BattleState battle_state{
         PokemonState{&Latias_7_4},
-        PokemonState{&LatiasNoItem}
+        PokemonState{&Latias_7_4_No_Item}
     };
     const uint16_t expected_special_attack =
         battle_state.player.get_current_stat(Stat::SpecialAttack);

@@ -229,7 +229,7 @@ TEST(
 ) {
     // TODO
     BattleState battle_state{
-        PokemonState{&LatiasNoItem},
+        PokemonState{&Latias_7_4_No_Item},
         PokemonState{&Latias_7_4}
     };
     battle_state.player.set_move_status_with_stage(

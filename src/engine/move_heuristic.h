@@ -167,6 +167,10 @@ inline bool is_further_evaluation_needed(
 
         if (move_has_flag(
                 attacker_move,
+                MoveFlag::LOWERS_DEFENDER_DEFENSE_ONE_STAGE_20
+            ) ||
+            move_has_flag(
+                attacker_move,
                 MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10
             ) ||
             move_has_flag(
