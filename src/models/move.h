@@ -2565,6 +2565,7 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::ThunderFang)] = true;
     implemented_moves[to_int(Move::Crunch)] = true;
     implemented_moves[to_int(Move::Return)] = true;
+    implemented_moves[to_int(Move::LightScreen)] = true;
 
     return implemented_moves;
 }();

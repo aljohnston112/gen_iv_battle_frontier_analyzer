@@ -629,3 +629,16 @@ TEST(
         Move::Psychic
     );
 }
+
+TEST(
+    MoveHeuristic,
+    PlayerZapdos_7_2ChoosesLightScreenAgainstEntei_7_3
+) {
+    opponent_chooses_moves_against_player(
+        Zapdos_7_2,
+        Entei_7_3,
+        Move::LightScreen,
+        Move::Ancientpower,
+        Move::Thunderbolt
+    );
+}

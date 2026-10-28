@@ -218,7 +218,8 @@ struct ConfusionStatusRNGPolicy {
     }
 
     bool roll_for_self_hit(const int8_t percent, const Who who) const {
-        return static_cast<const T*>(this)->roll_for_self_hit_impl(percent, who);
+        return static_cast<const T*>(this)->
+            roll_for_self_hit_impl(percent, who);
     }
 };
 
@@ -336,6 +337,41 @@ struct OpponentOptimizedFlinchRNGPolicy :
     FlinchRNGPolicy<OpponentOptimizedFlinchRNGPolicy> {
     static bool roll_for_flinch_impl(const int8_t, const Who who) {
         return who == Who::Player;
+    }
+};
+
+// Focus Band
+// =============================================================================
+template <typename T>
+struct FocusBandPolicy {
+    bool roll_for_survival(const uint8_t percent, const Who who) const {
+        return static_cast<const T*>(this)->
+            roll_for_survival_impl(percent, who);
+    }
+};
+
+template <typename T>
+concept IsFocusBandPolicy =
+    std::derived_from<T, FocusBandPolicy<T>>;
+
+struct NeverSurviveFocusBandPolicy :
+    FocusBandPolicy<NeverSurviveFocusBandPolicy> {
+    static bool roll_for_survival_impl(const int8_t, const Who) {
+        return false;
+    }
+};
+
+struct AlwaysSurviveFocusBandPolicy :
+    FocusBandPolicy<AlwaysSurviveFocusBandPolicy> {
+    static bool roll_for_survival_impl(const int8_t, const Who) {
+        return true;
+    }
+};
+
+struct OpponentOptimizedFocusBandPolicy :
+    FocusBandPolicy<OpponentOptimizedFocusBandPolicy> {
+    static bool roll_for_survival_impl(const int8_t, const Who who) {
+        return who == Who::Opponent;
     }
 };
 
@@ -613,6 +649,9 @@ struct HeuristicLogger {
 using NoLogging = LoggingPolicy<>;
 using DebugLogging = LoggingPolicy<HeuristicLogger>;
 
+// Templates
+// =============================================================================
+
 template <template <typename> typename TemplateBase, typename T>
 concept derives_from_self =
     std::derived_from<T, TemplateBase<T>>;
@@ -707,9 +746,11 @@ concept IsAllowedPolicy =
                 t.roll_for_flinch_impl(static_cast<uint8_t>(0), Who::Player)
             } -> std::same_as<bool>;
         }) ||
-    (derives_from_self<OpponentKnowledgePolicy, T> &&
+    (derives_from_self<FocusBandPolicy, T> &&
         requires(const T& t) {
-            { t.opponent_knows_player_move_impl() } -> std::same_as<bool>;
+            {
+                t.roll_for_survival_impl(static_cast<uint8_t>(0), Who::Player)
+            } -> std::same_as<bool>;
         }) ||
     (derives_from_self<FreezeRNGPolicy, T> &&
         requires(const T& t) {
@@ -719,6 +760,10 @@ concept IsAllowedPolicy =
             {
                 t.roll_for_thaw_impl(static_cast<uint8_t>(0), Who::Player)
             } -> std::same_as<bool>;
+        }) ||
+    (derives_from_self<OpponentKnowledgePolicy, T> &&
+        requires(const T& t) {
+            { t.opponent_knows_player_move_impl() } -> std::same_as<bool>;
         }) ||
     (derives_from_self<ParalysisRNGPolicy, T> &&
         requires(const T& t) {
@@ -769,6 +814,7 @@ template <typename... Policies>
     contains_at_most_one<ConfusionStatusRNGPolicy, Policies...> &&
     contains_at_most_one<DamageRandomFactorPolicy, Policies...> &&
     contains_at_most_one<FlinchRNGPolicy, Policies...> &&
+    contains_at_most_one<FocusBandPolicy, Policies...> &&
     contains_at_most_one<FreezeRNGPolicy, Policies...> &&
     contains_at_most_one<LoggingPolicy, Policies...> &&
     contains_at_most_one<OpponentKnowledgePolicy, Policies...> &&
@@ -820,6 +866,11 @@ static_assert(IsAllowedPolicy<NeverFlinchRNGPolicy>);
 static_assert(IsAllowedPolicy<AlwaysFlinchRNGPolicy>);
 static_assert(IsAllowedPolicy<OpponentOptimizedFlinchRNGPolicy>);
 
+// Focus Band
+static_assert(IsAllowedPolicy<AlwaysSurviveFocusBandPolicy>);
+static_assert(IsAllowedPolicy<NeverSurviveFocusBandPolicy>);
+static_assert(IsAllowedPolicy<OpponentOptimizedFocusBandPolicy>);
+
 // Freeze / thaw
 static_assert(IsAllowedPolicy<NeverFreezeRNGPolicy>);
 static_assert(IsAllowedPolicy<AlwaysFreezeRNGPolicy>);
@@ -849,6 +900,5 @@ static_assert(IsAllowedPolicy<OpponentOptimizedStatChangePolicy>);
 // Logging
 static_assert(IsAllowedPolicy<NoLogging>);
 static_assert(IsAllowedPolicy<DebugLogging>);
-
 
 #endif //GEN_IV_BATTLE_FRONTIER_ANALYZER_POLICIES_H

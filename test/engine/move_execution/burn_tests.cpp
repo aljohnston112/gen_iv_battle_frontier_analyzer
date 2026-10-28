@@ -116,8 +116,9 @@ TEST(MoveExecution, TrueRollDoesBurn) {
 TEST(MoveExecution, EndOfTurnBurnDamageIsCorrect) {
     auto defender = PokemonState{&Cresselia_7_4};
 
+    auto policy_container = ALWAYS_BURN_POLICY_CONTAINER;
     roll_burn(
-        ALWAYS_BURN_POLICY_CONTAINER,
+        policy_container,
         defender,
         Who::Player,
         10
@@ -128,7 +129,7 @@ TEST(MoveExecution, EndOfTurnBurnDamageIsCorrect) {
     );
 
     auto hp_before = defender.get_current_stat(Stat::Health);
-    apply_end_of_turn_6(defender);
+    apply_end_of_turn_6(policy_container, defender, Who::Player);
     EXPECT_EQ(
         hp_before - (defender.get_original_stat(Stat::Health) / 8),
         defender.get_current_stat(Stat::Health)

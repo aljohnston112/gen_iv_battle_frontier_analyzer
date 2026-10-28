@@ -36,6 +36,8 @@ add_library(
         toxic_tests.cpp
         aerial_ace_tests.cpp
         avalanche_tests.cpp
+        light_screen_tests.cpp
+        focus_band_tests.cpp
 )
 
 target_link_libraries(

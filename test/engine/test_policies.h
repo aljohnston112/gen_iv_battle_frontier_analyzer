@@ -14,6 +14,7 @@ constexpr PolicyContainer<
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
     NeverFlinchRNGPolicy,
+    NeverSurviveFocusBandPolicy,
     NeverFreezeRNGPolicy,
     OpponentOptimizedStatChangePolicy,
     NeverParalyzeRNGPolicy,
@@ -34,6 +35,7 @@ const PolicyContainer<
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
     NeverFlinchRNGPolicy,
+    NeverSurviveFocusBandPolicy,
     NeverFreezeRNGPolicy,
     OpponentOptimizedStatChangePolicy,
     NeverParalyzeRNGPolicy,
@@ -53,6 +55,7 @@ constexpr PolicyContainer<
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
     NeverFlinchRNGPolicy,
+    NeverSurviveFocusBandPolicy,
     NeverFreezeRNGPolicy,
     OpponentOptimizedStatChangePolicy,
     NeverParalyzeRNGPolicy,
@@ -79,6 +82,8 @@ public:
     }
 };
 
+static_assert(IsAllowedPolicy<HighRandomConfusionEffectPolicy>);
+
 class LowRandomConfusionEffectPolicy :
     public ConfusionStatusDamagePolicy<LowRandomConfusionEffectPolicy> {
 public:
@@ -91,6 +96,8 @@ public:
     }
 };
 
+static_assert(IsAllowedPolicy<LowRandomConfusionEffectPolicy>);
+
 constexpr PolicyContainer<
     NeverMissAccuracyEvasionFactorPolicy,
     OnlyOpponentCanUseLessAccurateMovesPolicy,
@@ -99,6 +106,7 @@ constexpr PolicyContainer<
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
     NeverFlinchRNGPolicy,
+    NeverSurviveFocusBandPolicy,
     NeverFreezeRNGPolicy,
     OpponentOptimizedStatChangePolicy,
     NeverParalyzeRNGPolicy,
@@ -114,6 +122,7 @@ constexpr PolicyContainer<
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
     NeverFlinchRNGPolicy,
+    NeverSurviveFocusBandPolicy,
     NeverFreezeRNGPolicy,
     OpponentOptimizedStatChangePolicy,
     NeverParalyzeRNGPolicy,
@@ -137,6 +146,7 @@ constexpr PolicyContainer<
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
     T,
+    NeverSurviveFocusBandPolicy,
     NeverFreezeRNGPolicy,
     OpponentOptimizedStatChangePolicy,
     NeverParalyzeRNGPolicy,
@@ -149,6 +159,30 @@ constexpr auto NEVER_FLINCH_POLICY_CONTAINER =
 constexpr auto ALWAYS_FLINCH_POLICY_CONTAINER =
     FLINCH_POLICY_CONTAINER<AlwaysFlinchRNGPolicy>;
 
+// Focus Band
+// =============================================================================
+template <typename T>
+constexpr PolicyContainer<
+    NeverMissAccuracyEvasionFactorPolicy,
+    OnlyOpponentCanUseLessAccurateMovesPolicy,
+    OpponentOptimizedConfusionStatusDamagePolicy,
+    NeverConfuseRNGPolicy,
+    NeverCritRNGPolicy,
+    OpponentOptimizedRandomFactorPolicy,
+    NeverFlinchRNGPolicy,
+    NeverFreezeRNGPolicy,
+    OpponentOptimizedStatChangePolicy,
+    NeverParalyzeRNGPolicy,
+    NeverBurnRNGPolicy,
+    T
+> FOCUS_BAND_POLICY_CONTAINER{};
+
+constexpr auto NEVER_SURVIVE_FOCUS_BAND_POLICY_CONTAINER =
+    FOCUS_BAND_POLICY_CONTAINER<NeverSurviveFocusBandPolicy>;
+
+constexpr auto ALWAYS_SURVIVE_FOCUS_BAND_POLICY_CONTAINER =
+    FOCUS_BAND_POLICY_CONTAINER<AlwaysSurviveFocusBandPolicy>;
+
 // Freeze
 // =============================================================================
 template <typename T>
@@ -160,6 +194,7 @@ constexpr PolicyContainer<
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
     NeverFlinchRNGPolicy,
+    NeverSurviveFocusBandPolicy,
     T,
     OpponentOptimizedStatChangePolicy,
     NeverParalyzeRNGPolicy,
@@ -183,6 +218,7 @@ constexpr PolicyContainer<
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
     NeverFlinchRNGPolicy,
+    NeverSurviveFocusBandPolicy,
     NeverFreezeRNGPolicy,
     OpponentOptimizedStatChangePolicy,
     T,
@@ -209,6 +245,8 @@ public:
     }
 };
 
+static_assert(IsAllowedPolicy<HighRandomSleepEffectPolicy>);
+
 class LowRandomSleepEffectPolicy :
     public SleepStatusPolicy<LowRandomSleepEffectPolicy> {
 public:
@@ -221,6 +259,8 @@ public:
     }
 };
 
+static_assert(IsAllowedPolicy<LowRandomSleepEffectPolicy>);
+
 constexpr PolicyContainer<
     NeverMissAccuracyEvasionFactorPolicy,
     OnlyOpponentCanUseLessAccurateMovesPolicy,
@@ -231,6 +271,7 @@ constexpr PolicyContainer<
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
     NeverFlinchRNGPolicy,
+    NeverSurviveFocusBandPolicy,
     NeverFreezeRNGPolicy,
     OpponentOptimizedStatChangePolicy,
     NeverParalyzeRNGPolicy,
@@ -248,6 +289,7 @@ constexpr PolicyContainer<
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
     NeverFlinchRNGPolicy,
+    NeverSurviveFocusBandPolicy,
     NeverFreezeRNGPolicy,
     OpponentOptimizedStatChangePolicy,
     NeverParalyzeRNGPolicy,
@@ -274,6 +316,9 @@ struct NeverDropStatPolicy :
     }
 };
 
+static_assert(IsAllowedPolicy<NeverDropStatPolicy<true>>);
+static_assert(IsAllowedPolicy<NeverDropStatPolicy<false>>);
+
 template <bool ALWAYS_DROP_STAT>
 struct AlwaysBoostStatPolicy :
     StatChangePolicy<AlwaysBoostStatPolicy<ALWAYS_DROP_STAT>> {
@@ -286,6 +331,9 @@ struct AlwaysBoostStatPolicy :
     }
 };
 
+static_assert(IsAllowedPolicy<AlwaysBoostStatPolicy<true>>);
+static_assert(IsAllowedPolicy<AlwaysBoostStatPolicy<false>>);
+
 struct NeverChangeStatPolicy :
     StatChangePolicy<NeverChangeStatPolicy> {
     static bool roll_stat_drop_impl(const uint8_t, const Who) {
@@ -297,6 +345,8 @@ struct NeverChangeStatPolicy :
     }
 };
 
+static_assert(IsAllowedPolicy<NeverChangeStatPolicy>);
+
 template <typename T>
 constexpr PolicyContainer<
     NeverMissAccuracyEvasionFactorPolicy,
@@ -306,6 +356,7 @@ constexpr PolicyContainer<
     NeverCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
     NeverFlinchRNGPolicy,
+    NeverSurviveFocusBandPolicy,
     NeverFreezeRNGPolicy,
     T,
     NeverParalyzeRNGPolicy,
@@ -330,12 +381,16 @@ struct LowDamageRandomFactorPolicy :
     }
 };
 
+static_assert(IsAllowedPolicy<LowDamageRandomFactorPolicy>);
+
 struct HighDamageRandomFactorPolicy :
     DamageRandomFactorPolicy<HighDamageRandomFactorPolicy> {
     static uint8_t roll_random_impl(const Who) {
         return 100;
     }
 };
+
+static_assert(IsAllowedPolicy<HighDamageRandomFactorPolicy>);
 
 template <typename T>
 constexpr PolicyContainer<
@@ -346,6 +401,7 @@ constexpr PolicyContainer<
     NeverCritRNGPolicy,
     T,
     NeverFlinchRNGPolicy,
+    NeverSurviveFocusBandPolicy,
     NeverFreezeRNGPolicy,
     OpponentOptimizedStatChangePolicy,
     OpponentOptimizedSpeedAdvantagePolicy,
@@ -367,6 +423,7 @@ constexpr PolicyContainer<
     OpponentOptimizedCritRNGPolicy,
     OpponentOptimizedRandomFactorPolicy,
     OpponentOptimizedFlinchRNGPolicy,
+    OpponentOptimizedFocusBandPolicy,
     OpponentOptimizedFreezeRNGPolicy,
     OpponentOptimizedStatChangePolicy,
     OpponentOptimizedSpeedAdvantagePolicy,
@@ -385,6 +442,7 @@ constexpr auto DEFAULT_POLICY_CONTAINER =
         NeverCritRNGPolicy,
         OpponentOptimizedRandomFactorPolicy,
         NeverFlinchRNGPolicy,
+        NeverSurviveFocusBandPolicy,
         NeverFreezeRNGPolicy,
         NeverParalyzeRNGPolicy,
         OpponentOptimizedKnowledgePolicy,

@@ -2,6 +2,7 @@
 #define GEN_IV_BATTLE_FRONTIER_ANALYZER_MOVE_EXECUTION_H
 
 #include "battle_state.h"
+#include "battle_state_proxy.h"
 #include "item.h"
 #include "policies.h"
 
@@ -242,35 +243,6 @@ uint16_t get_damage_of_move(
     return static_cast<uint16_t>(damage);
 }
 
-inline void try_apply_damage_to_defender(
-    PokemonState& defender,
-    const uint16_t damage
-) {
-    if (!defender.has_move_status_with_stage(
-            MoveStatusWithStage::BehindSubstitute
-        )
-    ) [[unlikely]] {
-        defender.add_damage(damage, DamageSource::OtherPokemon);
-    } else {
-        const uint8_t substitute_hp = defender.get_move_status_stage(
-            MoveStatusWithStage::BehindSubstitute
-        );
-        if (damage >= substitute_hp) {
-            defender.clear_move_status_with_stage(
-                MoveStatusWithStage::BehindSubstitute
-            );
-        } else {
-            defender.set_move_status_with_stage(
-                MoveStatusWithStage::BehindSubstitute,
-                Move::Substitute,
-                static_cast<int8_t>(
-                    static_cast<int16_t>(substitute_hp) - damage
-                )
-            );
-        }
-    }
-}
-
 template <typename... Policies>
 uint16_t execute_power_move(
     const PolicyContainer<Policies...>& policy_container,
@@ -283,6 +255,10 @@ uint16_t execute_power_move(
         is_player_attacker
             ? battle_state.opponent
             : battle_state.player;
+    const Who who_defender_is =
+        is_player_attacker
+            ? Who::Opponent
+            : Who::Player;
 
     const uint16_t hp_before = defender.get_current_stat(Stat::Health);
     const uint16_t damage = get_damage_of_move(
@@ -292,7 +268,13 @@ uint16_t execute_power_move(
         who_attacker_is
     );
 
-    try_apply_damage_to_defender(defender, damage);
+    try_apply_damage_to_pokemon_state(
+        policy_container,
+        defender,
+        who_defender_is,
+        damage,
+        DamageSource::OtherPokemonPowerMove
+    );
 
     const auto defender_item = defender.get_current_item_for_effect();
     if (get_effectiveness(defender.get_types(), move->type) > 16 &&
@@ -354,13 +336,16 @@ void hit_from_confusion(
     PokemonState& attacker,
     const Who who_attacker_is
 ) {
-    attacker.add_damage(
+    try_apply_damage_to_pokemon_state(
+        policy_container,
+        attacker,
+        who_attacker_is,
         calculate_confused_hit_damage(
             policy_container,
             attacker,
             who_attacker_is
         ),
-        DamageSource::DontCare
+        DamageSource::HitInConfusion
     );
 }
 
@@ -523,6 +508,12 @@ bool move_does_nothing(
         return true;
     }
 
+    if (attacker_move == Move::LightScreen &&
+        attacker_state->has_status_with_stage(StatusWithStage::LightScreening)
+    ) {
+        return true;
+    }
+
     if ((attacker_move == Move::Twister || attacker_move == Move::Thunder) &&
         defender_state->is_semi_invulnerable()
     ) [[unlikely]] {
@@ -668,6 +659,10 @@ uint16_t execute_struggle(
         damage = damage / 2;
         defender.clear_current_item();
     }
+    const Who who_defender_is =
+        who_attacker_is == Who::Player
+            ? Who::Opponent
+            : Who::Player;
 
     const uint16_t hp_before = defender.get_current_stat(Stat::Health);
 
@@ -678,11 +673,20 @@ uint16_t execute_struggle(
             who_attacker_is
         )
     ) {
-        try_apply_damage_to_defender(defender, damage);
+        try_apply_damage_to_pokemon_state(
+            policy_container,
+            defender,
+            who_defender_is,
+            damage,
+            DamageSource::OtherPokemonPowerMove
+        );
     }
-    attacker.add_damage(
+    try_apply_damage_to_pokemon_state(
+        policy_container,
+        attacker,
+        who_attacker_is,
         attacker.get_original_stat(Stat::Health) / 4,
-        DamageSource::DontCare
+        DamageSource::Recoil
     );
 
     return hp_before - defender.get_current_stat(Stat::Health);
@@ -1025,9 +1029,12 @@ uint16_t execute_move(
     if (attacker_move == Move::Curse) {
         if (attacker.has_type(PokemonType::Ghost)) {
             if (!defender.is_semi_invulnerable()) {
-                attacker.add_damage(
+                try_apply_damage_to_pokemon_state(
+                    policy_container,
+                    attacker,
+                    who_attacker_is,
                     attacker.get_original_stat(Stat::Health) / 2,
-                    DamageSource::DontCare
+                    DamageSource::UsedCurse
                 );
                 defender.set_status(Status::Cursed);
             }
@@ -1076,6 +1083,14 @@ uint16_t execute_move(
             turns = 8;
         }
         battle_state.set_weather(Weather::Rain, turns);
+    }
+
+    if (attacker_move == Move::LightScreen) {
+        uint8_t turns = 5;
+        if (attacker_item == Item::LightClay) {
+            turns = 8;
+        }
+        attacker.set_status_with_stage(StatusWithStage::LightScreening, turns);
     }
 
     if (attacker_move == Move::Rest) {
@@ -1149,7 +1164,13 @@ uint16_t execute_move(
         const uint8_t substitute_hp =
             static_cast<uint8_t>(attacker.get_original_stat(Stat::Health) / 4);
         if (attacker.get_current_stat(Stat::Health) > substitute_hp) {
-            attacker.add_damage(substitute_hp, DamageSource::DontCare);
+            try_apply_damage_to_pokemon_state(
+                policy_container,
+                attacker,
+                who_attacker_is,
+                substitute_hp,
+                DamageSource::Substitute
+            );
             attacker.set_move_status_with_stage(
                 MoveStatusWithStage::BehindSubstitute,
                 Move::Substitute,

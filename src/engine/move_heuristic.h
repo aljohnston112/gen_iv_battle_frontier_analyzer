@@ -136,6 +136,12 @@ inline bool is_further_evaluation_needed(
         return true;
     }
 
+    if (attacker_move == Move::LightScreen &&
+        !attacker.has_status_with_stage(StatusWithStage::LightScreening)
+    ) {
+        return true;
+    }
+
     if (move_has_flag(attacker_move, MoveFlag::REQUIRES_CHARGING_TURN)
     ) [[unlikely]] {
         return true;

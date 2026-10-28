@@ -181,3 +181,12 @@ TODO
     A frozen Sky Forme Shaymin will revert to its Land Forme
 
     Fire Fang is always able to hit through Wonder Guard, even if the target does not have a weakness to Fire-type moves
+
+    Light Screen is removed from a Pokémon's side of the field if a Pokémon uses Brick Break or Defog
+    (even if it is immune to Brick Break due to being Ghost-type),
+    unless it is protected from the move or the move misses.
+    Light Screen does not reduce damage done by moves that deal direct damage.
+
+    Focus Band can allow the holder to survive Doom Desire.
+    If Focus Band activates on any strike of a multistrike move, the holder will survive every subsequent strike of the attack.
+    Focus Band can allow the holder to survive Future Sight.

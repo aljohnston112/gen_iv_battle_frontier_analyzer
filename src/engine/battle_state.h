@@ -121,7 +121,15 @@ enum class StatDropSource {
 };
 
 enum class DamageSource {
-    OtherPokemon,
+    OtherPokemonPowerMove,
+    Recoil,
+    HitInConfusion,
+    Substitute,
+    UsedCurse,
+    CurseStatus,
+    Weather,
+    Burn,
+    BadPoison,
     DontCare
 };
 
@@ -251,7 +259,7 @@ public:
     }
 
     void add_damage(const int16_t hp_lost, const DamageSource damage_source) {
-        if (damage_source == DamageSource::OtherPokemon) {
+        if (damage_source == DamageSource::OtherPokemonPowerMove) {
             was_damaged_this_turn = true;
         }
         current_stats[to_int(Stat::Health)] =

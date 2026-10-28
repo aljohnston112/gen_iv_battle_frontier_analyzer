@@ -11,7 +11,7 @@ TEST(MoveExecution, AvalancheDoublesPowerOfMoveAfterGettingHitByDefender) {
         PokemonState{&Regice_7_2},
         PokemonState{&Regice_7_2}
     };
-    battle_state.player.add_damage(1, DamageSource::OtherPokemon);
+    battle_state.player.add_damage(1, DamageSource::OtherPokemonPowerMove);
 
     EXPECT_EQ(
         14,

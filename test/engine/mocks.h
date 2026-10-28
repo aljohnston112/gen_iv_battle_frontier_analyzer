@@ -339,6 +339,21 @@ const CustomPokemon Suicune_7_3{
     .pounds = 412.3
 };
 
+const CustomPokemon Zapdos_7_2{
+    .unique_id = "Zapdos_7_2",
+    .name = Pokemon::Zapdos,
+    .ability = Ability::Pressure,
+    .level = 50,
+    .item = Item::FocusBand,
+    .types = {PokemonType::Electric, PokemonType::Flying},
+    .moves = {
+        Move::OminousWind, Move::LightScreen,
+        Move::Thunderbolt, Move::Ancientpower
+    },
+    .stats = {162, 96, 102, 173, 107, 162},
+    .pounds = 116
+};
+
 const CustomPokemon Zapdos_7_3{
     .unique_id = "Zapdos_7_3",
     .name = Pokemon::Zapdos,

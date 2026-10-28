@@ -93,7 +93,6 @@ TEST(
         Move::Substitute,
         expected_damage
     );
-
     execute_struggle(
         policy_container,
         battle_state,
@@ -104,6 +103,12 @@ TEST(
 
     EXPECT_FALSE(
         battle_state.opponent.has_move_status_with_stage(
+            MoveStatusWithStage::BehindSubstitute
+        )
+    );
+    EXPECT_EQ(
+        0,
+        battle_state.opponent.get_move_status_stage(
             MoveStatusWithStage::BehindSubstitute
         )
     );

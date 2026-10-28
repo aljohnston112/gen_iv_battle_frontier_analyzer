@@ -50,6 +50,7 @@ inline BattleResultEntry single_battle(
                 NeverCritRNGPolicy,
                 OpponentOptimizedRandomFactorPolicy,
                 NeverFlinchRNGPolicy,
+                NeverSurviveFocusBandPolicy,
                 NeverFreezeRNGPolicy,
                 NeverParalyzeRNGPolicy,
                 OpponentOptimizedKnowledgePolicy,

@@ -11,6 +11,7 @@ add_library(
         thread_pool.h
         thread_pool.cpp
         turn_execution.h
+        battle_state_proxy.h
 )
 
 target_include_directories(engine PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
