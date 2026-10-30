@@ -414,7 +414,7 @@ inline bool first_battle_state_is_better_for_attacker(
     const BattleState& second_battle_state,
     const MoveResult& second_attacker_moves,
     const Who who_attacker_is,
-    const uint depth
+    [[maybe_unused]] const uint64_t depth
 ) {
     // Check who won
     const bool attacker_is_player = who_attacker_is == Who::Player;

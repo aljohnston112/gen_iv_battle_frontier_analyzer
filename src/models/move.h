@@ -1016,6 +1016,7 @@ enum class MoveFlag {
     CHANGES_WEATHER,
     CONFUSES_DEFENDER_10,
     CONFUSES_DEFENDER_20,
+    CONFUSES_DEFENDER_100,
     CONFUSES_DEFENDER, // TODO replace
     CONTINUES,
     DEALS_DOUBLE_AFTER_MINIMIZE,
@@ -1060,6 +1061,7 @@ enum class MoveFlag {
     PARALYZES_DEFENDER, // TODO replace
     PARALYZES_DEFENDER_10,
     PARALYZES_DEFENDER_30,
+    PARALYZES_DEFENDER_100,
     POISONS_DEFENDER,
     RAISES_DEFENDER_ATTACK,
     RAISES_DEFENDER_SPECIAL_ATTACK,
@@ -1811,7 +1813,7 @@ inline constexpr std::array<
     flags[to_int(Move::StunSpore)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::Thundershock)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::Thunderbolt)][to_int(MoveFlag::PARALYZES_DEFENDER_10)] = true;
-    flags[to_int(Move::ThunderWave)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
+    flags[to_int(Move::ThunderWave)][to_int(MoveFlag::PARALYZES_DEFENDER_100)] = true;
     flags[to_int(Move::Thunder)][to_int(MoveFlag::PARALYZES_DEFENDER_30)] = true;
     flags[to_int(Move::Lick)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
     flags[to_int(Move::Glare)][to_int(MoveFlag::PARALYZES_DEFENDER)] = true;
@@ -1850,7 +1852,7 @@ inline constexpr std::array<
     flags[to_int(Move::Supersonic)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
     flags[to_int(Move::Psybeam)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
     flags[to_int(Move::Confusion)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
-    flags[to_int(Move::ConfuseRay)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
+    flags[to_int(Move::ConfuseRay)][to_int(MoveFlag::CONFUSES_DEFENDER_100)] = true;
     flags[to_int(Move::DizzyPunch)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
     flags[to_int(Move::SweetKiss)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
     flags[to_int(Move::Swagger)][to_int(MoveFlag::CONFUSES_DEFENDER)] = true;
@@ -2566,7 +2568,8 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::Crunch)] = true;
     implemented_moves[to_int(Move::Return)] = true;
     implemented_moves[to_int(Move::LightScreen)] = true;
-
+    implemented_moves[to_int(Move::ConfuseRay)] = true;
+    implemented_moves[to_int(Move::ThunderWave)] = true;
     return implemented_moves;
 }();
 

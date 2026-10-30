@@ -129,6 +129,17 @@ IVs: 24 HP / 24 Atk / 24 Def / 24 SpA / 24 SpD / 24 Spe
 - Double Team
 - Curse
 
+Regigigas (F) @ Lax Incense
+Ability: Slow Start
+Level: 50
+EVs: 170 HP / 170 Def / 170 SpD
+Impish Nature
+IVs: 24 HP / 24 Atk / 24 Def / 24 SpA / 24 SpD / 24 Spe
+- Confuse Ray
+- Thunder Wave
+- Aerial Ace
+- Return
+
 Regigigas (F) @ Leftovers
 Ability: Slow Start
 Level: 50

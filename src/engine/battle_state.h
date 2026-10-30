@@ -576,10 +576,6 @@ public:
         if (has_status_with_stage(StatusWithStage::SlowStarting)) [[unlikely]] {
             decrement_status_with_stage_value(StatusWithStage::SlowStarting);
         }
-        if (!has_status_with_stage(StatusWithStage::Recharging) &&
-            has_status_with_stage(StatusWithStage::Confused)) {
-            decrement_status_with_stage_value(StatusWithStage::Confused);
-        }
         if (has_status_with_stage(StatusWithStage::Asleep)) {
             decrement_status_with_stage_value(StatusWithStage::Asleep);
         }

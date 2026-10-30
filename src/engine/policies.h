@@ -77,8 +77,9 @@ struct RealAccuracyEvasionFactorPolicy :
                     StatusWithStage::Evasion
                 )
             );
-        if (defender_state.get_current_item_for_effect() ==
-            Item::BrightPowder
+        const auto defender_item = defender_state.get_current_item_for_effect();
+        if (defender_item == Item::BrightPowder ||
+            defender_item == Item::LaxIncense
         ) {
             accuracy_evasion_value =
                 static_cast<uint16_t>(accuracy_evasion_value * 9 / 10);

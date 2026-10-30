@@ -190,3 +190,22 @@ TODO
     Focus Band can allow the holder to survive Doom Desire.
     If Focus Band activates on any strike of a multistrike move, the holder will survive every subsequent strike of the attack.
     Focus Band can allow the holder to survive Future Sight.
+
+    Thunder Wave takes types into consideration, so it cannot usually affect Ground-type Pokémon.
+    If Thunder Wave is affected by Normalize, it makem Ghost-type Pokémon immune to it.
+    Thunder Wave cannot affect targets with Limber as their Ability.
+
+    Attempting to use Snore or Sleep Talk while asleep and being confused can cause self hit
+
+    Pokémon may hurt themselves in confusion during either turn of multi-turn moves such as Fly and Dive.
+    Confusion damage is unaffected by Wonder Guard, Technician, and a held Life Orb
+    Confusion damage is not affected by Reflect on either side of the field
+    10% power boosting items do not apply to confusion
+    Confusion power is boosted by silk scarf
+    Confusion attack boosted by Choice Band
+    Confusion boosted by attack boosting abilities
+    Confusion has stat modifications caused by Power Trick, Power Split, or Guard Split
+    Confusion is boosted by Rivalry
+    If a confused Pokémon has used Rage and then selects a different move, it will snap out of confusion, but its rage will still be building.
+
+    Magic Guard prevents paralysis from preventing movement

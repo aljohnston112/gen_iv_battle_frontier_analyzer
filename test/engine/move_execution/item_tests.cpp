@@ -104,7 +104,6 @@ TEST(
     >(battle_state, Move::FocusBlast);
 }
 
-
 TEST(
     MoveExecution,
     BrightPowderLowersOthersAccuracyByTenPercent
@@ -160,4 +159,33 @@ TEST(
         DamageTestCase<NeverCritRNGPolicy, LowDamageRandomFactorPolicy, 30>,
         DamageTestCase<NeverCritRNGPolicy, HighDamageRandomFactorPolicy, 36>
     >(battle_state, Move::AerialAce);
+}
+
+TEST(
+    MoveExecution,
+    LaxIncenseLowersOthersAccuracyByTenPercent
+) {
+    const BattleState battle_state{
+        PokemonState{&Regigigas_7_1},
+        PokemonState{&Heatran_7_3}
+    };
+    const MoveInfo* move_info = get_move_info(Move::Ancientpower);
+    const uint16_t accuracy_evasion_value =
+        calculate_accuracy_and_evasion_based_on_stage(
+            move_info->accuracy,
+            battle_state.player.get_status_stage(
+                StatusWithStage::Accuracy
+            ),
+            battle_state.opponent.get_status_stage(
+                StatusWithStage::Evasion
+            )
+        );
+    EXPECT_EQ(
+        accuracy_evasion_value * 9 / 10,
+        RealAccuracyEvasionFactorPolicy::get_accuracy_evasion_value(
+            battle_state,
+            move_info,
+            Who::Player
+        )
+    );
 }

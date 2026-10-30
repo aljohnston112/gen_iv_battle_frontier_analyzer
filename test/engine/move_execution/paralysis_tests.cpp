@@ -49,6 +49,28 @@ namespace {
             battle_state.opponent.get_current_status_condition()
         );
     }
+
+    template <Move M>
+    void move_paralyzes_on_false_roll(
+        const CustomPokemon& custom_pokemon
+    ) {
+        BattleState battle_state{
+            PokemonState{&custom_pokemon},
+            PokemonState{&Latias_7_4_No_Item}
+        };
+
+        execute_move(
+            NEVER_PARALYZE_POLICY_CONTAINER,
+            battle_state,
+            Who::Player,
+            M
+        );
+
+        EXPECT_EQ(
+            StatusCondition::Paralysis,
+            battle_state.opponent.get_current_status_condition()
+        );
+    }
 }
 
 TEST(MoveExecution, ThunderBoltParalyzesOnTrueRoll) {
@@ -235,5 +257,18 @@ TEST(MoveExecution, ThunderFangParalyzesOnTrueRoll) {
 TEST(MoveExecution, ThunderFangDoesNotParalyzeOnFalseRoll) {
     move_does_not_paralyze_on_false_roll<Move::ThunderFang>(
         Raikou_7_2
+    );
+}
+
+
+TEST(MoveExecution, ThunderWaveParalyzesOnTrueRoll) {
+    move_paralyzes_on_true_roll<Move::ThunderWave>(
+        Regigigas_7_1
+    );
+}
+
+TEST(MoveExecution, ThunderWaveParalyzesOnFalseRoll) {
+    move_paralyzes_on_false_roll<Move::ThunderWave>(
+        Regigigas_7_1
     );
 }

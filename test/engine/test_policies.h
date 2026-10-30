@@ -126,7 +126,8 @@ constexpr PolicyContainer<
     NeverFreezeRNGPolicy,
     OpponentOptimizedStatChangePolicy,
     NeverParalyzeRNGPolicy,
-    NeverBurnRNGPolicy
+    NeverBurnRNGPolicy,
+    OpponentOptimizedSpeedAdvantagePolicy
 > ALWAYS_CONFUSE_POLICY_CONTAINER{};
 
 constexpr auto ALWAYS_CONFUSE_HIGH_RANDOM_CONFUSION_POLICY_CONTAINER =

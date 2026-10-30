@@ -752,6 +752,11 @@ void apply_move_effects_to_defender(
             who_defender_is,
             20
         );
+    } else if (move_has_flag(attacker_move, MoveFlag::CONFUSES_DEFENDER_100)
+    ) [[unlikely]] {
+        defender.set_confused(
+            policy_container.roll_turns_confused(who_defender_is)
+        );
     }
 
     if (move_has_flag(attacker_move, MoveFlag::FREEZES_DEFENDER_10)
@@ -765,6 +770,9 @@ void apply_move_effects_to_defender(
     } else if (move_has_flag(attacker_move, MoveFlag::PARALYZES_DEFENDER_30)
     )[[unlikely]] {
         roll_paralysis(policy_container, defender, who_defender_is, 30);
+    } else if (move_has_flag(attacker_move, MoveFlag::PARALYZES_DEFENDER_100)
+    )[[unlikely]] {
+        defender.try_set_status_condition(StatusCondition::Paralysis);
     }
 
     if (move_has_flag(attacker_move, MoveFlag::BURNS_DEFENDER_10)
@@ -992,6 +1000,9 @@ uint16_t execute_move(
                 attacker,
                 who_attacker_is
             );
+            attacker.decrement_status_with_stage_value(
+                StatusWithStage::Confused
+            );
             consume_power_point_if_solar_beam();
             return 0;
         }
@@ -1000,6 +1011,11 @@ uint16_t execute_move(
     // Moves should only be considered "executed" past this point!
     // =========================================================================
     auto commit_move_execution = [&]() {
+        if (attacker.has_status_with_stage(StatusWithStage::Confused)) {
+            attacker.decrement_status_with_stage_value(
+                StatusWithStage::Confused
+            );
+        }
         decrement_move_power_point();
         attacker.set_last_used_move(attacker_move);
         battle_state.set_last_used_move(attacker_move);
