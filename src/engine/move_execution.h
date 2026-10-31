@@ -845,6 +845,17 @@ void apply_move_effects_to_defender(
         );
     }
 
+    if (move_has_flag(
+            attacker_move,
+            MoveFlag::LOWERS_DEFENDER_SPEED_TWO_STAGES_100
+        )
+    ) [[unlikely]] {
+        defender.decrease_stat_stage<Stat::Speed>(
+            2,
+            StatDropSource::OtherMove
+        );
+    }
+
     const MoveInfo* attacker_move_info = get_move_info(attacker_move);
     if (defender.get_current_ability() == Ability::FlashFire &&
         attacker_move_info->type == PokemonType::Fire

@@ -111,6 +111,20 @@ const CustomPokemon Entei_7_3{
     .pounds = 436.5
 };
 
+const CustomPokemon Heatran_7_1{
+    .unique_id = "Heatran_7_1",
+    .name = Pokemon::Heatran,
+    .ability = Ability::FlashFire,
+    .level = 50,
+    .item = Item::ShucaBerry,
+    .types = {PokemonType::Fire, PokemonType::Steel},
+    .moves = {
+        Move::ScaryFace, Move::Ancientpower, Move::FlashCannon, Move::HeatWave
+    },
+    .stats = {163, 96, 123, 195, 154, 94},
+    .pounds = 948
+};
+
 const CustomPokemon Heatran_7_3{
     .unique_id = "Heatran_7_3",
     .name = Pokemon::Heatran,

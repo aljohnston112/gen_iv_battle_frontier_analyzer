@@ -278,6 +278,7 @@ constexpr auto IMPLEMENTED_ITEMS = [] {
     implemented_items[to_int(Item::ExpertBelt)] = true;
     implemented_items[to_int(Item::FocusBand)] = true;
     implemented_items[to_int(Item::LaxIncense)] = true;
+    implemented_items[to_int(Item::HeatRock)] = true;
 
     // Any damage modifiers may also need to be applied to hit_from_confusion
     // Items removed or switched may necessitate modifying state

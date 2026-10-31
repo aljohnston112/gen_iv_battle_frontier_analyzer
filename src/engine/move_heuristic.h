@@ -156,6 +156,13 @@ inline bool is_further_evaluation_needed(
             attacker_move,
             MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK_TWO_STAGES
         ) ||
+        (move_has_flag(
+                attacker_move,
+                MoveFlag::LOWERS_DEFENDER_SPEED_TWO_STAGES_100
+            ) &&
+            defender.get_current_stat(Stat::Speed) >=
+            attacker.get_current_stat(Stat::Speed)
+        ) ||
         (attacker_move == Move::Curse &&
             (attacker.get_stat_stage(Stat::Attack) < 6 ||
                 attacker.get_stat_stage(Stat::Defense) < 6))

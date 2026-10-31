@@ -50,6 +50,8 @@ TODO
     Guts ignores burn modifier to attack
 
     Charge Beam is chosen when it leads to better outcome
+    Flash Cannon is chosen when it leads to better outcome
+    Scary Face is chosen when it leads to better outcome
     Moonlight is chosen when it leads to better outcome
     Earth Power is chosen when it leads to better outcome
     Flamethrower is chosen when it leads to better outcome

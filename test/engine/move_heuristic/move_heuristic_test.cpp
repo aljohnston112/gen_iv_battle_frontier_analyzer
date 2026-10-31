@@ -642,3 +642,29 @@ TEST(
         Move::Thunderbolt
     );
 }
+
+TEST(
+    MoveHeuristic,
+    OpponentHeatran_7_1ChoosesHeatWaveAgainstCresselia_7_4
+) {
+    opponent_chooses_moves_against_player(
+        Cresselia_7_4,
+        Heatran_7_1,
+        Move::HeatWave,
+        Move::Ancientpower,
+        Move::FlashCannon
+    );
+}
+
+TEST(
+    MoveHeuristic,
+    OpponentRaikou_7_2ChoosesCrunchAgainstHeatran_7_1
+) {
+    opponent_chooses_moves_against_player(
+        Heatran_7_1,
+        Raikou_7_2,
+        Move::Crunch,
+        Move::ThunderFang,
+        Move::ThunderFang
+    );
+}

@@ -1053,6 +1053,7 @@ enum class MoveFlag {
     LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10,
     LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_20,
     LOWERS_DEFENDER_SPEED,
+    LOWERS_DEFENDER_SPEED_TWO_STAGES_100,
     MAKES_ATTACKER_FAINT,
     MAKES_CONTACT,
     MAKES_DEFENDER_SLEEP,
@@ -1464,7 +1465,7 @@ inline constexpr std::array<
     flags[to_int(Move::FocusBlast)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
     flags[to_int(Move::EnergyBall)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
     flags[to_int(Move::EarthPower)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
-    flags[to_int(Move::FlashCannon)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
+    flags[to_int(Move::FlashCannon)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10)] = true;
     flags[to_int(Move::SeedFlare)][to_int(MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE)] = true;
 
     flags[to_int(Move::Bubblebeam)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
@@ -1472,7 +1473,7 @@ inline constexpr std::array<
     flags[to_int(Move::Constrict)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
     flags[to_int(Move::Bubble)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
     flags[to_int(Move::CottonSpore)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
-    flags[to_int(Move::ScaryFace)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
+    flags[to_int(Move::ScaryFace)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED_TWO_STAGES_100)] = true;
     flags[to_int(Move::IcyWind)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
     flags[to_int(Move::RockTomb)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
     flags[to_int(Move::MudShot)][to_int(MoveFlag::LOWERS_DEFENDER_SPEED)] = true;
@@ -1795,7 +1796,7 @@ inline constexpr std::array<
     flags[to_int(Move::FireBlast)][to_int(MoveFlag::BURNS_DEFENDER_10)] = true;
     flags[to_int(Move::FlameWheel)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::SacredFire)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
-    flags[to_int(Move::HeatWave)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
+    flags[to_int(Move::HeatWave)][to_int(MoveFlag::BURNS_DEFENDER_10)] = true;
     flags[to_int(Move::WillOWisp)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::BlazeKick)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
     flags[to_int(Move::FlareBlitz)][to_int(MoveFlag::BURNS_DEFENDER)] = true;
@@ -2570,6 +2571,10 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::LightScreen)] = true;
     implemented_moves[to_int(Move::ConfuseRay)] = true;
     implemented_moves[to_int(Move::ThunderWave)] = true;
+    implemented_moves[to_int(Move::ScaryFace)] = true;
+    implemented_moves[to_int(Move::HeatWave)] = true;
+    implemented_moves[to_int(Move::FlashCannon)] = true;
+
     return implemented_moves;
 }();
 

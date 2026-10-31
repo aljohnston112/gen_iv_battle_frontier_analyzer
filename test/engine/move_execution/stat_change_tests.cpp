@@ -6,123 +6,125 @@
 
 #include "gtest/gtest.h"
 
-static void move_does_not_boost_players_stat_past_six_on_true_roll(
-    BattleState& battle_state,
-    const Move move,
-    const Stat stat,
-    const uint8_t n
-) {
-    const uint8_t m = 10u / n;
-    for (uint8_t i = 0; i < m; i++) {
-        execute_move(
-            ALWAYS_BOOST_STAT_POLICY_CONTAINER,
-            battle_state,
-            Who::Player,
-            move
-        );
+namespace {
 
-        EXPECT_EQ(
-            battle_state.player.get_stat_stage(stat),
-            std::min(6, (i * n) + n)
-        );
+    void move_does_not_boost_players_stat_past_six_on_true_roll(
+        BattleState& battle_state,
+        const Move move,
+        const Stat stat,
+        const uint8_t n
+    ) {
+        const uint8_t m = 10u / n;
+        for (uint8_t i = 0; i < m; i++) {
+            execute_move(
+                ALWAYS_BOOST_STAT_POLICY_CONTAINER,
+                battle_state,
+                Who::Player,
+                move
+            );
 
-        battle_state.opponent.increment_power_point(move, 1);
+            EXPECT_EQ(
+                battle_state.player.get_stat_stage(stat),
+                std::min(6, (i * n) + n)
+            );
+
+            battle_state.opponent.increment_power_point(move, 1);
+        }
     }
-}
 
-static void move_does_not_boost_players_stat_on_false_roll(
-    BattleState& battle_state,
-    const Move move,
-    const Stat stat
-) {
-    for (uint8_t i = 0; i < 6; i++) {
-        execute_move(
-            OPPONENT_OPTIMIZED_POLICY_CONTAINER,
-            battle_state,
-            Who::Player,
-            move
-        );
+    void move_does_not_boost_players_stat_on_false_roll(
+        BattleState& battle_state,
+        const Move move,
+        const Stat stat
+    ) {
+        for (uint8_t i = 0; i < 6; i++) {
+            execute_move(
+                OPPONENT_OPTIMIZED_POLICY_CONTAINER,
+                battle_state,
+                Who::Player,
+                move
+            );
 
-        EXPECT_EQ(
-            battle_state.opponent.get_stat_stage(stat),
-            0
-        );
-        battle_state.player.increment_power_point(move, 6);
+            EXPECT_EQ(
+                battle_state.opponent.get_stat_stage(stat),
+                0
+            );
+            battle_state.player.increment_power_point(move, 6);
+        }
     }
-}
 
+    void move_drops_players_stat_on_true_roll(
+        BattleState& battle_state,
+        const Move move,
+        const Stat stat,
+        const uint8_t n
+    ) {
+        const uint8_t m = 6u / n;
+        for (uint8_t i = 0; i < m; i++) {
+            const uint16_t damage = execute_move(
+                OPPONENT_OPTIMIZED_POLICY_CONTAINER,
+                battle_state,
+                Who::Opponent,
+                move
+            );
 
-static void move_drops_players_stat_on_true_roll(
-    BattleState& battle_state,
-    const Move move,
-    const Stat stat,
-    const uint8_t n
-) {
-    const uint8_t m = 6u / n;
-    for (uint8_t i = 0; i < m; i++) {
-        const uint16_t damage = execute_move(
-            OPPONENT_OPTIMIZED_POLICY_CONTAINER,
-            battle_state,
-            Who::Opponent,
-            move
-        );
+            battle_state.player.add_hp(damage);
 
-        battle_state.player.add_hp(damage);
+            EXPECT_EQ(
+                battle_state.player.get_stat_stage(stat),
+                -(i * n) - n
+            );
 
-        EXPECT_EQ(
-            battle_state.player.get_stat_stage(stat),
-            -(i * n) - n
-        );
-
-        battle_state.opponent.increment_power_point(move, 1);
+            battle_state.opponent.increment_power_point(move, 1);
+        }
     }
-}
 
-static void move_does_not_drop_players_stat_past_negative_six_on_true_roll(
-    BattleState& battle_state,
-    const Move move,
-    const Stat stat,
-    const uint8_t n
-) {
-    const uint8_t m = 10u / n;
-    for (uint8_t i = 0; i < m; i++) {
-        execute_move(
-            OPPONENT_OPTIMIZED_POLICY_CONTAINER,
-            battle_state,
-            Who::Opponent,
-            move
-        );
+    void move_does_not_drop_players_stat_past_negative_six_on_true_roll(
+        BattleState& battle_state,
+        const Move move,
+        const Stat stat,
+        const uint8_t n
+    ) {
+        const uint8_t m = 10u / n;
+        for (uint8_t i = 0; i < m; i++) {
+            execute_move(
+                OPPONENT_OPTIMIZED_POLICY_CONTAINER,
+                battle_state,
+                Who::Opponent,
+                move
+            );
 
-        EXPECT_EQ(
-            battle_state.player.get_stat_stage(stat),
-            std::max(-6, -(i * n) - n)
-        );
+            EXPECT_EQ(
+                battle_state.player.get_stat_stage(stat),
+                std::max(-6, -(i * n) - n)
+            );
 
-        battle_state.opponent.increment_power_point(move, 1);
-        battle_state.player.add_hp(
-            battle_state.player.get_original_stat(Stat::Health)
-        );
+            battle_state.opponent.increment_power_point(move, 1);
+            battle_state.player.add_hp(
+                battle_state.player.get_original_stat(Stat::Health)
+            );
+        }
     }
-}
 
-static void move_does_not_drop_opponents_stat_on_false_roll(
-    BattleState& battle_state,
-    const Move move,
-    const Stat stat
-) {
-    for (uint8_t i = 0; i < 6; i++) {
-        execute_move(
-            NEVER_DROP_STAT_POLICY_CONTAINER,
-            battle_state,
-            Who::Player,
-            move
-        );
+    void move_does_not_drop_opponents_stat_on_false_roll(
+        BattleState& battle_state,
+        const Move move,
+        const Stat stat
+    ) {
+        for (uint8_t i = 0; i < 6; i++) {
+            execute_move(
+                NEVER_DROP_STAT_POLICY_CONTAINER,
+                battle_state,
+                Who::Player,
+                move
+            );
 
-        EXPECT_EQ(
-            battle_state.opponent.get_stat_stage(stat),
-            0
-        );
-        battle_state.player.increment_power_point(move, 6);
+            EXPECT_EQ(
+                battle_state.opponent.get_stat_stage(stat),
+                0
+            );
+            battle_state.player.increment_power_point(move, 6);
+        }
     }
 }
 
@@ -668,6 +670,33 @@ TEST(MoveExecution, FocusBlastDoesNotDropSpecialDefenseOnFalseRoll) {
     );
 }
 
+TEST(MoveExecution, FlashCannonMakesSpecialDefenseStageOfOpponentDropByOne) {
+    BattleState battle_state{
+        PokemonState{&Heatran_7_1},
+        PokemonState{&Heatran_7_1}
+    };
+
+    move_does_not_drop_players_stat_past_negative_six_on_true_roll(
+        battle_state,
+        Move::FlashCannon,
+        Stat::SpecialDefense,
+        1
+    );
+}
+
+TEST(MoveExecution, FlashCannonDoesNotDropSpecialDefenseOnFalseRoll) {
+    BattleState battle_state{
+        PokemonState{&Heatran_7_1},
+        PokemonState{&Heatran_7_1}
+    };
+
+    move_does_not_drop_opponents_stat_on_false_roll(
+        battle_state,
+        Move::FlashCannon,
+        Stat::SpecialDefense
+    );
+}
+
 TEST(MoveExecution, SpecialDefenseDropsCauseSpecialAttacksToDoMoreDamage) {
     BattleState battle_state{
         PokemonState{&Cresselia_7_4},
@@ -735,6 +764,20 @@ TEST(MoveExecution, HammerArmDropsSpeedOneStage) {
         Move::HammerArm
     );
     EXPECT_EQ(battle_state.player.get_stat_stage(Stat::Speed), -1);
+}
+
+TEST(MoveExecution, ScaryFaceMakesSpeedStageOfOpponentDropByTwo) {
+    BattleState battle_state{
+        PokemonState{&Heatran_7_1},
+        PokemonState{&Heatran_7_1}
+    };
+
+    move_does_not_drop_players_stat_past_negative_six_on_true_roll(
+        battle_state,
+        Move::ScaryFace,
+        Stat::Speed,
+        2
+    );
 }
 
 // Accuracy and Evasion
