@@ -50,10 +50,9 @@ TODO
     Guts ignores burn modifier to attack
 
     Charge Beam is chosen when it leads to better outcome
-    Flash Cannon is chosen when it leads to better outcome
     Scary Face is chosen when it leads to better outcome
     Moonlight is chosen when it leads to better outcome
-    Earth Power is chosen when it leads to better outcome
+    Fire Fang is chosen when it leads to better outcome
     Flamethrower is chosen when it leads to better outcome
     Curse is chosen by a ghost type when it leads to better outcome
     Hyper Beam is chosen when it leads to better outcome
@@ -130,7 +129,6 @@ TODO
 
     If the user has Truant, the recharge turn of Hyper Beam and "loafing around" take place on the same turn
 
-    Physical damage test for water and fire moves in weather
     A Pokémon with Rain Dish will restore 1/16 its maximum HP to itself after every turn
     A Pokémon with Swift Swim will be twice as fast in the rain
     A Pokémon with the Dry Skin Ability will regain 1/8 of their maximum HP at the end of each turn
@@ -178,7 +176,6 @@ TODO
     Toxic does not affect poison type defenders
     Toxic does not affect defenders with Immunity
     Haze turns bad poison into regular poison
-    Toxic does not affect steel type Pokémon
 
     A frozen Sky Forme Shaymin will revert to its Land Forme
 
@@ -194,7 +191,7 @@ TODO
     Focus Band can allow the holder to survive Future Sight.
 
     Thunder Wave takes types into consideration, so it cannot usually affect Ground-type Pokémon.
-    If Thunder Wave is affected by Normalize, it makem Ghost-type Pokémon immune to it.
+    If Thunder Wave is affected by Normalize, it makes Ghost-type Pokémon immune to it.
     Thunder Wave cannot affect targets with Limber as their Ability.
 
     Attempting to use Snore or Sleep Talk while asleep and being confused can cause self hit

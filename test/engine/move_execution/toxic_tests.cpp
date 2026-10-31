@@ -124,3 +124,49 @@ TEST(MoveExecution, ToxicDamageIncreases) {
         battle_state.opponent.add_hp(expected_damage);
     }
 }
+
+TEST(MoveExecution, ToxicBDoesNotPosionSteelTypeDefender) {
+    BattleState battle_state{
+        PokemonState{&Registeel_7_1},
+        PokemonState{&Cresselia_7_2}
+    };
+
+    EXPECT_FALSE(
+        battle_state.player.has_status_with_stage(
+            StatusWithStage::BadlyPoisoned
+        )
+    );
+    EXPECT_EQ(
+        0,
+        battle_state.player.get_status_stage(
+            StatusWithStage::BadlyPoisoned
+        )
+    );
+    EXPECT_EQ(
+        StatusCondition::NoCondition,
+        battle_state.player.get_current_status_condition()
+    );
+
+    execute_move(
+        DEFAULT_POLICY_CONTAINER_WITHOUT_LOGGING,
+        battle_state,
+        Who::Opponent,
+        Move::Toxic
+    );
+
+    EXPECT_FALSE(
+        battle_state.player.has_status_with_stage(
+            StatusWithStage::BadlyPoisoned
+        )
+    );
+    EXPECT_EQ(
+        0,
+        battle_state.player.get_status_stage(
+            StatusWithStage::BadlyPoisoned
+        )
+    );
+    EXPECT_EQ(
+        StatusCondition::NoCondition,
+        battle_state.player.get_current_status_condition()
+    );
+}

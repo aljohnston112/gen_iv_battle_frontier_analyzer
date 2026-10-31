@@ -681,3 +681,38 @@ TEST(
         Move::DragonPulse
     );
 }
+
+TEST(
+    MoveHeuristic,
+    OpponentRegisteel_7_1ChoosesFlashCannonAgainstEntei_7_3
+) {
+    opponent_chooses_moves_against_player(
+        Entei_7_3,
+        Registeel_7_1,
+        Move::FlashCannon,
+        Move::Thunderbolt,
+        Move::Thunderbolt
+    );
+}
+
+TEST(
+    MoveHeuristic,
+    PlayerRegisteel_7_1ChoosesAmnesiaAgainstCresselia_7_4
+) {
+    player_chooses_moves_against_opponent(
+    Registeel_7_1,
+        Cresselia_7_4,
+        Move::Amnesia,
+        Move::Amnesia,
+        Move::Amnesia,
+        Move::FlashCannon,
+        Move::FlashCannon,
+        Move::FlashCannon,
+        Move::FlashCannon,
+        Move::FlashCannon,
+        Move::FlashCannon,
+        Move::FlashCannon,
+        Move::FlashCannon,
+        Move::FlashCannon
+    );
+}

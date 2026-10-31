@@ -295,8 +295,10 @@ TEST(MoveExecution, OminousWindDoesNotIncreaseAnyStatsOnFalseRoll) {
 
 // Special Attack and Special Defense Boost
 // =============================================================================
-TEST(MoveExecution,
-     CalmMindSpecialattackAndSpecialDefenseBoostDoesNotGoPastSix) {
+TEST(
+    MoveExecution,
+    CalmMindSpecialattackAndSpecialDefenseBoostDoesNotGoPastSix
+) {
     BattleState battle_state{
         PokemonState{&Latios_7_1},
         PokemonState{&Cresselia_7_3}
@@ -574,6 +576,20 @@ TEST(MoveExecution, CalmMindSpecialDefenseBoostDoesNotGoPastSix) {
         Move::CalmMind,
         Stat::SpecialDefense,
         1
+    );
+}
+
+TEST(MoveExecution, AmnesiaSpecialDefenseBoostDoesNotGoPastSix) {
+    BattleState battle_state{
+        PokemonState{&Registeel_7_1},
+        PokemonState{&Cresselia_7_3}
+    };
+
+    move_does_not_boost_players_stat_past_six_on_true_roll(
+        battle_state,
+        Move::Amnesia,
+        Stat::SpecialDefense,
+        2
     );
 }
 

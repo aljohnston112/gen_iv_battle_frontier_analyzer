@@ -252,50 +252,6 @@ const CustomPokemon Raikou_7_3{
     .pounds = 392.4
 };
 
-const CustomPokemon Regice_7_2{
-    .unique_id = "Regice_7_2",
-    .name = Pokemon::Regice,
-    .ability = Ability::ClearBody,
-    .level = 50,
-    .item = Item::Leftovers,
-    .types = {PokemonType::Ice, PokemonType::NoType},
-    .moves = {
-        Move::DoubleTeam, Move::HammerArm, Move::Avalanche, Move::Curse
-    },
-    .stats = {183, 67, 162, 105, 217, 67},
-    .pounds = 385.8
-};
-
-const CustomPokemon Regirock_7_3{
-    .unique_id = "Regirock_7_3",
-    .name = Pokemon::Regirock,
-    .ability = Ability::ClearBody,
-    .level = 50,
-    .item = Item::ChestoBerry,
-    .types = {PokemonType::Rock, PokemonType::NoType},
-    .moves = {
-        Move::StoneEdge, Move::HammerArm, Move::Rest,
-        Move::Curse
-    },
-    .stats = {183, 117, 217, 60, 162, 67},
-    .pounds = 507.1
-};
-
-const CustomPokemon Regirock_7_3_NoItem{
-    .unique_id = "Regirock_7_3",
-    .name = Pokemon::Regirock,
-    .ability = Ability::ClearBody,
-    .level = 50,
-    .item = Item::NoItem,
-    .types = {PokemonType::Rock, PokemonType::NoType},
-    .moves = {
-        Move::StoneEdge, Move::HammerArm, Move::Rest,
-        Move::Curse
-    },
-    .stats = {183, 117, 217, 60, 162, 67},
-    .pounds = 507.1
-};
-
 const CustomPokemon Regigigas_7_1{
     .unique_id = "Regigias_7_1",
     .name = Pokemon::Regigigas,
@@ -343,6 +299,65 @@ const CustomPokemon Regigigas_7_3{
     },
     .stats = {213, 159, 127, 140, 127, 117},
     .pounds = 925.9
+};
+
+const CustomPokemon Regice_7_2{
+    .unique_id = "Regice_7_2",
+    .name = Pokemon::Regice,
+    .ability = Ability::ClearBody,
+    .level = 50,
+    .item = Item::Leftovers,
+    .types = {PokemonType::Ice, PokemonType::NoType},
+    .moves = {
+        Move::DoubleTeam, Move::HammerArm, Move::Avalanche, Move::Curse
+    },
+    .stats = {183, 67, 162, 105, 217, 67},
+    .pounds = 385.8
+};
+
+const CustomPokemon Regirock_7_3{
+    .unique_id = "Regirock_7_3",
+    .name = Pokemon::Regirock,
+    .ability = Ability::ClearBody,
+    .level = 50,
+    .item = Item::ChestoBerry,
+    .types = {PokemonType::Rock, PokemonType::NoType},
+    .moves = {
+        Move::StoneEdge, Move::HammerArm, Move::Rest,
+        Move::Curse
+    },
+    .stats = {183, 117, 217, 60, 162, 67},
+    .pounds = 507.1
+};
+
+const CustomPokemon Regirock_7_3_NoItem{
+    .unique_id = "Regirock_7_3",
+    .name = Pokemon::Regirock,
+    .ability = Ability::ClearBody,
+    .level = 50,
+    .item = Item::NoItem,
+    .types = {PokemonType::Rock, PokemonType::NoType},
+    .moves = {
+        Move::StoneEdge, Move::HammerArm, Move::Rest,
+        Move::Curse
+    },
+    .stats = {183, 117, 217, 60, 162, 67},
+    .pounds = 507.1
+};
+
+const CustomPokemon Registeel_7_1{
+    .unique_id = "Registeel_7_1",
+    .name = Pokemon::Registeel,
+    .ability = Ability::ClearBody,
+    .level = 50,
+    .item = Item::LumBerry,
+    .types = {PokemonType::Steel, PokemonType::NoType},
+    .moves = {
+        Move::Amnesia, Move::ThunderWave, Move::FlashCannon,
+        Move::Thunderbolt
+    },
+    .stats = {183, 82, 167, 135, 167, 67},
+    .pounds = 451.9
 };
 
 const CustomPokemon Suicune_7_2{

@@ -171,6 +171,10 @@ inline bool is_further_evaluation_needed(
             attacker_move,
             MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE_ONE_STAGE_100
         ) && attacker.get_stat_stage(Stat::SpecialDefense) < 6) ||
+        (move_has_flag(
+           attacker_move,
+           MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE_TWO_STAGES_100
+       ) && attacker.get_stat_stage(Stat::SpecialDefense) < 6)  ||
         (attacker_move == Move::Curse &&
             (attacker.get_stat_stage(Stat::Attack) < 6 ||
                 attacker.get_stat_stage(Stat::Defense) < 6))

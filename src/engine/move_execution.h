@@ -1295,6 +1295,12 @@ uint16_t execute_move(
         )
     )[[unlikely]] {
         attacker.increase_stat_stage<Stat::SpecialDefense>(1);
+    } else if (move_has_flag(
+            attacker_move,
+            MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE_TWO_STAGES_100
+        )
+    )[[unlikely]] {
+        attacker.increase_stat_stage<Stat::SpecialDefense>(2);
     }
 
     if (move_has_flag(
