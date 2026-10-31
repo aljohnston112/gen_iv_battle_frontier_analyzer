@@ -152,10 +152,10 @@ inline bool is_further_evaluation_needed(
         return true;
     }
 
-    if (move_has_flag(
-            attacker_move,
-            MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK_TWO_STAGES
-        ) ||
+    if ((move_has_flag(
+                attacker_move,
+                MoveFlag::LOWERS_ATTACKERS_SPECIAL_ATTACK_TWO_STAGES
+                ) && attacker.get_stat_stage(Stat::SpecialAttack) > -6) ||
         (move_has_flag(
                 attacker_move,
                 MoveFlag::LOWERS_DEFENDER_SPEED_TWO_STAGES_100
@@ -163,6 +163,14 @@ inline bool is_further_evaluation_needed(
             defender.get_current_stat(Stat::Speed) >=
             attacker.get_current_stat(Stat::Speed)
         ) ||
+        (move_has_flag(
+            attacker_move,
+            MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_100
+        ) && attacker.get_stat_stage(Stat::SpecialAttack) < 6) ||
+        (move_has_flag(
+            attacker_move,
+            MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE_ONE_STAGE_100
+        ) && attacker.get_stat_stage(Stat::SpecialDefense) < 6) ||
         (attacker_move == Move::Curse &&
             (attacker.get_stat_stage(Stat::Attack) < 6 ||
                 attacker.get_stat_stage(Stat::Defense) < 6))
@@ -178,22 +186,22 @@ inline bool is_further_evaluation_needed(
             return true;
         }
 
-        if (move_has_flag(
+        if ((move_has_flag(
                 attacker_move,
                 MoveFlag::LOWERS_DEFENDER_DEFENSE_ONE_STAGE_20
-            ) ||
-            move_has_flag(
+            ) && defender.get_stat_stage(Stat::Defense) > -6) ||
+            (move_has_flag(
                 attacker_move,
                 MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_10
-            ) ||
-            move_has_flag(
+            ) && defender.get_stat_stage(Stat::SpecialDefense) > -6)  ||
+            (move_has_flag(
                 attacker_move,
                 MoveFlag::LOWERS_DEFENDER_SPECIAL_DEFENSE_ONE_STAGE_20
-            ) ||
-            move_has_flag(
+            ) && defender.get_stat_stage(Stat::SpecialDefense) > -6)  ||
+            (move_has_flag(
                 attacker_move,
                 MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_70
-            )
+            ) && attacker.get_stat_stage(Stat::SpecialAttack) < 6)
         ) [[unlikely]] {
             return true;
         }

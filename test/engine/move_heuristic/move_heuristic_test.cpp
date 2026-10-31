@@ -668,3 +668,16 @@ TEST(
         Move::ThunderFang
     );
 }
+
+TEST(
+    MoveHeuristic,
+    OpponentLatios_7_1ChoosesCalmMindAgainstCresselia_7_4
+) {
+    opponent_chooses_moves_against_player(
+        Cresselia_7_4,
+        Latios_7_1,
+        Move::CalmMind,
+        Move::Psychic,
+        Move::DragonPulse
+    );
+}

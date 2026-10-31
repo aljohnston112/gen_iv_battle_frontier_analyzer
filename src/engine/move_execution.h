@@ -1267,6 +1267,12 @@ uint16_t execute_move(
         if (policy_container.roll_stat_increase(70, who_attacker_is)) {
             attacker.increase_stat_stage<Stat::SpecialAttack>(1);
         }
+    } else if (move_has_flag(
+            attacker_move,
+            MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_100
+        )
+    )[[unlikely]] {
+        attacker.increase_stat_stage<Stat::SpecialAttack>(1);
     }
 
     if (move_has_flag(
@@ -1283,6 +1289,12 @@ uint16_t execute_move(
     ) [[unlikely]] {
         attacker.decrease_stat_stage<Stat::SpecialAttack>(
             2, StatDropSource::Self);
+    } else if (move_has_flag(
+            attacker_move,
+            MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE_ONE_STAGE_100
+        )
+    )[[unlikely]] {
+        attacker.increase_stat_stage<Stat::SpecialDefense>(1);
     }
 
     if (move_has_flag(

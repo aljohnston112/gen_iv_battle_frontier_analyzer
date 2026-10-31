@@ -7,7 +7,6 @@
 #include "gtest/gtest.h"
 
 namespace {
-
     void move_does_not_boost_players_stat_past_six_on_true_roll(
         BattleState& battle_state,
         const Move move,
@@ -294,6 +293,36 @@ TEST(MoveExecution, OminousWindDoesNotIncreaseAnyStatsOnFalseRoll) {
     }
 }
 
+// Special Attack and Special Defense Boost
+// =============================================================================
+TEST(MoveExecution,
+     CalmMindSpecialattackAndSpecialDefenseBoostDoesNotGoPastSix) {
+    BattleState battle_state{
+        PokemonState{&Latios_7_1},
+        PokemonState{&Cresselia_7_3}
+    };
+
+    const uint8_t m = 10u;
+    for (uint8_t i = 0; i < m; i++) {
+        execute_move(
+            ALWAYS_BOOST_STAT_POLICY_CONTAINER,
+            battle_state,
+            Who::Player,
+            Move::CalmMind
+        );
+
+        EXPECT_EQ(
+            battle_state.player.get_stat_stage(Stat::SpecialAttack),
+            std::min(6, i + 1)
+        );
+        EXPECT_EQ(
+            battle_state.player.get_stat_stage(Stat::SpecialDefense),
+            std::min(6, i + 1)
+        );
+
+        battle_state.opponent.increment_power_point(Move::CalmMind, 1);
+    }
+}
 
 // Defense Boost
 // =============================================================================
@@ -382,6 +411,19 @@ TEST(MoveExecution, ChargeBeamDoesNotBoostSpecialAttackOnFalseRoll) {
     );
 }
 
+TEST(MoveExecution, CalmMindSpecialAttackBoostDoesNotGoPastSix) {
+    BattleState battle_state{
+        PokemonState{&Latios_7_1},
+        PokemonState{&Cresselia_7_3}
+    };
+
+    move_does_not_boost_players_stat_past_six_on_true_roll(
+        battle_state,
+        Move::CalmMind,
+        Stat::SpecialAttack,
+        1
+    );
+}
 
 // Special Attack Drop
 // =============================================================================
@@ -518,7 +560,24 @@ TEST(MoveExecution, SpecialAttackDropCausesSpecialAttacksToDoLessDamage) {
     }
 }
 
-// Special Defense
+// Special Defense Boost
+// =============================================================================
+
+TEST(MoveExecution, CalmMindSpecialDefenseBoostDoesNotGoPastSix) {
+    BattleState battle_state{
+        PokemonState{&Latios_7_1},
+        PokemonState{&Cresselia_7_3}
+    };
+
+    move_does_not_boost_players_stat_past_six_on_true_roll(
+        battle_state,
+        Move::CalmMind,
+        Stat::SpecialDefense,
+        1
+    );
+}
+
+// Special Defense Drop
 // =============================================================================
 
 TEST(MoveExecution, PsychicDropsSpecialDefenseOnTrueRoll) {

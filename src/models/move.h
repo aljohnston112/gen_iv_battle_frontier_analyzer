@@ -1005,7 +1005,9 @@ enum class MoveFlag {
     BOOSTS_ATTACKERS_EVASION,
     BOOSTS_ATTACKERS_SPECIAL_ATTACK,
     BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_70,
+    BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_100,
     BOOSTS_ATTACKERS_SPECIAL_DEFENSE,
+    BOOSTS_ATTACKERS_SPECIAL_DEFENSE_ONE_STAGE_100,
     BOOSTS_ATTACKERS_SPEED,
     BREAKS_PROTECT,
     BURNS_DEFENDER, // TODO replace
@@ -1406,13 +1408,13 @@ inline constexpr std::array<
 
     flags[to_int(Move::Growth)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK)] = true;
     flags[to_int(Move::TailGlow)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK)] = true;
-    flags[to_int(Move::CalmMind)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK)] = true;
+    flags[to_int(Move::CalmMind)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_100)] = true;
     flags[to_int(Move::NastyPlot)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK)] = true;
     flags[to_int(Move::ChargeBeam)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_ATTACK_ONE_STAGE_70)] = true;
 
     flags[to_int(Move::Amnesia)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE)] = true;
     flags[to_int(Move::CosmicPower)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE)] = true;
-    flags[to_int(Move::CalmMind)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE)] = true;
+    flags[to_int(Move::CalmMind)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE_ONE_STAGE_100)] = true;
     flags[to_int(Move::DefendOrder)][to_int(MoveFlag::BOOSTS_ATTACKERS_SPECIAL_DEFENSE)] = true;
 
     flags[to_int(Move::CloseCombat)][to_int(MoveFlag::LOWERS_ATTACKERS_SPECIAL_DEFENSE)] = true;
@@ -2574,6 +2576,7 @@ constexpr auto IMPLEMENTED_MOVES = [] {
     implemented_moves[to_int(Move::ScaryFace)] = true;
     implemented_moves[to_int(Move::HeatWave)] = true;
     implemented_moves[to_int(Move::FlashCannon)] = true;
+    implemented_moves[to_int(Move::CalmMind)] = true;
 
     return implemented_moves;
 }();

@@ -190,6 +190,23 @@ const CustomPokemon Latias_7_4_No_Item{
     .pounds = 88.2
 };
 
+const CustomPokemon Latios_7_1{
+    .unique_id = "Latios_7_1",
+    .name = Pokemon::Latios,
+    .ability = Ability::Levitate,
+    .level = 50,
+    .item = Item::FocusBand,
+    .types = {PokemonType::Psychic, PokemonType::Dragon},
+    .moves = {
+        Move::ThunderWave,
+        Move::CalmMind,
+        Move::Psychic,
+        Move::DragonPulse
+    },
+    .stats = {152, 96, 97, 178, 173, 127},
+    .pounds = 132.3
+};
+
 const CustomPokemon Raikou_7_2{
     .unique_id = "Raikou_7_2",
     .name = Pokemon::Raikou,
